@@ -19,6 +19,7 @@ import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import com.example.admob_next_gen.utilities.manager.InternetManager
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.example.admob_next_gen.utilities.utils.Constants.TAG_ADS
+import com.nextgen.ads.AdsSdk
 import java.util.Date
 
 /**
@@ -75,6 +76,11 @@ class AppOpenAdManager(private val application: Application, private val interne
     fun loadAppOpen() {
         if (isAdAvailable()) {
             Log.e(TAG_ADS, "AppOpen -> loadAppOpen: Ad already available")
+            return
+        }
+
+        if (!AdsSdk.canLoadAds) {
+            Log.e(TAG_ADS, "AppOpen -> loadAppOpen: Ads not allowed (no consent / SDK not initialized / premium)")
             return
         }
 

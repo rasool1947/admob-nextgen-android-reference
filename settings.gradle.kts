@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Admob-Next-Gen"
 include(":app")
+include(":ads")
  

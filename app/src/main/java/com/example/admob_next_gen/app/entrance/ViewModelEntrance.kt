@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -29,55 +28,40 @@ class ViewModelEntrance : ViewModel() {
 
     /* ----------------------------------- Consent & Ads ----------------------------------- */
 
-    private val _cmpTimerLiveData = MutableLiveData<Unit>()
-    val cmpTimerLiveData: LiveData<Unit> get() = _cmpTimerLiveData
-
     private val _loadAdsLiveData = MutableLiveData<Unit>()
     val loadAdsLiveData: LiveData<Unit> get() = _loadAdsLiveData
 
     private val _navigateLiveData = MutableLiveData<Unit>()
     val navigateLiveData: LiveData<Unit> get() = _navigateLiveData
 
-    private var jobCMP = Job()
-    private var jobAds = Job()
+    /** Survives rotation, so consent is gathered once per launch. */
+    var isConsentRequested = false
 
-    private var isAdTimerStarted = false
-    private val consentTimeout = 8000L
+    private var jobAds: Job? = null
     private val adsTimeout = 8000L
 
-    init {
-        startCMPTimer()
-    }
-
-    private fun startCMPTimer() = viewModelScope.launch(Dispatchers.Default + jobCMP) {
-        Log.i("AdsInformation", "CMP -> startCMPTimer: Started 8 seconds")
-        delay(consentTimeout)
-        _cmpTimerLiveData.postValue(Unit)
-    }
-
-    fun startAdTimer() = viewModelScope.launch(Dispatchers.Default + jobAds) {
-        if (isAdTimerStarted) return@launch
-        Log.i("AdsInformation", "Ads -> startAdTimer: Started 8 seconds for Ads")
-
-        isAdTimerStarted = true
-        _loadAdsLiveData.postValue(Unit)
-
-        delay(adsTimeout)
-        _navigateLiveData.postValue(Unit)
-    }
-
-
-    fun cancelCMPJob() {
-        if (jobCMP.isActive) {
-            Log.e("AdsInformation", "CMP -> cancelCMPJob: Cancelled 8 seconds")
-            jobCMP.cancel()
+    fun onConsentResult(canLoadAds: Boolean) {
+        when (canLoadAds) {
+            true -> startAdTimer()
+            false -> _navigateLiveData.value = Unit
         }
     }
 
-    fun cancelAdsJob() {
-        if (jobAds.isActive) {
+    private fun startAdTimer() {
+        if (jobAds != null) return
+        Log.i("AdsInformation", "Ads -> startAdTimer: Started 8 seconds for Ads")
+
+        _loadAdsLiveData.value = Unit
+        jobAds = viewModelScope.launch {
+            delay(adsTimeout)
+            _navigateLiveData.value = Unit
+        }
+    }
+
+    private fun cancelAdsJob() {
+        if (jobAds?.isActive == true) {
             Log.e("AdsInformation", "Ads -> cancelAdsJob: Cancelled 8 seconds for Ads")
-            jobAds.cancel()
+            jobAds?.cancel()
         }
     }
 

@@ -19,4 +19,7 @@
 
     <string name="_continue">Continue</string>
     <string name="navigate">Navigate</string>
+
+    <string name="privacy_settings">Privacy settings</string>
+    <string name="ad_inspector">Ad Inspector (debug)</string>
 </resources>

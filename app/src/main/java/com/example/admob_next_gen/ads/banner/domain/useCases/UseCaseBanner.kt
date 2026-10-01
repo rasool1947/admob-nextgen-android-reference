@@ -9,6 +9,7 @@ import com.example.admob_next_gen.ads.banner.data.repositories.RepositoryBannerI
 import com.example.admob_next_gen.utilities.manager.InternetManager
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.example.admob_next_gen.utilities.utils.Constants.TAG_ADS
+import com.nextgen.ads.AdsSdk
 import com.example.admob_next_gen.ads.banner.presentation.enums.BannerAdKey
 import com.example.admob_next_gen.ads.banner.presentation.enums.BannerAdType
 
@@ -127,6 +128,11 @@ class UseCaseBanner(
         val adId = getAdId(bannerAdKey)
 
         when {
+            AdsSdk.canLoadAds.not() -> {
+                Log.e(TAG_ADS, "${bannerAdKey.value} -> loadBanner: Ads not allowed (no consent / SDK not initialized / premium)")
+                callback.invoke(null)
+            }
+
             sharedPreferenceUtils.isAppPurchased -> {
                 Log.e(TAG_ADS, "${bannerAdKey.value} -> loadBanner: Premium user")
                 callback.invoke(null)

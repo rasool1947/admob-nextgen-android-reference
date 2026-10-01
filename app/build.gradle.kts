@@ -18,7 +18,7 @@ val testAdIds = linkedMapOf(
     "admob_app_id" to "ca-app-pub-3940256099942544~3347511713",
     "admob_app_open_id" to "ca-app-pub-3940256099942544/9257395921",
     "admob_banner_home_id" to "ca-app-pub-3940256099942544/9214589741",
-    "admob_inter_splash_id" to "ca-app-pub-3940256099942544/1033173712",
+    "admob_inter_feature_id" to "ca-app-pub-3940256099942544/1033173712",
     "admob_inter_on_boarding_id" to "ca-app-pub-3940256099942544/1033173712",
     "admob_rewarded_ai_feature_id" to "ca-app-pub-3940256099942544/5224354917",
     "admob_rewarded_inter_ai_feature_id" to "ca-app-pub-3940256099942544/5354046379",
@@ -119,7 +119,6 @@ dependencies {
     // Koin for dependency injection
     implementation(libs.koin.android)
 
-    // AdMob Next-Gen SDK + User Messaging Platform (consent)
-    implementation(libs.google.ads.mobile.sdk)
-    implementation(libs.google.ump)
+    // Ads module (brings in the AdMob Next-Gen SDK + User Messaging Platform)
+    implementation(project(":ads"))
 }

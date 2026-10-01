@@ -46,6 +46,7 @@
 
     <!-- Info card -->
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardInfoSettings"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
@@ -93,6 +94,37 @@
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <!-- Privacy options (shown only when consent rules require it, e.g. GDPR) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mbPrivacySettings"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/privacy_settings"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/cardInfoSettings"
+        app:layout_constraintStart_toStartOf="@+id/cardInfoSettings"
+        app:layout_constraintTop_toBottomOf="@+id/cardInfoSettings"
+        tools:visibility="visible" />
+
+    <!-- Ad Inspector (debug builds only) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mbAdInspectorSettings"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/ad_inspector"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/cardInfoSettings"
+        app:layout_constraintStart_toStartOf="@+id/cardInfoSettings"
+        app:layout_constraintTop_toBottomOf="@+id/mbPrivacySettings"
+        app:layout_goneMarginTop="16dp"
+        tools:visibility="visible" />
 
     <!-- Native Ad -->
     <com.example.admob_next_gen.ads.natives.presentation.ui.AdNativeLargeView

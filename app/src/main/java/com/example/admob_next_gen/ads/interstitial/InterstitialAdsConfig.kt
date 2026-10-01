@@ -12,6 +12,7 @@ import com.example.admob_next_gen.ads.interstitial.manager.InterstitialManager
 import com.example.admob_next_gen.utilities.manager.InternetManager
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.example.admob_next_gen.utilities.utils.Constants.TAG_ADS
+import com.nextgen.ads.AdsSdk
 
 /**
  * Date: 1/16/2025
@@ -30,6 +31,12 @@ class InterstitialAdsConfig(
     private val counterMap by lazy { HashMap<String, Int>() }
 
     fun loadInterstitialAd(adType: InterAdKey, listener: InterstitialOnLoadCallBack? = null) {
+        if (!AdsSdk.canLoadAds) {
+            Log.e(TAG_ADS, "${adType.value} -> loadInterstitial: Ads not allowed (no consent / SDK not initialized / premium)")
+            listener?.onResponse(false)
+            return
+        }
+
         var interAdId = ""
         var isRemoteEnable = false
 
@@ -40,7 +47,7 @@ class InterstitialAdsConfig(
             }
 
             InterAdKey.FEATURE -> {
-                interAdId = getResString(R.string.admob_inter_splash_id)
+                interAdId = getResString(R.string.admob_inter_feature_id)
                 isRemoteEnable = sharedPreferenceUtils.rcInterFeature != 0
             }
         }

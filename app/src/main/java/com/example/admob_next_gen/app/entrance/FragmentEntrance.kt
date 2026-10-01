@@ -7,14 +7,12 @@ import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.appOpen.screen.callbacks.AppOpenOnLoadCallBack
 import com.example.admob_next_gen.ads.appOpen.screen.callbacks.AppOpenOnShowCallBack
 import com.example.admob_next_gen.ads.appOpen.screen.enums.AppOpenAdKey
-import com.example.admob_next_gen.ads.cmp.ConsentController
-import com.example.admob_next_gen.ads.cmp.callback.ConsentCallback
 import com.example.admob_next_gen.ads.natives.presentation.enums.NativeAdKey
 import com.example.admob_next_gen.ads.natives.presentation.viewModels.ViewModelNative
 import com.example.admob_next_gen.databinding.FragmentEntranceBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
-import com.example.admob_next_gen.utilities.extensions.launchWhenResumed
 import com.example.admob_next_gen.utilities.extensions.navigateTo
+import com.nextgen.ads.AdsSdk
 
 class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceBinding::inflate) {
 
@@ -34,25 +32,16 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
     }
 
     private fun initConsentForm() {
-        activity?.let {
-            ConsentController(it).apply {
-                initConsent("A69AF72EA9855046AD0439E4A6287ADF", object : ConsentCallback {
-                    override fun onConsentFormLoaded() {
-                        viewModel.cancelCMPJob()
-                        launchWhenResumed { this@apply.showConsentForm() }
-                    }
+        if (viewModel.isConsentRequested) return
+        viewModel.isConsentRequested = true
 
-                    override fun onAdsLoad(canRequestAd: Boolean) {
-                        viewModel.startAdTimer()
-                    }
-                })
-            }
-        }
+        // Shows the consent form only when required, then initializes the SDK if consent allows ads.
+        val viewModel = viewModel
+        AdsSdk.gatherConsent(requireActivity()) { canLoadAds -> viewModel.onConsentResult(canLoadAds) }
     }
 
     private fun initObservers() {
         viewModel.remoteConfigResponseLiveData.observe(viewLifecycleOwner) { binding.mtvRemoteConfigTextEntrance.visibility = View.GONE }
-        viewModel.cmpTimerLiveData.observe(viewLifecycleOwner) { viewModel.startAdTimer() }
         viewModel.loadAdsLiveData.observe(viewLifecycleOwner) { loadAds() }
         viewModel.navigateLiveData.observe(viewLifecycleOwner) { showButton() }
 

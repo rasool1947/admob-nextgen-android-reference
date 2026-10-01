@@ -10,6 +10,7 @@ import com.example.admob_next_gen.ads.natives.presentation.enums.NativeAdKey
 import com.example.admob_next_gen.utilities.manager.InternetManager
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.example.admob_next_gen.utilities.utils.Constants.TAG_ADS
+import com.nextgen.ads.AdsSdk
 
 
 
@@ -58,6 +59,11 @@ class UseCaseNative(
         val adId = getAdId(nativeAdKey)
 
         when {
+            AdsSdk.canLoadAds.not() -> {
+                Log.e(TAG_ADS, "${nativeAdKey.value} -> loadNative: Ads not allowed (no consent / SDK not initialized / premium)")
+                callback.invoke(null)
+            }
+
             sharedPreferenceUtils.isAppPurchased -> {
                 Log.e(TAG_ADS, "${nativeAdKey.value} -> loadNative: Premium user")
                 callback.invoke(null)
