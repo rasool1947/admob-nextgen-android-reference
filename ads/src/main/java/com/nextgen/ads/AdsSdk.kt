@@ -6,13 +6,16 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
+import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import com.nextgen.ads.config.AdPlacement
+import com.nextgen.ads.config.AdRevenue
 import com.nextgen.ads.config.AdsConfig
 import com.nextgen.ads.consent.ConsentManager
 import com.nextgen.ads.fullscreen.AppOpenOnResume
 import com.nextgen.ads.internal.AdsLog
+import com.nextgen.ads.internal.MainDispatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -72,6 +75,22 @@ object AdsSdk {
     }
 
     fun placement(key: String): AdPlacement = config.placement(key)
+
+    /** Why this placement can't load/show right now, or null if it can. Shared by every format. */
+    internal fun blockReason(placement: AdPlacement): String? = when {
+        !canRequestAds -> "no consent"
+        !_isInitialized.value -> "SDK not initialized"
+        config.isPremium() -> "premium user"
+        !placement.isEnabled() -> "placement disabled"
+        else -> null
+    }
+
+    /** Forwards a paid impression to [AdsConfig.onAdPaid] on the main thread. */
+    internal fun reportPaid(placement: AdPlacement, value: AdValue) = MainDispatch.post {
+        config.onAdPaid?.invoke(
+            AdRevenue(placement.key, placement.format, placement.adUnitId, value.valueMicros, value.currencyCode, value.precisionType.name)
+        )
+    }
 
     /**
      * Requests the latest consent info and shows the consent form if required. Call it from the
@@ -147,6 +166,7 @@ object AdsSdk {
                     .setTestDeviceIds(config.testDeviceIds)
                     .build()
             )
+            .apply { if (!config.nativeAdValidatorEnabled) setNativeValidatorDisabled() }
             .build()
 
         AdsLog.d("SDK: initializing")

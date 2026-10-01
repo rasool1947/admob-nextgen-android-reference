@@ -16,6 +16,9 @@ package com.nextgen.ads.config
  *                           consent form and privacy options can be tested from anywhere.
  * @param resetConsentOnLaunch  Debug only: forget stored consent on every launch.
  * @param onAdPaid       Called on the main thread for every paid impression (ad revenue).
+ * @param nativeAdValidatorEnabled  Test devices only: the SDK shows a "native ad validator" popup
+ *                       next to native ads that reports layout problems. Set false if it gets
+ *                       in the way (it can sit on top of nearby buttons).
  */
 data class AdsConfig(
     val appId: String,
@@ -26,6 +29,7 @@ data class AdsConfig(
     val debugGeographyEea: Boolean = false,
     val resetConsentOnLaunch: Boolean = false,
     val onAdPaid: ((AdRevenue) -> Unit)? = null,
+    val nativeAdValidatorEnabled: Boolean = true,
 ) {
     init {
         val duplicates = placements.groupBy { it.key }.filterValues { it.size > 1 }.keys

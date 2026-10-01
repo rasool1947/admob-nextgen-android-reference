@@ -13,7 +13,6 @@ import com.google.android.libraries.ads.mobile.sdk.common.ResponseInfo
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardItem
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdPlacement
-import com.nextgen.ads.config.AdRevenue
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
 
@@ -45,7 +44,7 @@ object FullScreenAds {
         val format = FullScreenFormat.of(placement.format)
 
         if (placementKey in preloading) return
-        blockReason(placement)?.let { reason ->
+        AdsSdk.blockReason(placement)?.let { reason ->
             AdsLog.d("$placementKey -> preload skipped: $reason")
             return
         }
@@ -106,7 +105,7 @@ object FullScreenAds {
         val reason = when {
             isShowing -> "another full-screen ad is showing"
             activity.isFinishing || activity.isDestroyed -> "activity is finishing"
-            else -> blockReason(placement)
+            else -> AdsSdk.blockReason(placement)
         }
         if (reason != null) return notShown(placementKey, reason, listener)
 
@@ -141,14 +140,6 @@ object FullScreenAds {
     @MainThread
     fun stopAll() = preloading.toList().forEach(::stop)
 
-    private fun blockReason(placement: AdPlacement): String? = when {
-        !AdsSdk.canRequestAds -> "no consent"
-        !AdsSdk.isInitialized.value -> "SDK not initialized"
-        AdsSdk.config.isPremium() -> "premium user"
-        !placement.isEnabled() -> "placement disabled"
-        else -> null
-    }
-
     private fun notShown(placementKey: String, reason: String, listener: FullScreenAdListener?) {
         AdsLog.d("$placementKey -> not shown: $reason")
         listener?.onAdFailedToShow(reason)
@@ -162,11 +153,7 @@ object FullScreenAds {
         override fun onAdImpression() = MainDispatch.post { listener?.onAdImpression() }
         override fun onAdClicked() = MainDispatch.post { listener?.onAdClicked() }
 
-        override fun onAdPaid(value: AdValue) = MainDispatch.post {
-            AdsSdk.config.onAdPaid?.invoke(
-                AdRevenue(key, placement.format, placement.adUnitId, value.valueMicros, value.currencyCode, value.precisionType.name)
-            )
-        }
+        override fun onAdPaid(value: AdValue) = AdsSdk.reportPaid(placement, value)
 
         override fun onAdDismissedFullScreenContent() = MainDispatch.post {
             AdsLog.d("$key -> dismissed")

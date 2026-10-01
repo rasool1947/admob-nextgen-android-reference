@@ -3,11 +3,6 @@ package com.example.admob_next_gen.di
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
-import com.example.admob_next_gen.ads.banner.data.dataSources.local.DataSourceLocalBanner
-import com.example.admob_next_gen.ads.banner.data.dataSources.remote.DataSourceRemoteBanner
-import com.example.admob_next_gen.ads.banner.data.repositories.RepositoryBannerImpl
-import com.example.admob_next_gen.ads.banner.domain.useCases.UseCaseBanner
-import com.example.admob_next_gen.ads.banner.presentation.viewModels.ViewModelBanner
 import com.example.admob_next_gen.ads.natives.data.dataSources.local.DataSourceLocalNative
 import com.example.admob_next_gen.ads.natives.data.dataSources.remote.DataSourceRemoteNative
 import com.example.admob_next_gen.ads.natives.data.repositories.RepositoryNativeImpl
@@ -37,14 +32,6 @@ class KoinModules {
 
     /* -------------------------------------- Ads -------------------------------------- */
 
-    private val bannerAdModule = module {
-        single { DataSourceLocalBanner() }
-        single { DataSourceRemoteBanner(context = get()) }
-        single { RepositoryBannerImpl(get(), get()) }
-        single { UseCaseBanner(get(), get(), get(), get()) }
-        viewModel { ViewModelBanner(get()) }
-    }
-
     private val nativeAdModule = module {
         single { DataSourceLocalNative() }
         single { DataSourceRemoteNative() }
@@ -53,5 +40,5 @@ class KoinModules {
         viewModel { ViewModelNative(get()) }
     }
 
-    val modulesList = listOf(utilsModules, managerModules, firebaseModule, bannerAdModule, nativeAdModule)
+    val modulesList = listOf(utilsModules, managerModules, firebaseModule, nativeAdModule)
 }
