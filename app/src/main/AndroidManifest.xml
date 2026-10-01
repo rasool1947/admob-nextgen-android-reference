@@ -24,8 +24,11 @@
             </intent-filter>
         </activity>
 
-
-
+        <!-- AdMob App ID (resValue from app/build.gradle.kts). The Next-Gen SDK takes it via
+             InitializationConfig, but the UMP consent SDK still reads it from here. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/admob_app_id" />
 
     </application>
 
