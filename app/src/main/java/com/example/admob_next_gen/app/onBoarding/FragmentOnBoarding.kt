@@ -2,13 +2,14 @@ package com.example.admob_next_gen.app.onBoarding
 
 import android.view.View
 import com.example.admob_next_gen.R
-import com.example.admob_next_gen.ads.interstitial.callbacks.InterstitialOnShowCallBack
-import com.example.admob_next_gen.ads.interstitial.enums.InterAdKey
+import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.natives.presentation.enums.NativeAdKey
 import com.example.admob_next_gen.ads.natives.presentation.viewModels.ViewModelNative
 import com.example.admob_next_gen.databinding.FragmentOnBoardingBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
+import com.nextgen.ads.fullscreen.FullScreenAdListener
+import com.nextgen.ads.fullscreen.FullScreenAds
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoardingBinding::inflate) {
@@ -17,18 +18,14 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
 
     override fun onViewCreated() {
         loadNativeAd()
-        loadInterstitialAd()
+        FullScreenAds.preload(AppAdPlacements.INTER_ON_BOARDING)
         initObservers()
 
-        binding.mbContinueOnBoarding.setOnClickListener { checkInterstitial() }
+        binding.mbContinueOnBoarding.setOnClickListener { showInterstitialAd() }
     }
 
     private fun loadNativeAd() {
         viewModelNative.loadNativeAd(NativeAdKey.ON_BOARDING)
-    }
-
-    private fun loadInterstitialAd() {
-        diComponent.interstitialAdsConfig.loadInterstitialAd(InterAdKey.ON_BOARDING)
     }
 
     private fun initObservers() {
@@ -43,17 +40,13 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         }
     }
 
-    private fun checkInterstitial() {
-        when (diComponent.interstitialAdsConfig.isInterstitialLoaded()) {
-            true -> showInterstitialAd()
-            false -> navigateScreen()
-        }
-    }
-
     private fun showInterstitialAd() {
-        diComponent.interstitialAdsConfig.showInterstitialAd(activity, InterAdKey.ON_BOARDING, object : InterstitialOnShowCallBack {
-            override fun onAdFailedToShow() = navigateScreen()
-            override fun onAdImpressionDelayed() = navigateScreen()
+        FullScreenAds.show(requireActivity(), AppAdPlacements.INTER_ON_BOARDING, object : FullScreenAdListener {
+            override fun onAdFinished() {
+                // Onboarding is shown once; don't keep an ad preloaded for it.
+                FullScreenAds.stop(AppAdPlacements.INTER_ON_BOARDING)
+                navigateScreen()
+            }
         })
     }
 

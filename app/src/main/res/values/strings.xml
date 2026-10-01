@@ -22,4 +22,6 @@
 
     <string name="privacy_settings">Privacy settings</string>
     <string name="ad_inspector">Ad Inspector (debug)</string>
+    <string name="reward_ad_not_available">No ad available right now, please try again in a moment.</string>
+    <string name="reward_not_earned">Watch the full ad to unlock this feature.</string>
 </resources>

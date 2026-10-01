@@ -1,38 +1,34 @@
 package com.example.admob_next_gen.app.home
 
 import android.view.View
+import android.widget.Toast
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardItem
 import com.example.admob_next_gen.R
+import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.banner.presentation.enums.BannerAdKey
 import com.example.admob_next_gen.ads.banner.presentation.viewModels.ViewModelBanner
-import com.example.admob_next_gen.ads.interstitial.callbacks.InterstitialOnShowCallBack
-import com.example.admob_next_gen.ads.interstitial.enums.InterAdKey
-import com.example.admob_next_gen.ads.rewarded.RewardedAdsConfig
-import com.example.admob_next_gen.ads.rewarded.callbacks.RewardedOnLoadCallBack
-import com.example.admob_next_gen.ads.rewarded.callbacks.RewardedOnShowCallBack
-import com.example.admob_next_gen.ads.rewarded.enums.RewardedAdKey
 import com.example.admob_next_gen.databinding.FragmentHomeBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.addCleanView
 import com.example.admob_next_gen.utilities.extensions.navigateTo
-import org.koin.android.ext.android.inject
+import com.nextgen.ads.fullscreen.FullScreenAdListener
+import com.nextgen.ads.fullscreen.FullScreenAds
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
     private val viewModelBanner by viewModel<ViewModelBanner>()
 
-    private val rewardedAdsConfig by inject<RewardedAdsConfig>()
-
     override fun onViewCreated() {
         loadBanner()
-        loadInterstitial()
-        loadRewarded()
+        FullScreenAds.preload(AppAdPlacements.INTER_FEATURE)
+        FullScreenAds.preload(AppAdPlacements.REWARDED_AI_FEATURE)
         initObservers()
 
-        binding.mbPremiumHome.setOnClickListener { onPremiumClick() }
-        binding.mbFeaturesHome.setOnClickListener { checkInterstitial(0) }
-        binding.mbSettingsHome.setOnClickListener { checkInterstitial(1) }
+        binding.mbPremiumHome.setOnClickListener { showRewarded() }
+        binding.mbFeaturesHome.setOnClickListener { showInterstitial(R.id.action_fragmentHome_to_fragmentFeature) }
+        binding.mbSettingsHome.setOnClickListener { showInterstitial(R.id.action_fragmentHome_to_fragmentSettings) }
     }
 
     private fun loadBanner() {
@@ -40,18 +36,6 @@ class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             val adView = AdView(it)
             viewModelBanner.loadBannerAd(adView, BannerAdKey.SPLASH)
         }
-    }
-
-    private fun loadInterstitial() {
-        diComponent.interstitialAdsConfig.loadInterstitialAd(InterAdKey.FEATURE)
-    }
-
-    private fun loadRewarded() {
-        rewardedAdsConfig.loadRewardedAd(RewardedAdKey.AI_FEATURE, object : RewardedOnLoadCallBack {
-            override fun onResponse(isSuccess: Boolean) {
-                // ad loaded silently in background
-            }
-        })
     }
 
     private fun initObservers() {
@@ -66,44 +50,33 @@ class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
-    private fun onPremiumClick() {
-        when (rewardedAdsConfig.isRewardedLoaded()) {
-            true -> showRewarded()
-            false -> navigateAfterReward()
-        }
-    }
-
+    /** The reward (opening the feature) is granted only if the user watched the ad. */
     private fun showRewarded() {
-        rewardedAdsConfig.showRewardedAd(activity, RewardedAdKey.AI_FEATURE, object : RewardedOnShowCallBack {
-            override fun onAdFailedToShow() = navigateAfterReward()
-            override fun onUserEarnedReward() = navigateAfterReward()
-            override fun onAdDismissedFullScreenContent() {}
+        var isRewardEarned = false
+        var wasShown = false
+        FullScreenAds.show(requireActivity(), AppAdPlacements.REWARDED_AI_FEATURE, object : FullScreenAdListener {
+            override fun onAdShowed() {
+                wasShown = true
+            }
+
+            override fun onUserEarnedReward(reward: RewardItem) {
+                isRewardEarned = true
+            }
+
+            override fun onAdFinished() {
+                val message = when {
+                    isRewardEarned -> return navigateTo(R.id.fragmentHome, R.id.action_fragmentHome_to_fragmentFeature)
+                    wasShown -> R.string.reward_not_earned
+                    else -> R.string.reward_ad_not_available
+                }
+                context?.let { Toast.makeText(it, message, Toast.LENGTH_SHORT).show() }
+            }
         })
     }
 
-    private fun navigateAfterReward() {
-        viewModelBanner.destroyBanner(BannerAdKey.HOME_TAB)
-        navigateTo(R.id.fragmentHome, R.id.action_fragmentHome_to_fragmentFeature)
-    }
-
-    private fun checkInterstitial(caseType: Int) {
-        when (diComponent.interstitialAdsConfig.isInterstitialLoaded()) {
-            true -> showInterstitial(caseType)
-            false -> navigateScreen(caseType)
-        }
-    }
-
-    private fun showInterstitial(caseType: Int) {
-        diComponent.interstitialAdsConfig.showInterstitialAd(activity, InterAdKey.FEATURE, object : InterstitialOnShowCallBack {
-            override fun onAdFailedToShow() = navigateScreen(caseType)
-            override fun onAdImpressionDelayed() = navigateScreen(caseType)
+    private fun showInterstitial(action: Int) {
+        FullScreenAds.show(requireActivity(), AppAdPlacements.INTER_FEATURE, object : FullScreenAdListener {
+            override fun onAdFinished() = navigateTo(R.id.fragmentHome, action)
         })
-    }
-
-    private fun navigateScreen(caseType: Int) {
-        when (caseType) {
-            0 -> navigateTo(R.id.fragmentHome, R.id.action_fragmentHome_to_fragmentFeature)
-            1 -> navigateTo(R.id.fragmentHome, R.id.action_fragmentHome_to_fragmentSettings)
-        }
     }
 }

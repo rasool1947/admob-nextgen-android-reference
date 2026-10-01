@@ -11,6 +11,7 @@ import com.google.android.libraries.ads.mobile.sdk.initialization.Initialization
 import com.nextgen.ads.config.AdPlacement
 import com.nextgen.ads.config.AdsConfig
 import com.nextgen.ads.consent.ConsentManager
+import com.nextgen.ads.fullscreen.AppOpenOnResume
 import com.nextgen.ads.internal.AdsLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +68,7 @@ object AdsSdk {
         this.config = config
         AdsLog.verbose = config.isDebug
         consentManager = ConsentManager(application, config)
+        AppOpenOnResume.register(application)
     }
 
     fun placement(key: String): AdPlacement = config.placement(key)

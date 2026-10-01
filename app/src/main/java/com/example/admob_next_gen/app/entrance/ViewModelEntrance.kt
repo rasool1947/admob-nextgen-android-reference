@@ -38,7 +38,6 @@ class ViewModelEntrance : ViewModel() {
     var isConsentRequested = false
 
     private var jobAds: Job? = null
-    private val adsTimeout = 8000L
 
     fun onConsentResult(canLoadAds: Boolean) {
         when (canLoadAds) {
@@ -53,7 +52,7 @@ class ViewModelEntrance : ViewModel() {
 
         _loadAdsLiveData.value = Unit
         jobAds = viewModelScope.launch {
-            delay(adsTimeout)
+            delay(ADS_TIMEOUT)
             _navigateLiveData.value = Unit
         }
     }
@@ -75,5 +74,10 @@ class ViewModelEntrance : ViewModel() {
             cancelAdsJob()
             _navigateLiveData.postValue(Unit)
         }
+    }
+
+    companion object {
+        /** Max time the splash waits for its ads before enabling "Get Started". */
+        const val ADS_TIMEOUT = 8000L
     }
 }

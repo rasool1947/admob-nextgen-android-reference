@@ -2,8 +2,6 @@ package com.example.admob_next_gen.app.language
 
 import android.view.View
 import com.example.admob_next_gen.R
-import com.example.admob_next_gen.ads.appOpen.screen.callbacks.AppOpenOnShowCallBack
-import com.example.admob_next_gen.ads.appOpen.screen.enums.AppOpenAdKey
 import com.example.admob_next_gen.ads.natives.presentation.enums.NativeAdKey
 import com.example.admob_next_gen.ads.natives.presentation.viewModels.ViewModelNative
 import com.example.admob_next_gen.databinding.FragmentLanguageBinding
@@ -19,7 +17,7 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
         loadNative()
         initObservers()
 
-        binding.mbContinueLanguage.setOnClickListener { checkAppOpenAd() }
+        binding.mbContinueLanguage.setOnClickListener { navigateScreen() }
     }
 
     private fun loadNative() {
@@ -33,20 +31,6 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
         viewModelNative.loadFailedLiveData.observe(viewLifecycleOwner) {
             binding.nativeAdLanguage.visibility = View.GONE
         }
-    }
-
-    private fun checkAppOpenAd() {
-        when (diComponent.appOpenAdsConfig.isAppOpenLoaded()) {
-            true -> showAppOpen()
-            false -> navigateScreen()
-        }
-    }
-
-    private fun showAppOpen() {
-        diComponent.appOpenAdsConfig.showAppOpenAd(activity, AppOpenAdKey.SPLASH, object : AppOpenOnShowCallBack {
-            override fun onAdFailedToShow() = navigateScreen()
-            override fun onAdImpressionDelayed() = navigateScreen()
-        })
     }
 
     private fun navigateScreen() {

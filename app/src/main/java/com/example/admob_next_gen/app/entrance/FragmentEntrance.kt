@@ -4,15 +4,16 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 import com.example.admob_next_gen.R
-import com.example.admob_next_gen.ads.appOpen.screen.callbacks.AppOpenOnLoadCallBack
-import com.example.admob_next_gen.ads.appOpen.screen.callbacks.AppOpenOnShowCallBack
-import com.example.admob_next_gen.ads.appOpen.screen.enums.AppOpenAdKey
+import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.natives.presentation.enums.NativeAdKey
 import com.example.admob_next_gen.ads.natives.presentation.viewModels.ViewModelNative
 import com.example.admob_next_gen.databinding.FragmentEntranceBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.nextgen.ads.AdsSdk
+import com.nextgen.ads.fullscreen.AppOpenOnResume
+import com.nextgen.ads.fullscreen.FullScreenAdListener
+import com.nextgen.ads.fullscreen.FullScreenAds
 
 class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceBinding::inflate) {
 
@@ -24,7 +25,7 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
         initConsentForm()
         initObservers()
 
-        binding.mbNavigateEntrance.setOnClickListener { checkAppOpenAd() }
+        binding.mbNavigateEntrance.setOnClickListener { showAppOpen() }
     }
 
     private fun initRemoteConfigs() {
@@ -52,7 +53,6 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
     private fun loadAds() {
         loadNative()
         loadAppOpen()
-        diComponent.appOpenAdManager.loadAppOpen()
     }
 
     private fun loadNative() {
@@ -62,9 +62,10 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
 
     private fun loadAppOpen() {
         binding.mtvAppOpenTextEntrance.visibility = View.VISIBLE
-        diComponent.appOpenAdsConfig.loadAppOpenAd(AppOpenAdKey.SPLASH, object : AppOpenOnLoadCallBack {
-            override fun onResponse(successfullyLoaded: Boolean, errorMessage: String?) = onAppOpenResponse()
-        })
+        FullScreenAds.preload(AppAdPlacements.APP_OPEN)
+        FullScreenAds.whenReady(AppAdPlacements.APP_OPEN, ViewModelEntrance.ADS_TIMEOUT) {
+            if (view != null) onAppOpenResponse()
+        }
     }
 
     private fun onNativeResponse() {
@@ -81,26 +82,16 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
         binding.mbNavigateEntrance.isEnabled = true
     }
 
-    private fun checkAppOpenAd() {
-        when (diComponent.appOpenAdsConfig.isAppOpenLoaded()) {
-            true -> showAppOpen()
-            false -> navigateScreen()
-        }
-    }
-
+    /** Cold-start App Open ad; continues to the next screen once it's closed (or wasn't available). */
     private fun showAppOpen() {
-        diComponent.appOpenAdsConfig.showAppOpenAd(activity, AppOpenAdKey.SPLASH, object : AppOpenOnShowCallBack {
-            override fun onAdFailedToShow() = navigateScreen()
-            override fun onAdImpressionDelayed() = navigateScreen()
+        FullScreenAds.show(requireActivity(), AppAdPlacements.APP_OPEN, object : FullScreenAdListener {
+            override fun onAdFinished() = navigateScreen()
         })
     }
 
     private fun navigateScreen() {
+        // Launch flow is over: from now on, returning to the app may show an App Open ad.
+        AppOpenOnResume.enable(AppAdPlacements.APP_OPEN)
         navigateTo(R.id.fragmentEntrance, R.id.action_fragmentEntrance_to_fragmentLanguage)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        diComponent.appOpenAdManager.isSplash = false
     }
 }

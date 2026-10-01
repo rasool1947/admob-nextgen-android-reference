@@ -15,6 +15,7 @@ package com.nextgen.ads.config
  * @param debugGeographyEea  Debug only: make test devices behave as if in the EEA, so the
  *                           consent form and privacy options can be tested from anywhere.
  * @param resetConsentOnLaunch  Debug only: forget stored consent on every launch.
+ * @param onAdPaid       Called on the main thread for every paid impression (ad revenue).
  */
 data class AdsConfig(
     val appId: String,
@@ -24,6 +25,7 @@ data class AdsConfig(
     val isDebug: Boolean = false,
     val debugGeographyEea: Boolean = false,
     val resetConsentOnLaunch: Boolean = false,
+    val onAdPaid: ((AdRevenue) -> Unit)? = null,
 ) {
     init {
         val duplicates = placements.groupBy { it.key }.filterValues { it.size > 1 }.keys
