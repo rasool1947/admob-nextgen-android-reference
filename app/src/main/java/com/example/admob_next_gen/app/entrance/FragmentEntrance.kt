@@ -2,11 +2,8 @@ package com.example.admob_next_gen.app.entrance
 
 import android.view.View
 import androidx.fragment.app.viewModels
-import org.koin.androidx.viewmodel.ext.android.viewModel as koinViewModel
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
-import com.example.admob_next_gen.ads.natives.presentation.enums.NativeAdKey
-import com.example.admob_next_gen.ads.natives.presentation.viewModels.ViewModelNative
 import com.example.admob_next_gen.databinding.FragmentEntranceBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
@@ -14,11 +11,11 @@ import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.fullscreen.AppOpenOnResume
 import com.nextgen.ads.fullscreen.FullScreenAdListener
 import com.nextgen.ads.fullscreen.FullScreenAds
+import com.nextgen.ads.nativead.NativeAds
 
 class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceBinding::inflate) {
 
     private val viewModel by viewModels<ViewModelEntrance>()
-    private val viewModelNative by koinViewModel<ViewModelNative>()
 
     override fun onViewCreated() {
         initRemoteConfigs()
@@ -45,9 +42,6 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
         viewModel.remoteConfigResponseLiveData.observe(viewLifecycleOwner) { binding.mtvRemoteConfigTextEntrance.visibility = View.GONE }
         viewModel.loadAdsLiveData.observe(viewLifecycleOwner) { loadAds() }
         viewModel.navigateLiveData.observe(viewLifecycleOwner) { showButton() }
-
-        viewModelNative.adViewLiveData.observe(viewLifecycleOwner) { onNativeResponse() }
-        viewModelNative.loadFailedLiveData.observe(viewLifecycleOwner) { onNativeResponse() }
     }
 
     private fun loadAds() {
@@ -57,7 +51,11 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
 
     private fun loadNative() {
         binding.mtvNativeTextEntrance.visibility = View.VISIBLE
-        viewModelNative.loadNativeAd(NativeAdKey.LANGUAGE)
+        // Preloaded here so the Language screen shows its native ad instantly.
+        NativeAds.preload(AppAdPlacements.NATIVE_LANGUAGE)
+        NativeAds.whenReady(AppAdPlacements.NATIVE_LANGUAGE, ViewModelEntrance.ADS_TIMEOUT) {
+            if (view != null) onNativeResponse()
+        }
     }
 
     private fun loadAppOpen() {

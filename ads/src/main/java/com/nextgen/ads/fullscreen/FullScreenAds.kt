@@ -15,6 +15,7 @@ import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdPlacement
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
+import com.nextgen.ads.internal.PreloadWaiters
 
 /**
  * App Open, Interstitial, Rewarded and Rewarded Interstitial ads, backed by the Next-Gen preloaders.
@@ -32,7 +33,7 @@ object FullScreenAds {
 
     /** Main thread only. */
     private val preloading = mutableSetOf<String>()
-    private val readyWaiters = mutableMapOf<String, MutableList<(Boolean) -> Unit>>()
+    private val readyWaiters = PreloadWaiters()
 
     /** True while a full-screen ad from this module is on screen. */
     var isShowing: Boolean = false
@@ -74,23 +75,7 @@ object FullScreenAds {
     fun whenReady(placementKey: String, timeoutMillis: Long, onResult: (isReady: Boolean) -> Unit) {
         if (isReady(placementKey)) return onResult(true)
         if (placementKey !in preloading) return onResult(false)
-
-        val waiters = readyWaiters.getOrPut(placementKey) { mutableListOf() }
-        var isDone = false
-        lateinit var timeout: Runnable
-        val waiter: (Boolean) -> Unit = { ready ->
-            if (!isDone) {
-                isDone = true
-                MainDispatch.cancel(timeout)
-                onResult(ready)
-            }
-        }
-        timeout = Runnable {
-            waiters.remove(waiter)
-            waiter(isReady(placementKey))
-        }
-        waiters += waiter
-        MainDispatch.postDelayed(timeoutMillis, timeout)
+        readyWaiters.await(placementKey, timeoutMillis, { isReady(placementKey) }, onResult)
     }
 
     /**
@@ -131,7 +116,7 @@ object FullScreenAds {
     fun stop(placementKey: String) {
         if (preloading.remove(placementKey)) {
             FullScreenFormat.of(AdsSdk.placement(placementKey).format).destroy(placementKey)
-            resolveWaiters(placementKey, false)
+            readyWaiters.resolve(placementKey, false)
             AdsLog.d("$placementKey -> preload stopped")
         }
     }
@@ -173,21 +158,17 @@ object FullScreenAds {
     private val preloadCallback = object : PreloadCallback {
         override fun onAdPreloaded(preloadId: String, responseInfo: ResponseInfo) = MainDispatch.post {
             AdsLog.d("$preloadId -> ad preloaded")
-            resolveWaiters(preloadId, true)
+            readyWaiters.resolve(preloadId, true)
         }
 
         override fun onAdFailedToPreload(preloadId: String, adError: LoadAdError) = MainDispatch.post {
             AdsLog.w("$preloadId -> failed to preload: ${adError.code} ${adError.message}")
-            resolveWaiters(preloadId, false)
+            readyWaiters.resolve(preloadId, false)
         }
 
         override fun onAdsExhausted(preloadId: String) = MainDispatch.post {
             AdsLog.d("$preloadId -> buffer empty, SDK is loading the next ad")
         }
-    }
-
-    private fun resolveWaiters(placementKey: String, ready: Boolean) {
-        readyWaiters.remove(placementKey)?.forEach { it(ready) }
     }
 
     /** One ad in memory per placement: enough for one show, refilled right after. */

@@ -127,13 +127,13 @@
         tools:visibility="visible" />
 
     <!-- Native Ad -->
-    <com.example.admob_next_gen.ads.natives.presentation.ui.AdNativeLargeView
+    <com.nextgen.ads.nativead.NativeAdTemplateView
         android:id="@+id/nativeAdSettings"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_min="@dimen/_100sdp"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:nativeTemplate="small" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="NativeAdTemplateView">
+        <attr name="nativeTemplate" format="enum">
+            <enum name="small" value="0" />
+            <enum name="medium" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <string name="nextgen_ad_badge" translatable="false">Ad</string>
+    <string name="nextgen_ad_loading">Loading ad…</string>
+
+    <color name="nextgen_ad_badge_background">#FFB300</color>
+    <color name="nextgen_ad_placeholder">#14000000</color>
+</resources>
