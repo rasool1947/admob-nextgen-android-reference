@@ -1,0 +1,22 @@
+# Production AdMob IDs for RELEASE builds.
+# Copy this file to `admob.properties` (same folder) and replace every value with your own IDs.
+# Debug builds always use Google's test IDs. Any key missing here makes the release build
+# fall back to the test ID for that key and print a Gradle warning.
+
+admob_app_id=ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX
+
+admob_app_open_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+
+admob_banner_home_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+
+admob_inter_splash_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_inter_on_boarding_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+
+admob_rewarded_ai_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_rewarded_inter_ai_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+
+admob_native_language_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_on_boarding_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_home_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_full_screen_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_settings_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
