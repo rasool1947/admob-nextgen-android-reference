@@ -66,5 +66,9 @@
         android:id="@+id/fragmentPremium"
         android:name="com.example.admob_next_gen.app.premium.FragmentPremium"
         android:label="fragment_premium"
-        tools:layout="@layout/fragment_premium" />
+        tools:layout="@layout/fragment_premium">
+        <action
+            android:id="@+id/action_fragmentPremium_to_fragmentFeature"
+            app:destination="@id/fragmentFeature" />
+    </fragment>
 </navigation>

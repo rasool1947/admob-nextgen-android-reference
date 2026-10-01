@@ -53,13 +53,16 @@ object BannerAds {
         if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) return
 
         clear(container)
-        AdsSdk.blockReason(placement)?.let { reason -> return notLoaded(container, placement, reason, listener) }
+        AdsSdk.whenSdkReady {
+            if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) return@whenSdkReady
+            AdsSdk.blockReason(placement)?.let { reason -> return@whenSdkReady notLoaded(container, placement, reason, listener) }
 
-        // Wait for the container's real width (it is 0 before the first layout pass).
-        container.visibility = View.VISIBLE
-        container.doOnLayout {
-            if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-                loadInto(container, lifecycleOwner, placement, size, listener)
+            // Wait for the container's real width (it is 0 before the first layout pass).
+            container.visibility = View.VISIBLE
+            container.doOnLayout {
+                if (lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    loadInto(container, lifecycleOwner, placement, size, listener)
+                }
             }
         }
     }

@@ -44,6 +44,11 @@ object NativeAds {
     @MainThread
     fun preload(placementKey: String) {
         val placement = nativePlacement(placementKey)
+        AdsSdk.whenSdkReady { startPreload(placement) }
+    }
+
+    private fun startPreload(placement: AdPlacement) {
+        val placementKey = placement.key
         if (placementKey in preloading) return
         AdsSdk.blockReason(placement)?.let { reason ->
             AdsLog.d("$placementKey -> native preload skipped: $reason")
@@ -72,9 +77,13 @@ object NativeAds {
     /** Like FullScreenAds.whenReady: `true` once a preloaded ad is available, `false` on failure/timeout. */
     @MainThread
     fun whenReady(placementKey: String, timeoutMillis: Long, onResult: (isReady: Boolean) -> Unit) {
-        if (isReady(placementKey)) return onResult(true)
-        if (placementKey !in preloading) return onResult(false)
-        readyWaiters.await(placementKey, timeoutMillis, { isReady(placementKey) }, onResult)
+        AdsSdk.whenSdkReady {
+            when {
+                isReady(placementKey) -> onResult(true)
+                placementKey !in preloading -> onResult(false)
+                else -> readyWaiters.await(placementKey, timeoutMillis, { isReady(placementKey) }, onResult)
+            }
+        }
     }
 
     /** Loads an ad and binds it into [view]; hides the view if there is no ad. */
@@ -102,6 +111,11 @@ object NativeAds {
     @MainThread
     fun load(lifecycleOwner: LifecycleOwner, placementKey: String, listener: NativeAdListener) {
         val placement = nativePlacement(placementKey)
+        AdsSdk.whenSdkReady { loadWhenReady(lifecycleOwner, placement, listener) }
+    }
+
+    private fun loadWhenReady(lifecycleOwner: LifecycleOwner, placement: AdPlacement, listener: NativeAdListener) {
+        val placementKey = placement.key
         if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) return
         AdsSdk.blockReason(placement)?.let { reason -> return failed(placement, reason, listener) }
 

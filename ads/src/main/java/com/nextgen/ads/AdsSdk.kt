@@ -47,6 +47,10 @@ object AdsSdk {
     // Accessed on the main thread only.
     private var initStarted = false
     private val onInitializedCallbacks = mutableListOf<() -> Unit>()
+    private var isGatheringConsent = false
+    private var isConsentGathered = false
+    private val consentCallbacks = mutableListOf<(Boolean) -> Unit>()
+    private val sdkReadyCallbacks = mutableListOf<() -> Unit>()
 
     private val _isInitialized = MutableStateFlow(false)
 
@@ -85,6 +89,22 @@ object AdsSdk {
         else -> null
     }
 
+    /**
+     * Runs [block] once loading can be decided: right away if the SDK is ready (or nothing is in
+     * progress), otherwise after the running consent check / initialization finishes. The block
+     * re-checks [blockReason] itself. Lets a screen that opens during startup still get its ads.
+     */
+    @MainThread
+    internal fun whenSdkReady(block: () -> Unit) {
+        if (_isInitialized.value || !(isGatheringConsent || initStarted)) block() else sdkReadyCallbacks += block
+    }
+
+    private fun runSdkReadyCallbacks() {
+        val callbacks = sdkReadyCallbacks.toList()
+        sdkReadyCallbacks.clear()
+        callbacks.forEach { it() }
+    }
+
     /** Forwards a paid impression to [AdsConfig.onAdPaid] on the main thread. */
     internal fun reportPaid(placement: AdPlacement, value: AdValue) = MainDispatch.post {
         config.onAdPaid?.invoke(
@@ -93,8 +113,9 @@ object AdsSdk {
     }
 
     /**
-     * Requests the latest consent info and shows the consent form if required. Call it from the
-     * first screen on every launch.
+     * Requests the latest consent info and shows the consent form if required. Call it from your
+     * main Activity's onCreate() (so it also runs when Android restores the app on a later screen)
+     * and/or from the splash screen: it runs once per process, later calls just get the result.
      *
      * Returning users who already consented don't wait for the consent network request: the SDK
      * starts right away and [onComplete] fires as soon as it's ready, while UMP finishes in the
@@ -104,13 +125,21 @@ object AdsSdk {
      *                   and the SDK is initialized), `false` when the app should continue without ads.
      */
     @MainThread
-    fun gatherConsent(activity: Activity, onComplete: (canLoadAds: Boolean) -> Unit) {
+    fun gatherConsent(activity: Activity, onComplete: (canLoadAds: Boolean) -> Unit = {}) {
         checkConfigured()
-        var isDelivered = false
+        if (isConsentGathered) return onComplete(canLoadAds)
+        consentCallbacks += onComplete
+        if (isGatheringConsent) return
+        isGatheringConsent = true
+
         val deliver = { canLoad: Boolean ->
-            if (!isDelivered) {
-                isDelivered = true
-                onComplete(canLoad)
+            if (isGatheringConsent) {
+                isGatheringConsent = false
+                isConsentGathered = true
+                val callbacks = consentCallbacks.toList()
+                consentCallbacks.clear()
+                callbacks.forEach { it(canLoad) }
+                runSdkReadyCallbacks()
             }
         }
 
@@ -187,6 +216,7 @@ object AdsSdk {
                 val callbacks = onInitializedCallbacks.toList()
                 onInitializedCallbacks.clear()
                 callbacks.forEach { it() }
+                runSdkReadyCallbacks()
             }
         }
     }

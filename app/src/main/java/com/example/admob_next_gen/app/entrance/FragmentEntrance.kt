@@ -18,28 +18,25 @@ class FragmentEntrance : BaseFragment<FragmentEntranceBinding>(FragmentEntranceB
     private val viewModel by viewModels<ViewModelEntrance>()
 
     override fun onViewCreated() {
-        initRemoteConfigs()
         initConsentForm()
         initObservers()
 
         binding.mbNavigateEntrance.setOnClickListener { showAppOpen() }
     }
 
-    private fun initRemoteConfigs() {
-     //   diComponent.remoteConfiguration.checkRemoteConfig { viewModel.onRemoteConfigResponse() }
-    }
-
     private fun initConsentForm() {
         if (viewModel.isConsentRequested) return
         viewModel.isConsentRequested = true
 
-        // Shows the consent form only when required, then initializes the SDK if consent allows ads.
+        // ActivityMain already started the check; this just waits for its result (shows the form if required).
         val viewModel = viewModel
         AdsSdk.gatherConsent(requireActivity()) { canLoadAds -> viewModel.onConsentResult(canLoadAds) }
     }
 
     private fun initObservers() {
-        viewModel.remoteConfigResponseLiveData.observe(viewLifecycleOwner) { binding.mtvRemoteConfigTextEntrance.visibility = View.GONE }
+        viewModel.consentResultLiveData.observe(viewLifecycleOwner) { canLoadAds ->
+            binding.mtvConsentTextEntrance.setText(if (canLoadAds) R.string.consent_ads_enabled else R.string.consent_ads_disabled)
+        }
         viewModel.loadAdsLiveData.observe(viewLifecycleOwner) { loadAds() }
         viewModel.navigateLiveData.observe(viewLifecycleOwner) { showButton() }
     }

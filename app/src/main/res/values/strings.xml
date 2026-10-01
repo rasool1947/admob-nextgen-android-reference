@@ -11,7 +11,9 @@
     <string name="settings_screen">Settings Screen</string>
     <string name="premium_screen">Premium Screen</string>
 
-    <string name="fetching_remote_config">Fetching Remote Config</string>
+    <string name="consent_checking">⏳  Checking consent…</string>
+    <string name="consent_ads_enabled">✅  Consent checked: ads enabled</string>
+    <string name="consent_ads_disabled">ℹ️  Continuing without ads</string>
     <string name="loading_native">Loading Native…</string>
     <string name="loading_app_open">Loading App Open…</string>
     <string name="native_response">Native Responded</string>
@@ -23,5 +25,18 @@
     <string name="privacy_settings">Privacy settings</string>
     <string name="ad_inspector">Ad Inspector (debug)</string>
     <string name="reward_ad_not_available">No ad available right now, please try again in a moment.</string>
-    <string name="reward_not_earned">Watch the full ad to unlock this feature.</string>
+    <string name="reward_not_earned">Watch the full ad to get the reward.</string>
+
+    <string name="premium_title">Unlock with ads</string>
+    <string name="premium_subtitle">Rewarded ads only play when you choose to watch one.</string>
+    <string name="premium_rewarded_title">🤖  AI Feature</string>
+    <string name="premium_rewarded_description">Watch a short video ad to unlock the AI feature.</string>
+    <string name="premium_rewarded_button">▶  Watch ad to unlock</string>
+    <string name="premium_bonus_title">🎁  Bonus coins</string>
+    <string name="premium_bonus_description">A short ad plays after a few seconds. You can skip it before it starts.</string>
+    <string name="premium_bonus_button">Claim bonus</string>
+    <string name="premium_bonus_earned">🎉  You earned %1$d %2$s</string>
+    <string name="bonus_intro_title">Bonus coins</string>
+    <string name="bonus_intro_message">Watch a short ad to earn bonus coins.\nThe ad starts in %1$d s.</string>
+    <string name="bonus_intro_skip">No thanks</string>
 </resources>

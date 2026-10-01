@@ -42,6 +42,12 @@ object FullScreenAds {
     @MainThread
     fun preload(placementKey: String) {
         val placement = AdsSdk.placement(placementKey)
+        FullScreenFormat.of(placement.format) // fails fast for a non-full-screen placement
+        AdsSdk.whenSdkReady { startPreload(placement) }
+    }
+
+    private fun startPreload(placement: AdPlacement) {
+        val placementKey = placement.key
         val format = FullScreenFormat.of(placement.format)
 
         if (placementKey in preloading) return
@@ -73,9 +79,13 @@ object FullScreenAds {
      */
     @MainThread
     fun whenReady(placementKey: String, timeoutMillis: Long, onResult: (isReady: Boolean) -> Unit) {
-        if (isReady(placementKey)) return onResult(true)
-        if (placementKey !in preloading) return onResult(false)
-        readyWaiters.await(placementKey, timeoutMillis, { isReady(placementKey) }, onResult)
+        AdsSdk.whenSdkReady {
+            when {
+                isReady(placementKey) -> onResult(true)
+                placementKey !in preloading -> onResult(false)
+                else -> readyWaiters.await(placementKey, timeoutMillis, { isReady(placementKey) }, onResult)
+            }
+        }
     }
 
     /**

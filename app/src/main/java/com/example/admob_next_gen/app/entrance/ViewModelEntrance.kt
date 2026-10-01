@@ -17,16 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class ViewModelEntrance : ViewModel() {
 
-    /* ----------------------------------- Remote Config ----------------------------------- */
-
-    private val _remoteConfigResponseLiveData = MutableLiveData<Unit>()
-    val remoteConfigResponseLiveData: LiveData<Unit> get() = _remoteConfigResponseLiveData
-
-    fun onRemoteConfigResponse() {
-        _remoteConfigResponseLiveData.value = Unit
-    }
-
     /* ----------------------------------- Consent & Ads ----------------------------------- */
+
+    private val _consentResultLiveData = MutableLiveData<Boolean>()
+    val consentResultLiveData: LiveData<Boolean> get() = _consentResultLiveData
 
     private val _loadAdsLiveData = MutableLiveData<Unit>()
     val loadAdsLiveData: LiveData<Unit> get() = _loadAdsLiveData
@@ -40,6 +34,7 @@ class ViewModelEntrance : ViewModel() {
     private var jobAds: Job? = null
 
     fun onConsentResult(canLoadAds: Boolean) {
+        _consentResultLiveData.value = canLoadAds
         when (canLoadAds) {
             true -> startAdTimer()
             false -> _navigateLiveData.value = Unit
