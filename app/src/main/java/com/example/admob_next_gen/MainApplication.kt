@@ -2,11 +2,13 @@ package com.example.admob_next_gen
 
 import android.app.Application
 import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.LocalAdsControl
 import com.example.admob_next_gen.di.KoinModules
 import com.example.admob_next_gen.utilities.firebase.FirebaseAdRevenue
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdsConfig
+import com.nextgen.ads.control.AdsControlStore
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -18,6 +20,7 @@ class MainApplication : Application() {
 
         initKoin()
         initAds()
+        AdsControlStore.update(LocalAdsControl.JSON, source = "local")
     }
 
     private fun initKoin() {

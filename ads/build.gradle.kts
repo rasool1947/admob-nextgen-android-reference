@@ -37,4 +37,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.kotlinx.coroutines.android)
+
+    testImplementation(libs.junit)
+    // Android's org.json is a stub in local unit tests; use the real one.
+    testImplementation(libs.org.json)
 }

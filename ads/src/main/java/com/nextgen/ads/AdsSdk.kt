@@ -13,6 +13,7 @@ import com.nextgen.ads.config.AdPlacement
 import com.nextgen.ads.config.AdRevenue
 import com.nextgen.ads.config.AdsConfig
 import com.nextgen.ads.consent.ConsentManager
+import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.fullscreen.AppOpenOnResume
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
@@ -85,6 +86,7 @@ object AdsSdk {
         !canRequestAds -> "no consent"
         !_isInitialized.value -> "SDK not initialized"
         config.isPremium() -> "premium user"
+        !AdsControlStore.current.adsEnabled -> "ads turned off by ads control"
         !placement.isEnabled() -> "placement disabled"
         else -> null
     }
