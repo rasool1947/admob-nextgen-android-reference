@@ -18,7 +18,8 @@ enum class AppAdSlot(val nativeKey: String, val bannerKey: String) {
     TAB(AppAdPlacements.NATIVE_TAB, AppAdPlacements.BANNER_TAB);
 
     /** Loads [slot]'s ad ahead of time for the next screen ([screen] = its log label). Nothing if the slot is off. */
-    fun preload(slot: AdSlot, screen: String? = null) = AdSlotView.preload(slot, nativeKey, bannerKey, screen)
+    fun preload(slot: AdSlot, screen: String? = null, bufferSize: Int = 1) =
+        AdSlotView.preload(slot, nativeKey, bannerKey, screen, bufferSize)
 
     fun stopPreload() = AdSlotView.stopPreload(nativeKey, bannerKey)
 }

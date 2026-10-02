@@ -29,7 +29,8 @@ data class AppLanguage(val code: String, val nativeName: String, val englishName
 
         /** Switches the app language; AppCompat recreates the activity and remembers the choice. */
         fun apply(language: AppLanguage) {
-            if (AppCompatDelegate.getApplicationLocales()[0]?.language?.let(::normalize) == language.code) return
+            // Already the language on screen (picked before, or the phone's own): no recreate, no ad reloads.
+            if (current().code == language.code) return
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language.code))
         }
 

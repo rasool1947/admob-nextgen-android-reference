@@ -46,15 +46,19 @@ object NativeAds {
     /** Screen each preload is for (log label), e.g. the next onboarding page. Main thread only. */
     private val preloadScreens = mutableMapOf<String, String?>()
 
-    /** @param screen Log label of the screen this ad is for, if not the placement's own (e.g. "OB3"). */
+    /**
+     * @param screen     Log label of the screen this ad is for, if not the placement's own (e.g. "OB3").
+     * @param bufferSize Ads kept ready. 2 when several screens in a row use this placement (onboarding
+     *                   pages), so the next one is ready while the current one shows.
+     */
     @MainThread
-    fun preload(placementKey: String, screen: String? = null) {
+    fun preload(placementKey: String, screen: String? = null, bufferSize: Int = BUFFER_SIZE) {
         val placement = nativePlacement(placementKey)
         val isNewScreen = preloadScreens.put(placementKey, screen) != screen
-        AdsSdk.whenSdkReady { startPreload(placement.forScreen(screen), isNewScreen) }
+        AdsSdk.whenSdkReady { startPreload(placement.forScreen(screen), isNewScreen, bufferSize) }
     }
 
-    private fun startPreload(placement: AdPlacement, isNewScreen: Boolean) {
+    private fun startPreload(placement: AdPlacement, isNewScreen: Boolean, bufferSize: Int) {
         val placementKey = placement.key
         if (placementKey in preloading) {
             // Same cache, now filling for another screen (e.g. the next onboarding page): say so in the log.
@@ -69,7 +73,7 @@ object NativeAds {
             AdsFlowLog.log(placement, AdsFlowLog.Event.SKIPPED, "preload: $reason")
             return
         }
-        val configuration = PreloadConfiguration(request(placement), BUFFER_SIZE)
+        val configuration = PreloadConfiguration(request(placement), bufferSize)
         if (NativeAdPreloader.start(placementKey, configuration, preloadCallback)) {
             preloading += placementKey
             AdsLog.d("$placementKey -> native preload started")

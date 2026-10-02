@@ -97,13 +97,19 @@ object BannerAds {
 
     /**
      * Starts loading [placementKey] in the background (screen width, [size]), so a later [load]
-     * with the same size shows it at once. The SDK keeps one banner ready and refills it after use.
+     * with the same size shows it at once. The SDK keeps [bufferSize] banners ready and refills after
+     * each use ([screen]: log label, see NativeAds.preload).
      */
     @MainThread
-    fun preload(placementKey: String, size: BannerSize = BannerSize.Anchored, screen: String? = null) {
+    fun preload(
+        placementKey: String,
+        size: BannerSize = BannerSize.Anchored,
+        screen: String? = null,
+        bufferSize: Int = BUFFER_SIZE,
+    ) {
         val placement = bannerPlacement(placementKey)
         val isNewScreen = preloadScreens.put(placementKey, screen) != screen
-        AdsSdk.whenSdkReady { startPreload(placement.forScreen(screen), size, isNewScreen) }
+        AdsSdk.whenSdkReady { startPreload(placement.forScreen(screen), size, isNewScreen, bufferSize) }
     }
 
     /** Stops preloading [placementKey] and discards its buffered banner. */
@@ -128,7 +134,7 @@ object BannerAds {
 
     /* ------------------------------------------- Preload ------------------------------------------- */
 
-    private fun startPreload(placement: AdPlacement, size: BannerSize, isNewScreen: Boolean) {
+    private fun startPreload(placement: AdPlacement, size: BannerSize, isNewScreen: Boolean, bufferSize: Int) {
         val key = placement.key
         when (preloading[key]) {
             null -> Unit
@@ -153,7 +159,7 @@ object BannerAds {
 
         val context = AdsSdk.appContext
         val widthDp = (context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density).toInt()
-        val configuration = PreloadConfiguration(request(placement, adSizeFor(context, size, widthDp), size), BUFFER_SIZE)
+        val configuration = PreloadConfiguration(request(placement, adSizeFor(context, size, widthDp), size), bufferSize)
         if (BannerAdPreloader.start(key, configuration, preloadCallback)) {
             preloading[key] = size
             AdsLog.d("$key -> banner preload started ($size)")

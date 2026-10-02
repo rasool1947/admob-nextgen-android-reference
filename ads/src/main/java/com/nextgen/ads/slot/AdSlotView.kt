@@ -210,11 +210,17 @@ class AdSlotView @JvmOverloads constructor(
          * AdSlotView on the next screen shows it at once. Nothing happens for an [AdSlot.Off] slot.
          */
         @MainThread
-        fun preload(slot: AdSlot, nativePlacementKey: String, bannerPlacementKey: String, screen: String? = null) {
+        fun preload(
+            slot: AdSlot,
+            nativePlacementKey: String,
+            bannerPlacementKey: String,
+            screen: String? = null,
+            bufferSize: Int = 1,
+        ) {
             when (slot) {
                 AdSlot.Off -> Unit
-                is AdSlot.Native -> NativeAds.preload(nativePlacementKey, screen)
-                is AdSlot.Banner -> BannerAds.preload(bannerPlacementKey, slot.style.toBannerSize(), screen)
+                is AdSlot.Native -> NativeAds.preload(nativePlacementKey, screen, bufferSize)
+                is AdSlot.Banner -> BannerAds.preload(bannerPlacementKey, slot.style.toBannerSize(), screen, bufferSize)
             }
         }
 
