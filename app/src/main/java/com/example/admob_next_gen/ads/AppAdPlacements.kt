@@ -9,12 +9,13 @@ import com.nextgen.ads.config.AdPlacement
 /**
  * Every ad placement in this app. Ad unit ids come from app/build.gradle.kts (test ids for debug,
  * admob.properties for release); the on/off switches are stored per placement (see SharedPreferenceUtils.isAdEnabled).
+ *
+ * Non-full-screen positions are ad slots: the ads control picks native or banner at runtime, so each
+ * slot has one native and one banner placement (see [AppAdSlot]).
  */
 object AppAdPlacements {
 
     const val APP_OPEN = "app_open"
-
-    const val BANNER_HOME = "banner_home"
 
     const val INTER_ON_BOARDING = "inter_on_boarding"
     const val INTER_FEATURE = "inter_feature"
@@ -22,29 +23,45 @@ object AppAdPlacements {
     const val REWARDED_AI_FEATURE = "rewarded_ai_feature"
     const val REWARDED_INTER_AI_FEATURE = "rewarded_inter_ai_feature"
 
+    const val NATIVE_SPLASH = "native_splash"
+    const val BANNER_SPLASH = "banner_splash"
     const val NATIVE_LANGUAGE = "native_language"
+    const val BANNER_LANGUAGE = "banner_language"
     const val NATIVE_ON_BOARDING = "native_on_boarding"
+    const val BANNER_ON_BOARDING = "banner_on_boarding"
+    const val NATIVE_MAIN = "native_main"
+    const val BANNER_MAIN = "banner_main"
+    const val NATIVE_TAB = "native_tab"
+    const val BANNER_TAB = "banner_tab"
+
+    /** Fixed native ad of the Feature screen (not driven by the ads control). */
     const val NATIVE_FEATURE = "native_feature"
-    const val NATIVE_SETTINGS = "native_settings"
 
     fun create(context: Context, prefs: SharedPreferenceUtils): List<AdPlacement> {
         fun id(resId: Int) = context.getString(resId).trim()
+        fun placement(key: String, format: AdFormat, adUnitRes: Int) = AdPlacement(key, format, id(adUnitRes)) { prefs.isAdEnabled(key) }
 
         return listOf(
-            AdPlacement(APP_OPEN, AdFormat.APP_OPEN, id(R.string.admob_app_open_id)) { prefs.isAdEnabled(APP_OPEN) },
+            placement(APP_OPEN, AdFormat.APP_OPEN, R.string.admob_app_open_id),
 
-            AdPlacement(BANNER_HOME, AdFormat.BANNER, id(R.string.admob_banner_home_id)) { prefs.isAdEnabled(BANNER_HOME) },
+            placement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, R.string.admob_inter_on_boarding_id),
+            placement(INTER_FEATURE, AdFormat.INTERSTITIAL, R.string.admob_inter_feature_id),
 
-            AdPlacement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, id(R.string.admob_inter_on_boarding_id)) { prefs.isAdEnabled(INTER_ON_BOARDING) },
-            AdPlacement(INTER_FEATURE, AdFormat.INTERSTITIAL, id(R.string.admob_inter_feature_id)) { prefs.isAdEnabled(INTER_FEATURE) },
+            placement(REWARDED_AI_FEATURE, AdFormat.REWARDED, R.string.admob_rewarded_ai_feature_id),
+            placement(REWARDED_INTER_AI_FEATURE, AdFormat.REWARDED_INTERSTITIAL, R.string.admob_rewarded_inter_ai_feature_id),
 
-            AdPlacement(REWARDED_AI_FEATURE, AdFormat.REWARDED, id(R.string.admob_rewarded_ai_feature_id)) { prefs.isAdEnabled(REWARDED_AI_FEATURE) },
-            AdPlacement(REWARDED_INTER_AI_FEATURE, AdFormat.REWARDED_INTERSTITIAL, id(R.string.admob_rewarded_inter_ai_feature_id)) { prefs.isAdEnabled(REWARDED_INTER_AI_FEATURE) },
+            placement(NATIVE_SPLASH, AdFormat.NATIVE, R.string.admob_native_splash_id),
+            placement(BANNER_SPLASH, AdFormat.BANNER, R.string.admob_banner_splash_id),
+            placement(NATIVE_LANGUAGE, AdFormat.NATIVE, R.string.admob_native_language_id),
+            placement(BANNER_LANGUAGE, AdFormat.BANNER, R.string.admob_banner_language_id),
+            placement(NATIVE_ON_BOARDING, AdFormat.NATIVE, R.string.admob_native_on_boarding_id),
+            placement(BANNER_ON_BOARDING, AdFormat.BANNER, R.string.admob_banner_on_boarding_id),
+            placement(NATIVE_MAIN, AdFormat.NATIVE, R.string.admob_native_main_id),
+            placement(BANNER_MAIN, AdFormat.BANNER, R.string.admob_banner_main_id),
+            placement(NATIVE_TAB, AdFormat.NATIVE, R.string.admob_native_tab_id),
+            placement(BANNER_TAB, AdFormat.BANNER, R.string.admob_banner_tab_id),
 
-            AdPlacement(NATIVE_LANGUAGE, AdFormat.NATIVE, id(R.string.admob_native_language_id)) { prefs.isAdEnabled(NATIVE_LANGUAGE) },
-            AdPlacement(NATIVE_ON_BOARDING, AdFormat.NATIVE, id(R.string.admob_native_on_boarding_id)) { prefs.isAdEnabled(NATIVE_ON_BOARDING) },
-            AdPlacement(NATIVE_FEATURE, AdFormat.NATIVE, id(R.string.admob_native_feature_id)) { prefs.isAdEnabled(NATIVE_FEATURE) },
-            AdPlacement(NATIVE_SETTINGS, AdFormat.NATIVE, id(R.string.admob_native_settings_id)) { prefs.isAdEnabled(NATIVE_SETTINGS) },
+            placement(NATIVE_FEATURE, AdFormat.NATIVE, R.string.admob_native_feature_id),
         )
     }
 }

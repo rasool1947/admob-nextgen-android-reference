@@ -1,6 +1,6 @@
 package com.nextgen.ads.banner
 
-/** How a banner is sized. Width always comes from the container the banner is placed in. */
+/** How a banner is sized. Adaptive sizes take their width from the container the banner is placed in. */
 sealed interface BannerSize {
 
     /** Anchored adaptive banner (top/bottom of the screen); the usual choice. ~50-90dp tall. */
@@ -20,4 +20,13 @@ sealed interface BannerSize {
      * @param fromTop true if the banner is anchored at the top of the screen.
      */
     data class Collapsible(val fromTop: Boolean = false) : BannerSize
+
+    /** Fixed 320x50, centered. */
+    data object Standard : BannerSize
+
+    /** Fixed 320x100, centered. */
+    data object Large : BannerSize
+
+    /** Fixed 300x250 ("MREC"), centered. Good inside content, like a native ad. */
+    data object MediumRectangle : BannerSize
 }

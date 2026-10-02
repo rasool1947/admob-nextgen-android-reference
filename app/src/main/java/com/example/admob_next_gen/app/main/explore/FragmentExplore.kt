@@ -4,14 +4,19 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.admob_next_gen.R
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentExploreBinding
 import com.example.admob_next_gen.databinding.ItemExploreBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
+import com.nextgen.ads.control.AdsControlStore
 
 /** Explore tab: a sample content list. */
 class FragmentExplore : BaseFragment<FragmentExploreBinding>(FragmentExploreBinding::inflate) {
 
     override fun onViewCreated() {
+        binding.adSlotExplore.load(viewLifecycleOwner, AdsControlStore.current.main.tab("explore"), AppAdSlot.TAB)
+
         val titles = resources.getStringArray(R.array.explore_titles)
         val descriptions = resources.getStringArray(R.array.explore_descriptions)
         binding.rvExplore.adapter = AdapterExplore(titles.indices.map { i -> Item(ICONS[i % ICONS.size], titles[i], descriptions[i]) })

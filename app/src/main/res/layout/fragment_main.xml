@@ -23,11 +23,10 @@
         app:menu="@menu/menu_main_tabs" />
 
     <!-- Bottom ad slot below the navigation, with a gap so taps meant for the tabs don't hit the ad -->
-    <FrameLayout
+    <com.nextgen.ads.slot.AdSlotView
         android:id="@+id/adSlotMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/ad_safe_gap"
-        android:minHeight="50dp" />
+        android:layout_marginTop="@dimen/ad_safe_gap" />
 
 </LinearLayout>

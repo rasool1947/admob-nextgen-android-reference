@@ -2,10 +2,13 @@ package com.example.admob_next_gen.app.main.home
 
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentHomeBinding
 import com.example.admob_next_gen.databinding.ViewHomeCardBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
+import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.fullscreen.FullScreenAdListener
 import com.nextgen.ads.fullscreen.FullScreenAds
 
@@ -13,6 +16,8 @@ import com.nextgen.ads.fullscreen.FullScreenAds
 class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
     override fun onViewCreated() {
+        binding.adSlotHome.load(viewLifecycleOwner, AdsControlStore.current.main.tab("home"), AppAdSlot.TAB)
+
         FullScreenAds.preload(AppAdPlacements.INTER_FEATURE)
         // Warm up the rewarded ad so it's ready when the user opens the Premium screen.
         FullScreenAds.preload(AppAdPlacements.REWARDED_AI_FEATURE)

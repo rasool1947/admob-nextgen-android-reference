@@ -98,8 +98,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Bottom ad slot (native / banner from ads control; filled in a later step) -->
-    <FrameLayout
+    <!-- Bottom ad slot (native / banner from ads control) -->
+    <com.nextgen.ads.slot.AdSlotView
         android:id="@+id/adSlotSplash"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

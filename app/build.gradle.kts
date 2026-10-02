@@ -17,15 +17,22 @@ if (file("google-services.json").exists()) {
 val testAdIds = linkedMapOf(
     "admob_app_id" to "ca-app-pub-3940256099942544~3347511713",
     "admob_app_open_id" to "ca-app-pub-3940256099942544/9257395921",
-    "admob_banner_home_id" to "ca-app-pub-3940256099942544/9214589741",
     "admob_inter_feature_id" to "ca-app-pub-3940256099942544/1033173712",
     "admob_inter_on_boarding_id" to "ca-app-pub-3940256099942544/1033173712",
     "admob_rewarded_ai_feature_id" to "ca-app-pub-3940256099942544/5224354917",
     "admob_rewarded_inter_ai_feature_id" to "ca-app-pub-3940256099942544/5354046379",
+    // Ad slots: one native + one banner unit each (the ads control picks which one shows)
+    "admob_native_splash_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_splash_id" to "ca-app-pub-3940256099942544/9214589741",
     "admob_native_language_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_language_id" to "ca-app-pub-3940256099942544/9214589741",
     "admob_native_on_boarding_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_on_boarding_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_native_main_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_main_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_native_tab_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_tab_id" to "ca-app-pub-3940256099942544/9214589741",
     "admob_native_feature_id" to "ca-app-pub-3940256099942544/2247696110",
-    "admob_native_settings_id" to "ca-app-pub-3940256099942544/2247696110",
 )
 
 // Production IDs live in <root>/admob.properties (see admob.properties.example), keyed like testAdIds.

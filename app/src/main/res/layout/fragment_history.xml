@@ -56,9 +56,10 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
     </LinearLayout>
 
-    <!-- In-content ad slot of this tab (ads control main.tabs.history; filled in a later step) -->
-    <FrameLayout
+    <!-- In-content ad slot of this tab (ads control main.tabs.history) -->
+    <com.nextgen.ads.slot.AdSlotView
         android:id="@+id/adSlotHistory"
+        android:layout_marginBottom="@dimen/ad_safe_gap"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

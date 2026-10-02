@@ -6,11 +6,14 @@ import androidx.core.animation.doOnEnd
 import androidx.fragment.app.viewModels
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentSplashBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.AdsSdk
+import com.nextgen.ads.control.AdSlot
 import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.control.SplashFullScreen
 import com.nextgen.ads.fullscreen.AppOpenOnResume
@@ -30,6 +33,7 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
     private var progressAnimator: ValueAnimator? = null
 
     override fun onViewCreated() {
+        binding.adSlotSplash.load(viewLifecycleOwner, AdsControlStore.current.splash.bottom, AppAdSlot.SPLASH)
         initConsent()
         initObservers()
     }
@@ -55,8 +59,10 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
     /* ------------------------------------------- Ads ------------------------------------------- */
 
     private fun loadAds() {
-        // Warm up the next screen's ad: only on first run, when the Language screen comes next.
-        if (!prefs.isLanguageSelected) NativeAds.preload(AppAdPlacements.NATIVE_LANGUAGE)
+        // Warm up the next screen's ad: only on first run (Language comes next) and only if its slot is a native ad.
+        if (!prefs.isLanguageSelected && AdsControlStore.current.language.bottom is AdSlot.Native) {
+            NativeAds.preload(AppAdPlacements.NATIVE_LANGUAGE)
+        }
 
         val viewModel = viewModel
         when (AdsControlStore.current.splash.fullScreen) {

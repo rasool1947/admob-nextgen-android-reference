@@ -51,8 +51,8 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
-        <!-- In-content ad slot of this tab (ads control main.tabs.home; filled in a later step) -->
-        <FrameLayout
+        <!-- In-content ad slot of this tab (ads control main.tabs.home) -->
+        <com.nextgen.ads.slot.AdSlotView
             android:id="@+id/adSlotHome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

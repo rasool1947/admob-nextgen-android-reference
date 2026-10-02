@@ -6,14 +6,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.app.main.explore.FragmentExplore
 import com.example.admob_next_gen.app.main.history.FragmentHistory
 import com.example.admob_next_gen.app.main.home.FragmentHome
 import com.example.admob_next_gen.app.main.settings.FragmentSettings
 import com.example.admob_next_gen.databinding.FragmentMainBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
-import com.nextgen.ads.banner.BannerAds
-import com.nextgen.ads.banner.BannerSize
+import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.fullscreen.AppOpenOnResume
 
 /**
@@ -50,7 +51,7 @@ class FragmentMain : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
 
     override fun onViewCreated() {
         // Destroyed automatically with this screen's view.
-        BannerAds.load(binding.adSlotMain, viewLifecycleOwner, AppAdPlacements.BANNER_HOME, BannerSize.Anchored)
+        binding.adSlotMain.load(viewLifecycleOwner, AdsControlStore.current.main.bottom, AppAdSlot.MAIN)
         // Normally enabled by the splash; repeated here for when Android restores the app on this screen.
         AppOpenOnResume.enable(AppAdPlacements.APP_OPEN)
 

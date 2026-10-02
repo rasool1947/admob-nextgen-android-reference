@@ -54,13 +54,12 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Bottom ad slot (per page or shared, from ads control) -->
-    <com.nextgen.ads.nativead.NativeAdTemplateView
+    <com.nextgen.ads.slot.AdSlotView
         android:id="@+id/adSlotOnBoarding"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:nativeTemplate="medium" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

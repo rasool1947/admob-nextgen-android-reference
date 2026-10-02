@@ -7,15 +7,22 @@ admob_app_id=ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX
 
 admob_app_open_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 
-admob_banner_home_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
-
 admob_inter_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_inter_on_boarding_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 
 admob_rewarded_ai_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_rewarded_inter_ai_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 
+# Ad slots: a native and a banner unit each; the ads control decides which one is shown.
+admob_native_splash_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_splash_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_native_language_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_language_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_native_on_boarding_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_on_boarding_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_main_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_main_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_tab_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_tab_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+
 admob_native_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
-admob_native_settings_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX

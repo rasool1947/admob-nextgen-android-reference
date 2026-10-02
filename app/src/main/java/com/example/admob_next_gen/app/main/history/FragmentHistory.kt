@@ -1,10 +1,15 @@
 package com.example.admob_next_gen.app.main.history
 
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentHistoryBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
+import com.nextgen.ads.control.AdsControlStore
 
 /** History tab: empty state for now. */
 class FragmentHistory : BaseFragment<FragmentHistoryBinding>(FragmentHistoryBinding::inflate) {
 
-    override fun onViewCreated() = Unit
+    override fun onViewCreated() {
+        binding.adSlotHistory.load(viewLifecycleOwner, AdsControlStore.current.main.tab("history"), AppAdSlot.TAB)
+    }
 }

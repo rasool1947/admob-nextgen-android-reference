@@ -1,8 +1,10 @@
 package com.nextgen.ads.banner
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.MainThread
 import androidx.core.view.children
 import androidx.core.view.doOnLayout
@@ -91,6 +93,9 @@ object BannerAds {
         val adSize = when (size) {
             BannerSize.Anchored, is BannerSize.Collapsible -> AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, widthDp)
             BannerSize.LargeAnchored -> AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, widthDp)
+            BannerSize.Standard -> AdSize.BANNER
+            BannerSize.Large -> AdSize.LARGE_BANNER
+            BannerSize.MediumRectangle -> AdSize.MEDIUM_RECTANGLE
             is BannerSize.Inline -> size.maxHeightDp
                 ?.let { AdSize.getInlineAdaptiveBannerAdSize(widthDp, it) }
                 ?: AdSize.getCurrentOrientationInlineAdaptiveBannerAdSize(context, widthDp)
@@ -111,7 +116,7 @@ object BannerAds {
         val adView = AdView(context)
         // Reserve the banner's height up front so the screen doesn't jump when the ad arrives.
         container.minimumHeight = adSize.getHeightInPixels(context)
-        container.addView(adView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        container.addView(adView, bannerLayoutParams(size))
 
         lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
@@ -142,6 +147,13 @@ object BannerAds {
                 notLoaded(container, placement, "${adError.code}: ${adError.message}", listener)
             }
         })
+    }
+
+    /** Adaptive banners fill the width; fixed sizes keep their width and are centered (in a FrameLayout). */
+    private fun bannerLayoutParams(size: BannerSize): ViewGroup.LayoutParams {
+        val isFixed = size == BannerSize.Standard || size == BannerSize.Large || size == BannerSize.MediumRectangle
+        val width = if (isFixed) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT
+        return FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL)
     }
 
     private fun notLoaded(container: ViewGroup, placement: AdPlacement, reason: String, listener: BannerAdListener?) {

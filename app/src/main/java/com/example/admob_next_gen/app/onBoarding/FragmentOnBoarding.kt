@@ -7,14 +7,16 @@ import androidx.core.view.updateLayoutParams
 import androidx.viewpager2.widget.ViewPager2
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentOnBoardingBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.control.AdsControlStore
+import com.nextgen.ads.control.OnboardingAdMode
 import com.nextgen.ads.fullscreen.FullScreenAdListener
 import com.nextgen.ads.fullscreen.FullScreenAds
-import com.nextgen.ads.nativead.NativeAds
 import org.koin.android.ext.android.inject
 
 /** Swipeable intro pages; "Get Started" on the last page shows an interstitial, then the main screen. */
@@ -27,14 +29,17 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         OnBoardingPage.all.take(AdsControlStore.current.onboarding.pageCount.coerceIn(1, OnBoardingPage.all.size))
     }
 
+    /** Page whose ad is in the slot now, so swiping back and forth doesn't reload it. */
+    private var shownAdPage = NO_PAGE
+
     private val pageCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) = onPageShown(position)
     }
 
     override fun onViewCreated() {
+        shownAdPage = NO_PAGE
         initPager()
-        NativeAds.loadInto(binding.adSlotOnBoarding, viewLifecycleOwner, AppAdPlacements.NATIVE_ON_BOARDING)
-        FullScreenAds.preload(AppAdPlacements.INTER_ON_BOARDING)
+        if (AdsControlStore.current.onboarding.getStartedInter) FullScreenAds.preload(AppAdPlacements.INTER_ON_BOARDING)
 
         binding.mbSkipOnBoarding.setOnClickListener { binding.vpOnBoarding.currentItem = pages.lastIndex }
         binding.mbNextOnBoarding.setOnClickListener { onNextClick() }
@@ -57,6 +62,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         val isLast = position == pages.lastIndex
         binding.mbNextOnBoarding.setText(if (isLast) R.string.ob_get_started else R.string.ob_next)
         binding.mbSkipOnBoarding.isInvisible = isLast
+        loadAdSlot(position)
         val dotSize = resources.getDimensionPixelSize(R.dimen.ob_dot_size)
         val selectedWidth = resources.getDimensionPixelSize(R.dimen.ob_dot_selected_width)
         val gap = resources.getDimensionPixelSize(R.dimen.ob_dot_gap)
@@ -72,6 +78,18 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         }
     }
 
+    /** Per-page mode: each page shows its own ad (onboarding.pages). Shared mode: one ad for all pages. */
+    private fun loadAdSlot(position: Int) {
+        val control = AdsControlStore.current.onboarding
+        val (page, slot) = when (control.mode) {
+            OnboardingAdMode.PER_PAGE -> position to control.page(position)
+            OnboardingAdMode.SHARED -> 0 to control.shared
+        }
+        if (page == shownAdPage) return
+        shownAdPage = page
+        binding.adSlotOnBoarding.load(viewLifecycleOwner, slot, AppAdSlot.ON_BOARDING)
+    }
+
     private fun onNextClick() {
         val pager = binding.vpOnBoarding
         if (pager.currentItem < pages.lastIndex) {
@@ -82,6 +100,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
     }
 
     private fun showInterstitialAd() {
+        if (!AdsControlStore.current.onboarding.getStartedInter) return navigateScreen()
         FullScreenAds.show(requireActivity(), AppAdPlacements.INTER_ON_BOARDING, object : FullScreenAdListener {
             override fun onAdFinished() {
                 // Onboarding is shown once; don't keep an ad preloaded for it.
@@ -99,5 +118,9 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
     override fun onDestroyView() {
         binding.vpOnBoarding.unregisterOnPageChangeCallback(pageCallback)
         super.onDestroyView()
+    }
+
+    private companion object {
+        const val NO_PAGE = -1
     }
 }

@@ -67,12 +67,11 @@
             tools:text="Version 0.0.1" />
 
         <!-- In-content ad slot of this tab (ads control main.tabs.settings) -->
-        <com.nextgen.ads.nativead.NativeAdTemplateView
+        <com.nextgen.ads.slot.AdSlotView
             android:id="@+id/adSlotSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:nativeTemplate="medium" />
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

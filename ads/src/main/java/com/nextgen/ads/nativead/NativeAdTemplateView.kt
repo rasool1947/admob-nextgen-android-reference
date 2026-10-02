@@ -3,7 +3,6 @@ package com.nextgen.ads.nativead
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -17,6 +16,7 @@ import com.google.android.libraries.ads.mobile.sdk.nativead.MediaView
 import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd
 import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView
 import com.nextgen.ads.R
+import com.nextgen.ads.internal.ShimmerLayout
 
 /**
  * Ready-made native ad layout. Use it in XML and fill it with [NativeAds.loadInto]:
@@ -25,19 +25,32 @@ import com.nextgen.ads.R
  *     android:id="@+id/nativeAd"
  *     android:layout_width="match_parent"
  *     android:layout_height="wrap_content"
- *     app:nativeTemplate="medium" />   <!-- or "small" (no media) -->
+ *     app:nativeTemplate="medium" />   <!-- small (no media) | medium | large -->
  * ```
- * While loading, the layout keeps its full size (no jump when the ad arrives) behind a
- * "Loading ad…" placeholder. For a custom design, inflate your own NativeAdView and use
- * [NativeAds.load] instead.
+ * While loading, the layout keeps its full size (no jump when the ad arrives) behind a shimmer
+ * placeholder. For a custom design, inflate your own NativeAdView and use [NativeAds.load] instead.
  */
-class NativeAdTemplateView @JvmOverloads constructor(
+class NativeAdTemplateView private constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
+    attrs: AttributeSet?,
+    defStyleAttr: Int,
+    explicitTemplate: Template?,
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    enum class Template { SMALL, MEDIUM }
+    @JvmOverloads
+    constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : this(context, attrs, defStyleAttr, null)
+
+    /** Creates the view from code, e.g. inside an ad slot. */
+    constructor(context: Context, template: Template) : this(context, null, 0, template)
+
+    enum class Template(internal val layout: Int, internal val skeleton: Int) {
+        /** Icon, headline, body and button; no media. */
+        SMALL(R.layout.nextgen_native_small, R.layout.nextgen_skeleton_native_small),
+        /** Adds a 130dp media view. */
+        MEDIUM(R.layout.nextgen_native_medium, R.layout.nextgen_skeleton_native_medium),
+        /** Two lines of body, 200dp media, price and store. */
+        LARGE(R.layout.nextgen_native_large, R.layout.nextgen_skeleton_native_large),
+    }
 
     var template: Template = Template.MEDIUM
         private set
@@ -52,17 +65,17 @@ class NativeAdTemplateView @JvmOverloads constructor(
     private val price: TextView?
     private val store: TextView?
     private val media: MediaView?
-    private val placeholder: TextView
+    private val placeholder: ShimmerLayout
 
     init {
-        context.withStyledAttributes(attrs, R.styleable.NativeAdTemplateView) {
-            template = Template.entries[getInt(R.styleable.NativeAdTemplateView_nativeTemplate, Template.MEDIUM.ordinal)]
+        template = explicitTemplate ?: Template.MEDIUM
+        if (explicitTemplate == null) {
+            context.withStyledAttributes(attrs, R.styleable.NativeAdTemplateView) {
+                template = Template.entries[getInt(R.styleable.NativeAdTemplateView_nativeTemplate, Template.MEDIUM.ordinal)]
+            }
         }
-        val layout = when (template) {
-            Template.SMALL -> R.layout.nextgen_native_small
-            Template.MEDIUM -> R.layout.nextgen_native_medium
-        }
-        LayoutInflater.from(context).inflate(layout, this, true)
+        val inflater = LayoutInflater.from(context)
+        inflater.inflate(template.layout, this, true)
 
         nativeAdView = findViewById(R.id.nextgen_native_ad_view)
         headline = findViewById(R.id.nextgen_native_headline)
@@ -84,17 +97,13 @@ class NativeAdTemplateView @JvmOverloads constructor(
         nativeAdView.priceView = price
         nativeAdView.storeView = store
 
-        placeholder = TextView(context).apply {
-            setText(R.string.nextgen_ad_loading)
-            gravity = Gravity.CENTER
-            setBackgroundResource(R.color.nextgen_ad_placeholder)
-        }
+        placeholder = ShimmerLayout(context).apply { inflater.inflate(template.skeleton, this, true) }
         addView(placeholder, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
 
         if (isInEditMode) showSample() else showPlaceholder()
     }
 
-    /** Reserves the ad's space and shows "Loading ad…". */
+    /** Reserves the ad's space and shows the shimmer placeholder. */
     fun showPlaceholder() {
         visibility = VISIBLE
         nativeAdView.visibility = INVISIBLE // still measured, so the final size is reserved

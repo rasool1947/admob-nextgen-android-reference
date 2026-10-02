@@ -8,15 +8,21 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/mtvIllustrationPage"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@drawable/bg_circle_container"
         android:gravity="center"
-        android:textSize="64sp"
+        android:padding="20dp"
+        app:autoSizeMaxTextSize="64sp"
+        app:autoSizeMinTextSize="16sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/mtvTitlePage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintDimensionRatio="W,1:1"
+        app:layout_constraintHeight_max="150dp"
+        app:layout_constraintHeight_min="56dp"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="🚀" />
 

@@ -5,15 +5,17 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentLanguageBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.example.admob_next_gen.utilities.extensions.popFrom
 import com.example.admob_next_gen.utilities.language.AppLanguage
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
-import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd
-import com.nextgen.ads.nativead.NativeAdListener
+import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.nativead.NativeAds
+import com.nextgen.ads.slot.AdSlotListener
 import org.koin.android.ext.android.inject
 
 /**
@@ -33,7 +35,7 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
 
     override fun onViewCreated() {
         initList()
-        loadNative()
+        loadAdSlot()
 
         binding.mbBackLanguage.isVisible = isFromSettings
         binding.mbBackLanguage.setOnClickListener { popFrom(R.id.fragmentLanguage) }
@@ -61,12 +63,16 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
         AppLanguage.apply(language)
     }
 
-    /** Uses the ad preloaded on the splash screen, then stops preloading (this screen is rarely shown). */
-    private fun loadNative() {
-        NativeAds.loadInto(binding.adSlotLanguage, viewLifecycleOwner, AppAdPlacements.NATIVE_LANGUAGE, object : NativeAdListener {
-            override fun onAdLoaded(ad: NativeAd) = NativeAds.stop(AppAdPlacements.NATIVE_LANGUAGE)
+    /**
+     * Bottom slot from the ads control. A native ad comes from the splash preload; preloading stops
+     * once it is used (this screen is rarely shown).
+     */
+    private fun loadAdSlot() {
+        val stopPreload = object : AdSlotListener {
+            override fun onAdLoaded() = NativeAds.stop(AppAdPlacements.NATIVE_LANGUAGE)
             override fun onAdFailedToLoad(reason: String) = NativeAds.stop(AppAdPlacements.NATIVE_LANGUAGE)
-        })
+        }
+        binding.adSlotLanguage.load(viewLifecycleOwner, AdsControlStore.current.language.bottom, AppAdSlot.LANGUAGE, stopPreload)
     }
 
     private companion object {

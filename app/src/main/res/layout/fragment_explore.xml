@@ -25,8 +25,8 @@
         android:text="@string/explore_subtitle"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
-    <!-- In-content ad slot of this tab (ads control main.tabs.explore; filled in a later step) -->
-    <FrameLayout
+    <!-- In-content ad slot of this tab (ads control main.tabs.explore) -->
+    <com.nextgen.ads.slot.AdSlotView
         android:id="@+id/adSlotExplore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

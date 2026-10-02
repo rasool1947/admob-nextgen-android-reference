@@ -4,12 +4,14 @@
         <attr name="nativeTemplate" format="enum">
             <enum name="small" value="0" />
             <enum name="medium" value="1" />
+            <enum name="large" value="2" />
         </attr>
     </declare-styleable>
 
     <string name="nextgen_ad_badge" translatable="false">Ad</string>
-    <string name="nextgen_ad_loading">Loading ad…</string>
 
     <color name="nextgen_ad_badge_background">#FFB300</color>
-    <color name="nextgen_ad_placeholder">#14000000</color>
+    <!-- Loading placeholder: grey blocks with a light band sweeping over them -->
+    <color name="nextgen_skeleton">#1A000000</color>
+    <color name="nextgen_shimmer_highlight">#B3FFFFFF</color>
 </resources>

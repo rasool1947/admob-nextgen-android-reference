@@ -6,20 +6,21 @@ import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import com.example.admob_next_gen.BuildConfig
 import com.example.admob_next_gen.R
-import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentSettingsBinding
 import com.example.admob_next_gen.databinding.ViewSettingsRowBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.example.admob_next_gen.utilities.language.AppLanguage
 import com.nextgen.ads.AdsSdk
-import com.nextgen.ads.nativead.NativeAds
+import com.nextgen.ads.control.AdsControlStore
 
 /** Settings tab: language, privacy (consent) options, share, rate, and the Ad Inspector in debug builds. */
 class FragmentSettings : BaseFragment<FragmentSettingsBinding>(FragmentSettingsBinding::inflate) {
 
     override fun onViewCreated() {
-        NativeAds.loadInto(binding.adSlotSettings, viewLifecycleOwner, AppAdPlacements.NATIVE_SETTINGS)
+        binding.adSlotSettings.load(viewLifecycleOwner, AdsControlStore.current.main.tab("settings"), AppAdSlot.TAB)
 
         binding.rowLanguage.bind(R.drawable.ic_svg_language, R.string.settings_language, AppLanguage.current().nativeName) {
             navigateTo(R.id.fragmentMain, R.id.action_fragmentMain_to_fragmentLanguage)
