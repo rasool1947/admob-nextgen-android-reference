@@ -292,7 +292,7 @@ Splash/Resume │ app_open                  │ App Open      │ 📦 PRELOADIN
 Splash        │ native_splash             │ Native        │ ✅ LOADED
 Language      │ native_language           │ Native        │ 📦 READY in cache
 Splash        │ native_splash             │ Native        │ 👁 IMPRESSION
-Splash/Resume │ app_open                  │ App Open      │ 👁 IMPRESSION
+Splash/Resume │ app_open                  │ App Open      │ ✅ LOADED (in cache)
 Language      │ native_language           │ Native        │ ♻️ LOADED from cache
 ```
 
@@ -300,6 +300,7 @@ Language      │ native_language           │ Native        │ ♻️ LOADED 
 |---|---|
 | 📦 PRELOADING | Loading in the background for a later screen (the SDK preloader is the ad cache). |
 | 📦 READY in cache | A preloaded ad is waiting and will show instantly (logged once; the SDK's silent refills after each use are not). |
+| ✅ LOADED (in cache) | Full-screen ads (App Open, interstitial, rewarded) always load through the cache: this is their "loaded". |
 | ⏳ LOADING / ✅ LOADED | Requested for the screen now (nothing in the cache) / arrived. |
 | ♻️ LOADED from cache | Taken from the cache, no waiting. |
 | ❌ FAILED | Load, preload or show failed; the AdMob error code and message follow. |
@@ -307,7 +308,8 @@ Language      │ native_language           │ Native        │ ♻️ LOADED 
 | 🚫 NOT SHOWN | A full-screen ad was due but couldn't show (none ready, another ad on screen, …). |
 | 👁 IMPRESSION, 👆 CLICKED, ✖️ CLOSED, 🎁 REWARD earned | What the user saw and did (a banner logs only its first impression, not every refresh). |
 
-The screen names come from `AdPlacement(screen = …)` in `AppAdPlacements`. The tag `NextGenAds`
+The screen names come from `AdPlacement(screen = …)` in `AppAdPlacements`; onboarding pages are
+labelled OB1, OB2, … (`screen` parameter of `AdSlotView.load` / `preload`). The tag `NextGenAds`
 keeps the detailed technical log (consent, SDK init, preload buffers) for debugging the module.
 
 ## 9. Notes and gotchas

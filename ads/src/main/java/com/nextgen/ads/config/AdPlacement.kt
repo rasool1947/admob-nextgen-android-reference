@@ -32,3 +32,6 @@ data class AdPlacement(
         require(key.isNotBlank()) { "AdPlacement key must not be blank" }
     }
 }
+
+/** Same placement with another log label, e.g. one onboarding page among several using it. */
+internal fun AdPlacement.forScreen(screen: String?): AdPlacement = if (screen == null || screen == this.screen) this else copy(screen = screen)

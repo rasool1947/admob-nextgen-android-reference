@@ -255,7 +255,7 @@ object FullScreenAds {
     private val preloadCallback = object : PreloadCallback {
         override fun onAdPreloaded(preloadId: String, responseInfo: ResponseInfo) = MainDispatch.post {
             AdsLog.d("$preloadId -> ad preloaded")
-            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
+            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.LOADED_IN_CACHE)
             readyWaiters.resolve(preloadId, true)
         }
 

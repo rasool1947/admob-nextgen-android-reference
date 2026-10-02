@@ -15,6 +15,7 @@ import com.nextgen.ads.R
 import com.nextgen.ads.banner.BannerAdListener
 import com.nextgen.ads.banner.BannerAds
 import com.nextgen.ads.banner.BannerSize
+import com.nextgen.ads.config.forScreen
 import com.nextgen.ads.control.AdSlot
 import com.nextgen.ads.control.BannerStyle
 import com.nextgen.ads.control.NativeStyle
@@ -58,6 +59,7 @@ class AdSlotView @JvmOverloads constructor(
      * @param slot                What to show, from the ads control.
      * @param nativePlacementKey  Placement used when [slot] is native.
      * @param bannerPlacementKey  Placement used when [slot] is a banner.
+     * @param screen              Log label (tag `AdsFlow`) when not the placement's own, e.g. "OB2".
      */
     @MainThread
     fun load(
@@ -66,6 +68,7 @@ class AdSlotView @JvmOverloads constructor(
         nativePlacementKey: String,
         bannerPlacementKey: String,
         listener: AdSlotListener? = null,
+        screen: String? = null,
     ) {
         clear()
         if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) return
@@ -73,11 +76,11 @@ class AdSlotView @JvmOverloads constructor(
         when (slot) {
             AdSlot.Off -> {
                 visibility = GONE
-                AdsFlowLog.slotOff(AdsSdk.placement(nativePlacementKey), nativePlacementKey, bannerPlacementKey)
+                AdsFlowLog.slotOff(AdsSdk.placement(nativePlacementKey).forScreen(screen), nativePlacementKey, bannerPlacementKey)
                 listener?.onAdFailedToLoad("slot is off")
             }
-            is AdSlot.Native -> loadNative(SlotLifecycle(lifecycleOwner), slot.style, nativePlacementKey, listener)
-            is AdSlot.Banner -> loadBanner(SlotLifecycle(lifecycleOwner), slot.style, bannerPlacementKey, listener)
+            is AdSlot.Native -> loadNative(SlotLifecycle(lifecycleOwner), slot.style, nativePlacementKey, listener, screen)
+            is AdSlot.Banner -> loadBanner(SlotLifecycle(lifecycleOwner), slot.style, bannerPlacementKey, listener, screen)
         }
     }
 
@@ -90,13 +93,19 @@ class AdSlotView @JvmOverloads constructor(
         visibility = GONE
     }
 
-    private fun loadNative(owner: SlotLifecycle, style: NativeStyle, placementKey: String, listener: AdSlotListener?) {
+    private fun loadNative(
+        owner: SlotLifecycle,
+        style: NativeStyle,
+        placementKey: String,
+        listener: AdSlotListener?,
+        screen: String?,
+    ) {
         current = owner
         visibility = VISIBLE
         val template = NativeAdTemplateView(context, style.toTemplate())
         addView(template, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
 
-        NativeAds.loadInto(template, owner, placementKey, object : NativeAdListener {
+        NativeAds.loadInto(template, owner, placementKey, screen = screen, listener = object : NativeAdListener {
             override fun onAdLoaded(ad: NativeAd) {
                 listener?.onAdLoaded()
             }
@@ -112,7 +121,13 @@ class AdSlotView @JvmOverloads constructor(
         })
     }
 
-    private fun loadBanner(owner: SlotLifecycle, style: BannerStyle, placementKey: String, listener: AdSlotListener?) {
+    private fun loadBanner(
+        owner: SlotLifecycle,
+        style: BannerStyle,
+        placementKey: String,
+        listener: AdSlotListener?,
+        screen: String?,
+    ) {
         current = owner
         visibility = VISIBLE
         val placeholderHeight = style.placeholderHeightPx()
@@ -129,7 +144,7 @@ class AdSlotView @JvmOverloads constructor(
             }
         }
 
-        BannerAds.load(container, owner, placementKey, style.toBannerSize(), object : BannerAdListener {
+        BannerAds.load(container, owner, placementKey, style.toBannerSize(), screen = screen, listener = object : BannerAdListener {
             override fun onAdLoaded(isCollapsible: Boolean) {
                 removeView(shimmer)
                 listener?.onAdLoaded()
@@ -195,11 +210,11 @@ class AdSlotView @JvmOverloads constructor(
          * AdSlotView on the next screen shows it at once. Nothing happens for an [AdSlot.Off] slot.
          */
         @MainThread
-        fun preload(slot: AdSlot, nativePlacementKey: String, bannerPlacementKey: String) {
+        fun preload(slot: AdSlot, nativePlacementKey: String, bannerPlacementKey: String, screen: String? = null) {
             when (slot) {
                 AdSlot.Off -> Unit
-                is AdSlot.Native -> NativeAds.preload(nativePlacementKey)
-                is AdSlot.Banner -> BannerAds.preload(bannerPlacementKey, slot.style.toBannerSize())
+                is AdSlot.Native -> NativeAds.preload(nativePlacementKey, screen)
+                is AdSlot.Banner -> BannerAds.preload(bannerPlacementKey, slot.style.toBannerSize(), screen)
             }
         }
 

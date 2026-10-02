@@ -24,6 +24,8 @@ internal object AdsFlowLog {
         PRELOADING("📦 PRELOADING"),
         /** An ad is waiting in the cache, ready to show instantly. */
         READY_IN_CACHE("📦 READY in cache"),
+        /** Full-screen ads are always loaded through the cache: this is their "loaded". */
+        LOADED_IN_CACHE("✅ LOADED (in cache)"),
         /** A request for this screen went out (nothing in the cache). */
         LOADING("⏳ LOADING"),
         LOADED("✅ LOADED"),
@@ -53,7 +55,7 @@ internal object AdsFlowLog {
         when (event) {
             Event.PRELOADING -> readyAnnounced -= placement.key
             // The SDK refills the cache after every use; only the first fill is news.
-            Event.READY_IN_CACHE -> if (!readyAnnounced.add(placement.key)) return
+            Event.READY_IN_CACHE, Event.LOADED_IN_CACHE -> if (!readyAnnounced.add(placement.key)) return
             else -> Unit
         }
 
@@ -62,7 +64,7 @@ internal object AdsFlowLog {
         val format = placement.format.label.padEnd(FORMAT_WIDTH)
         val line = "$screen │ $key │ $format │ ${event.label}" + (detail?.let { "  $it" } ?: "")
         when (event) {
-            Event.LOADED, Event.FROM_CACHE -> Log.w(TAG, line)
+            Event.LOADED, Event.FROM_CACHE, Event.LOADED_IN_CACHE -> Log.w(TAG, line)
             Event.FAILED -> Log.e(TAG, line)
             else -> Log.d(TAG, line)
         }

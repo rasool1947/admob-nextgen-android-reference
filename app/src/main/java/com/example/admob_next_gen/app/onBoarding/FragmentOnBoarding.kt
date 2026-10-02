@@ -10,6 +10,7 @@ import com.example.admob_next_gen.ads.AdPreloadChain
 import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.AppAdSlot
 import com.example.admob_next_gen.ads.load
+import com.example.admob_next_gen.ads.onboardingPageLabel
 import com.example.admob_next_gen.databinding.FragmentOnBoardingBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
@@ -98,7 +99,9 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         shownAdPage = page
         // The next page takes its ad from the same cache, so keep it filling until the last page.
         binding.adSlotOnBoarding.load(
-            viewLifecycleOwner, control.slotForPage(position), AppAdSlot.ON_BOARDING, keepPreloading = isPerPage && !isLastPage,
+            viewLifecycleOwner, control.slotForPage(position), AppAdSlot.ON_BOARDING,
+            keepPreloading = isPerPage && !isLastPage,
+            screen = if (isPerPage) onboardingPageLabel(position) else null,
         )
     }
 

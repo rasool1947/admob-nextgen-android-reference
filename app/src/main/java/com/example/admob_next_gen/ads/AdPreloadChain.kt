@@ -26,7 +26,8 @@ object AdPreloadChain {
     fun forLanguage() = AppAdSlot.LANGUAGE.preload(control.language.bottom)
 
     /** The ad of onboarding page [index] (0 = the first page, preloaded by Language). */
-    fun forOnboardingPage(index: Int) = AppAdSlot.ON_BOARDING.preload(control.onboarding.slotForPage(index))
+    fun forOnboardingPage(index: Int) =
+        AppAdSlot.ON_BOARDING.preload(control.onboarding.slotForPage(index), screen = onboardingPageLabel(index))
 
     /** From the last onboarding page: the "Get Started" interstitial. */
     fun forGetStarted() {
@@ -41,3 +42,6 @@ object MainTabKeys {
     const val HISTORY = "history"
     const val SETTINGS = "settings"
 }
+
+/** Log label of onboarding page [index] (0-based): "OB1", "OB2", … */
+fun onboardingPageLabel(index: Int) = "OB${index + 1}"

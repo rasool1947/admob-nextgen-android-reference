@@ -17,8 +17,8 @@ enum class AppAdSlot(val nativeKey: String, val bannerKey: String) {
     /** Inside the content of a main-screen tab (shared by all tabs). */
     TAB(AppAdPlacements.NATIVE_TAB, AppAdPlacements.BANNER_TAB);
 
-    /** Loads [slot]'s ad ahead of time, for the screen that comes next. Does nothing if the slot is off. */
-    fun preload(slot: AdSlot) = AdSlotView.preload(slot, nativeKey, bannerKey)
+    /** Loads [slot]'s ad ahead of time for the next screen ([screen] = its log label). Nothing if the slot is off. */
+    fun preload(slot: AdSlot, screen: String? = null) = AdSlotView.preload(slot, nativeKey, bannerKey, screen)
 
     fun stopPreload() = AdSlotView.stopPreload(nativeKey, bannerKey)
 }
@@ -26,13 +26,14 @@ enum class AppAdSlot(val nativeKey: String, val bannerKey: String) {
 /**
  * Loads [slot] (from the ads control) with the placements of [appSlot]. Uses the ad preloaded by
  * the previous screen if there is one; preloading then stops unless [keepPreloading] (a screen that
- * shows several ads from the same slot, like onboarding pages).
+ * shows several ads from the same slot, like onboarding pages). [screen] labels the logs (e.g. "OB2").
  */
 fun AdSlotView.load(
     lifecycleOwner: LifecycleOwner,
     slot: AdSlot,
     appSlot: AppAdSlot,
     keepPreloading: Boolean = false,
+    screen: String? = null,
     listener: AdSlotListener? = null,
 ) {
     val stopPreloadAfter = object : AdSlotListener {
@@ -50,5 +51,5 @@ fun AdSlotView.load(
             listener?.onAdClicked()
         }
     }
-    load(lifecycleOwner, slot, appSlot.nativeKey, appSlot.bannerKey, stopPreloadAfter)
+    load(lifecycleOwner, slot, appSlot.nativeKey, appSlot.bannerKey, stopPreloadAfter, screen)
 }

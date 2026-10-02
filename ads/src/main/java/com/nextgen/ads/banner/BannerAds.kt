@@ -29,6 +29,7 @@ import com.google.android.libraries.ads.mobile.sdk.common.ResponseInfo
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdFormat
 import com.nextgen.ads.config.AdPlacement
+import com.nextgen.ads.config.forScreen
 import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
@@ -55,6 +56,9 @@ object BannerAds {
     private val preloading = mutableMapOf<String, BannerSize>()
     private val readyWaiters = PreloadWaiters()
 
+    /** Screen each preload is for (log label), e.g. the next onboarding page. Main thread only. */
+    private val preloadScreens = mutableMapOf<String, String?>()
+
     /**
      * @param container Empty ViewGroup (usually a FrameLayout) the banner goes into. Its width
      *                  decides the banner width; its height is reserved before the ad arrives.
@@ -66,8 +70,9 @@ object BannerAds {
         placementKey: String,
         size: BannerSize = BannerSize.Anchored,
         listener: BannerAdListener? = null,
+        screen: String? = null,
     ) {
-        val placement = bannerPlacement(placementKey)
+        val placement = bannerPlacement(placementKey).forScreen(screen)
         if (lifecycleOwner.isDestroyed) return
 
         clear(container)
@@ -95,9 +100,10 @@ object BannerAds {
      * with the same size shows it at once. The SDK keeps one banner ready and refills it after use.
      */
     @MainThread
-    fun preload(placementKey: String, size: BannerSize = BannerSize.Anchored) {
+    fun preload(placementKey: String, size: BannerSize = BannerSize.Anchored, screen: String? = null) {
         val placement = bannerPlacement(placementKey)
-        AdsSdk.whenSdkReady { startPreload(placement, size) }
+        val isNewScreen = preloadScreens.put(placementKey, screen) != screen
+        AdsSdk.whenSdkReady { startPreload(placement.forScreen(screen), size, isNewScreen) }
     }
 
     /** Stops preloading [placementKey] and discards its buffered banner. */
@@ -105,6 +111,7 @@ object BannerAds {
     fun stopPreload(placementKey: String) {
         if (preloading.remove(placementKey) != null) {
             BannerAdPreloader.destroy(placementKey)
+            preloadScreens.remove(placementKey)
             readyWaiters.resolve(placementKey, false)
             AdsLog.d("$placementKey -> banner preload stopped")
         }
@@ -121,12 +128,22 @@ object BannerAds {
 
     /* ------------------------------------------- Preload ------------------------------------------- */
 
-    private fun startPreload(placement: AdPlacement, size: BannerSize) {
+    private fun startPreload(placement: AdPlacement, size: BannerSize, isNewScreen: Boolean) {
         val key = placement.key
         when (preloading[key]) {
             null -> Unit
-            size -> return
-            else -> stopPreload(key) // preloaded for another size (e.g. the next onboarding page differs)
+            size -> {
+                // Same cache, now filling for another screen (e.g. the next onboarding page): say so in the log.
+                if (isNewScreen) {
+                    AdsFlowLog.log(placement, AdsFlowLog.Event.PRELOADING, "$size")
+                    if (isPreloadedReady(key)) AdsFlowLog.log(placement, AdsFlowLog.Event.READY_IN_CACHE)
+                }
+                return
+            }
+            else -> {
+                stopPreload(key) // preloaded for another size (e.g. the next onboarding page differs)
+                preloadScreens[key] = placement.screen
+            }
         }
         AdsSdk.blockReason(placement)?.let { reason ->
             AdsLog.d("$key -> banner preload skipped: $reason")
@@ -144,16 +161,18 @@ object BannerAds {
         }
     }
 
+    private fun preloadPlacement(key: String) = AdsSdk.placement(key).forScreen(preloadScreens[key])
+
     private val preloadCallback = object : PreloadCallback {
         override fun onAdPreloaded(preloadId: String, responseInfo: ResponseInfo) = MainDispatch.post {
             AdsLog.d("$preloadId -> banner preloaded")
-            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
+            AdsFlowLog.log(preloadPlacement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
             readyWaiters.resolve(preloadId, true)
         }
 
         override fun onAdFailedToPreload(preloadId: String, adError: LoadAdError) = MainDispatch.post {
             AdsLog.w("$preloadId -> banner failed to preload: ${adError.code} ${adError.message}")
-            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.FAILED, "preload: ${adError.code}: ${adError.message}")
+            AdsFlowLog.log(preloadPlacement(preloadId), AdsFlowLog.Event.FAILED, "preload: ${adError.code}: ${adError.message}")
             readyWaiters.resolve(preloadId, false)
         }
     }

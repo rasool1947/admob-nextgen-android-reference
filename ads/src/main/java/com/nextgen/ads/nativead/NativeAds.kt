@@ -19,6 +19,7 @@ import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdRequest
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdFormat
 import com.nextgen.ads.config.AdPlacement
+import com.nextgen.ads.config.forScreen
 import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
@@ -42,15 +43,27 @@ object NativeAds {
     private val preloading = mutableSetOf<String>()
     private val readyWaiters = PreloadWaiters()
 
+    /** Screen each preload is for (log label), e.g. the next onboarding page. Main thread only. */
+    private val preloadScreens = mutableMapOf<String, String?>()
+
+    /** @param screen Log label of the screen this ad is for, if not the placement's own (e.g. "OB3"). */
     @MainThread
-    fun preload(placementKey: String) {
+    fun preload(placementKey: String, screen: String? = null) {
         val placement = nativePlacement(placementKey)
-        AdsSdk.whenSdkReady { startPreload(placement) }
+        val isNewScreen = preloadScreens.put(placementKey, screen) != screen
+        AdsSdk.whenSdkReady { startPreload(placement.forScreen(screen), isNewScreen) }
     }
 
-    private fun startPreload(placement: AdPlacement) {
+    private fun startPreload(placement: AdPlacement, isNewScreen: Boolean) {
         val placementKey = placement.key
-        if (placementKey in preloading) return
+        if (placementKey in preloading) {
+            // Same cache, now filling for another screen (e.g. the next onboarding page): say so in the log.
+            if (isNewScreen) {
+                AdsFlowLog.log(placement, AdsFlowLog.Event.PRELOADING)
+                if (NativeAdPreloader.isAdAvailable(placementKey)) AdsFlowLog.log(placement, AdsFlowLog.Event.READY_IN_CACHE)
+            }
+            return
+        }
         AdsSdk.blockReason(placement)?.let { reason ->
             AdsLog.d("$placementKey -> native preload skipped: $reason")
             AdsFlowLog.log(placement, AdsFlowLog.Event.SKIPPED, "preload: $reason")
@@ -68,6 +81,7 @@ object NativeAds {
     fun stop(placementKey: String) {
         if (preloading.remove(placementKey)) {
             NativeAdPreloader.destroy(placementKey)
+            preloadScreens.remove(placementKey)
             readyWaiters.resolve(placementKey, false)
             AdsLog.d("$placementKey -> native preload stopped")
         }
@@ -89,11 +103,20 @@ object NativeAds {
         }
     }
 
-    /** Loads an ad and binds it into [view]; hides the view if there is no ad. */
+    /**
+     * Loads an ad and binds it into [view]; hides the view if there is no ad.
+     * @param screen Log label of the screen, if not the placement's own (e.g. "OB3").
+     */
     @MainThread
-    fun loadInto(view: NativeAdTemplateView, lifecycleOwner: LifecycleOwner, placementKey: String, listener: NativeAdListener? = null) {
+    fun loadInto(
+        view: NativeAdTemplateView,
+        lifecycleOwner: LifecycleOwner,
+        placementKey: String,
+        listener: NativeAdListener? = null,
+        screen: String? = null,
+    ) {
         view.showPlaceholder()
-        load(lifecycleOwner, placementKey, object : NativeAdListener {
+        load(lifecycleOwner, placementKey, screen = screen, listener = object : NativeAdListener {
             override fun onAdLoaded(ad: NativeAd) {
                 view.bind(ad)
                 listener?.onAdLoaded(ad)
@@ -112,8 +135,8 @@ object NativeAds {
 
     /** Loads an ad for your own NativeAdView layout. */
     @MainThread
-    fun load(lifecycleOwner: LifecycleOwner, placementKey: String, listener: NativeAdListener) {
-        val placement = nativePlacement(placementKey)
+    fun load(lifecycleOwner: LifecycleOwner, placementKey: String, listener: NativeAdListener, screen: String? = null) {
+        val placement = nativePlacement(placementKey).forScreen(screen)
         AdsSdk.whenSdkReady { loadWhenReady(lifecycleOwner, placement, listener) }
     }
 
@@ -209,16 +232,18 @@ object NativeAds {
             require(it.format == AdFormat.NATIVE) { "$placementKey is not a NATIVE placement" }
         }
 
+    private fun preloadPlacement(key: String) = AdsSdk.placement(key).forScreen(preloadScreens[key])
+
     private val preloadCallback = object : PreloadCallback {
         override fun onAdPreloaded(preloadId: String, responseInfo: ResponseInfo) = MainDispatch.post {
             AdsLog.d("$preloadId -> native preloaded")
-            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
+            AdsFlowLog.log(preloadPlacement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
             readyWaiters.resolve(preloadId, true)
         }
 
         override fun onAdFailedToPreload(preloadId: String, adError: LoadAdError) = MainDispatch.post {
             AdsLog.w("$preloadId -> native failed to preload: ${adError.code} ${adError.message}")
-            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.FAILED, "preload: ${adError.code}: ${adError.message}")
+            AdsFlowLog.log(preloadPlacement(preloadId), AdsFlowLog.Event.FAILED, "preload: ${adError.code}: ${adError.message}")
             readyWaiters.resolve(preloadId, false)
         }
     }
