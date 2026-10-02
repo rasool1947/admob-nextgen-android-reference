@@ -37,7 +37,7 @@
     <string name="home_greeting">Hello 👋</string>
     <string name="home_subtitle">What would you like to try today?</string>
     <string name="home_interstitial_title">Interstitial</string>
-    <string name="home_interstitial_desc">Opens a screen with an ad first</string>
+    <string name="home_interstitial_desc">Opens a screen; every few taps an ad comes first</string>
     <string name="home_rewarded_title">Rewarded</string>
     <string name="home_rewarded_desc">Unlock a feature by watching an ad</string>
 

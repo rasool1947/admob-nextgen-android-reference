@@ -35,7 +35,7 @@
     <string name="home_greeting">مرحبًا 👋</string>
     <string name="home_subtitle">ماذا تود أن تجرب اليوم؟</string>
     <string name="home_interstitial_title">إعلان بيني</string>
-    <string name="home_interstitial_desc">يفتح شاشة بعد إعلان</string>
+    <string name="home_interstitial_desc">يفتح شاشة؛ كل بضع نقرات يظهر إعلان أولًا</string>
     <string name="home_rewarded_title">إعلان بمكافأة</string>
     <string name="home_rewarded_desc">افتح ميزة بمشاهدة إعلان</string>
 

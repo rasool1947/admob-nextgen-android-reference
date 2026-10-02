@@ -5,24 +5,35 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.admob_next_gen.ads.AppAdPlacements
 import com.nextgen.ads.control.AdsControlStore
+import com.nextgen.ads.control.SplashFullScreen
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Splash timing, kept here so a rotation doesn't restart it:
- * consent -> load ads -> wait for the full-screen ad (at most the control's timeout) -> show it -> navigate.
- *
- * The ad timeout starts once consent is known: time the user spends on the consent form doesn't count.
+ * Splash ad flow, kept here so a rotation doesn't restart it (ads control `splash`):
+ * 1. consent, then the full-screen ad (App Open or interstitial) and the bottom ad load together;
+ * 2. the splash waits for both answers, at most `timeout_sec` (25 s) counted from consent;
+ * 3. a loaded bottom ad stays on screen at least `bottom_first_ms` (2 s) before anything else;
+ * 4. the full-screen ad shows (if it is ready), then the app moves on.
  */
 class ViewModelSplash : ViewModel() {
 
+    private val control = AdsControlStore.current.splash
     private val createdAt = SystemClock.elapsedRealtime()
     private var adsStartedAt = 0L
 
+    /** Full-screen placement of this launch, or null when the control turned it off. */
+    val fullScreenKey: String? = when (control.fullScreen) {
+        SplashFullScreen.APP_OPEN -> AppAdPlacements.APP_OPEN
+        SplashFullScreen.INTERSTITIAL -> AppAdPlacements.INTER_SPLASH
+        SplashFullScreen.OFF -> null
+    }
+
     /** Longest the splash waits for its ads (ads control `splash.timeout_sec`, default 25 s). */
-    val timeoutMillis: Long = AdsControlStore.current.splash.timeoutMillis
+    val timeoutMillis: Long = control.timeoutMillis
 
     /** True once consent is known and ads are loading; the progress bar fills from then on. */
     val isLoadingAds: Boolean get() = adsStartedAt != 0L
@@ -38,12 +49,17 @@ class ViewModelSplash : ViewModel() {
     private val _loadAdsLiveData = MutableLiveData<Unit>()
     val loadAdsLiveData: LiveData<Unit> get() = _loadAdsLiveData
 
-    /** Waiting is over. Value: true if a full-screen ad is ready to show. */
+    /** Waiting is over. Value: true if the full-screen ad is ready to show. */
     private val _doneLiveData = MutableLiveData<Boolean>()
     val doneLiveData: LiveData<Boolean> get() = _doneLiveData
 
     private val _navigateLiveData = MutableLiveData<Unit>()
     val navigateLiveData: LiveData<Unit> get() = _navigateLiveData
+
+    /** null while still loading. */
+    private var isFullScreenReady: Boolean? = null
+    private var hasBottomAnswered = false
+    private var bottomShownAt = 0L
 
     private var timeoutJob: Job? = null
     private var isFinishing = false
@@ -56,15 +72,32 @@ class ViewModelSplash : ViewModel() {
         _loadAdsLiveData.value = Unit
         timeoutJob = viewModelScope.launch {
             delay(timeoutMillis)
-            finish(showAd = false)
+            finish(showAd = isFullScreenReady == true)
         }
     }
 
-    fun onFullScreenAdResult(isReady: Boolean) = finish(showAd = isReady)
+    /** The bottom slot loaded an ad (now visible) or gave up (off, no consent, no fill). First answer wins. */
+    fun onBottomAdResult(isLoaded: Boolean) {
+        if (hasBottomAnswered) return
+        hasBottomAnswered = true
+        if (isLoaded) bottomShownAt = SystemClock.elapsedRealtime()
+        finishWhenBothAnswered()
+    }
+
+    fun onFullScreenAdResult(isReady: Boolean) {
+        if (isFullScreenReady != null) return
+        isFullScreenReady = isReady
+        finishWhenBothAnswered()
+    }
 
     /** The full-screen ad was closed, failed, or there was none. */
     fun onAdFlowFinished() {
         _navigateLiveData.value = Unit
+    }
+
+    private fun finishWhenBothAnswered() {
+        val isReady = isFullScreenReady ?: return
+        if (hasBottomAnswered) finish(showAd = isReady)
     }
 
     private fun finish(showAd: Boolean) {
@@ -72,8 +105,11 @@ class ViewModelSplash : ViewModel() {
         isFinishing = true
         timeoutJob?.cancel()
         viewModelScope.launch {
-            // Keep the branding on screen for a moment even when there is nothing to wait for.
-            delay((MIN_SPLASH_MILLIS - (SystemClock.elapsedRealtime() - createdAt)).coerceAtLeast(0))
+            val now = SystemClock.elapsedRealtime()
+            // Branding stays a moment even with nothing to wait for; a loaded bottom ad stays its minimum time.
+            val brandingLeft = MIN_SPLASH_MILLIS - (now - createdAt)
+            val bottomLeft = if (bottomShownAt != 0L) control.bottomFirstMillis - (now - bottomShownAt) else 0L
+            delay(maxOf(brandingLeft, bottomLeft, 0L))
             _doneLiveData.value = showAd
         }
     }

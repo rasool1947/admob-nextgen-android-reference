@@ -18,7 +18,10 @@ object AppAdPlacements {
     const val APP_OPEN = "app_open"
 
     const val INTER_ON_BOARDING = "inter_on_boarding"
-    const val INTER_FEATURE = "inter_feature"
+    const val INTER_SPLASH = "inter_splash"
+
+    /** Interstitial on navigation inside the main screen, paced by the ads control (`main.inter`). */
+    const val INTER_MAIN = "inter_main"
 
     const val REWARDED_AI_FEATURE = "rewarded_ai_feature"
     const val REWARDED_INTER_AI_FEATURE = "rewarded_inter_ai_feature"
@@ -45,7 +48,8 @@ object AppAdPlacements {
             placement(APP_OPEN, AdFormat.APP_OPEN, R.string.admob_app_open_id),
 
             placement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, R.string.admob_inter_on_boarding_id),
-            placement(INTER_FEATURE, AdFormat.INTERSTITIAL, R.string.admob_inter_feature_id),
+            placement(INTER_SPLASH, AdFormat.INTERSTITIAL, R.string.admob_inter_splash_id),
+            placement(INTER_MAIN, AdFormat.INTERSTITIAL, R.string.admob_inter_main_id),
 
             placement(REWARDED_AI_FEATURE, AdFormat.REWARDED, R.string.admob_rewarded_ai_feature_id),
             placement(REWARDED_INTER_AI_FEATURE, AdFormat.REWARDED_INTERSTITIAL, R.string.admob_rewarded_inter_ai_feature_id),

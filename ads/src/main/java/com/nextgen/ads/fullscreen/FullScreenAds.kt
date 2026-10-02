@@ -1,6 +1,7 @@
 package com.nextgen.ads.fullscreen
 
 import android.app.Activity
+import android.os.SystemClock
 import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.common.AdEventCallback
 import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
@@ -37,6 +38,10 @@ object FullScreenAds {
 
     /** True while a full-screen ad from this module is on screen. */
     var isShowing: Boolean = false
+        private set
+
+    /** [SystemClock.elapsedRealtime] of the last time any full-screen ad appeared, 0 if none yet. Used for frequency caps. */
+    var lastShownAtMillis: Long = 0L
         private set
 
     /** Placement whose show is in progress (loading dialog or on screen); repeated calls for it are ignored. */
@@ -197,7 +202,10 @@ object FullScreenAds {
     private fun eventCallback(placement: AdPlacement, listener: FullScreenAdListener?) = object : AdEventCallback {
         val key = placement.key
 
-        override fun onAdShowedFullScreenContent() = MainDispatch.post { listener?.onAdShowed() }
+        override fun onAdShowedFullScreenContent() = MainDispatch.post {
+            lastShownAtMillis = SystemClock.elapsedRealtime()
+            listener?.onAdShowed()
+        }
         override fun onAdImpression() = MainDispatch.post { listener?.onAdImpression() }
         override fun onAdClicked() = MainDispatch.post { listener?.onAdClicked() }
 

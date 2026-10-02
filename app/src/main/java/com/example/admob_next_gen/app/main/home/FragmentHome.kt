@@ -3,6 +3,7 @@ package com.example.admob_next_gen.app.main.home
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.MainInterstitial
 import com.example.admob_next_gen.ads.MainTabKeys
 import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentHomeBinding
@@ -10,7 +11,6 @@ import com.example.admob_next_gen.databinding.ViewHomeCardBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.nextgen.ads.control.AdsControlStore
-import com.nextgen.ads.fullscreen.FullScreenAdListener
 import com.nextgen.ads.fullscreen.FullScreenAds
 
 /** Home tab. Its screens open on the root navigation graph (above the bottom navigation). */
@@ -19,15 +19,15 @@ class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     override fun onViewCreated() {
         binding.adSlotHome.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.HOME), AppAdSlot.TAB)
 
-        FullScreenAds.preload(AppAdPlacements.INTER_FEATURE)
+        MainInterstitial.preload()
         // Warm up the rewarded ad so it's ready when the user opens the Premium screen.
         FullScreenAds.preload(AppAdPlacements.REWARDED_AI_FEATURE)
 
         binding.cardInterstitialHome.bind("🎬", R.string.home_interstitial_title, R.string.home_interstitial_desc) {
-            showInterstitial(R.id.action_fragmentMain_to_fragmentFeature)
+            openWithInterstitial(R.id.action_fragmentMain_to_fragmentFeature)
         }
         binding.cardRewardedHome.bind("🎁", R.string.home_rewarded_title, R.string.home_rewarded_desc) {
-            navigateTo(R.id.fragmentMain, R.id.action_fragmentMain_to_fragmentPremium)
+            openWithInterstitial(R.id.action_fragmentMain_to_fragmentPremium)
         }
     }
 
@@ -39,9 +39,8 @@ class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         root.setOnClickListener { onOpen() }
     }
 
-    private fun showInterstitial(action: Int) {
-        FullScreenAds.showWithLoading(requireActivity(), AppAdPlacements.INTER_FEATURE, object : FullScreenAdListener {
-            override fun onAdFinished() = navigateTo(R.id.fragmentMain, action)
-        })
+    /** Main-screen navigation: the ads control decides whether an interstitial comes first. */
+    private fun openWithInterstitial(action: Int) {
+        MainInterstitial.showThen(requireActivity()) { navigateTo(R.id.fragmentMain, action) }
     }
 }

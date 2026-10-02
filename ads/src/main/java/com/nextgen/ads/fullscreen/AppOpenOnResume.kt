@@ -7,6 +7,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
 import java.lang.ref.WeakReference
@@ -14,8 +15,9 @@ import java.lang.ref.WeakReference
 /**
  * Shows an App Open ad when the user brings the app back to the foreground.
  *
- * Call [enable] once the launch flow (splash / consent) is over. The cold-start App Open ad is
- * the splash screen's job ([FullScreenAds.show]); this only covers returning from background.
+ * Call [enable] once the launch flow (splash / consent) is over; it does nothing while the ads
+ * control has `app_open_resume` off. The cold-start App Open ad is the splash screen's job
+ * ([FullScreenAds.show]); this only covers returning from background.
  * It never shows on top of another full-screen ad (e.g. when coming back from an ad click).
  */
 object AppOpenOnResume {
@@ -28,6 +30,10 @@ object AppOpenOnResume {
     @MainThread
     fun enable(placementKey: String) {
         this.placementKey = placementKey
+        if (!AdsControlStore.current.appOpenOnResume) {
+            AdsLog.d("$placementKey -> app open on resume is off (ads control)")
+            return
+        }
         FullScreenAds.preload(placementKey)
         AdsLog.d("$placementKey -> app open on resume enabled")
     }
@@ -64,6 +70,7 @@ object AppOpenOnResume {
 
     private fun onAppForegrounded() {
         val key = placementKey ?: return
+        if (!AdsControlStore.current.appOpenOnResume) return // ads control `app_open_resume`
         if (skipNextResume) {
             skipNextResume = false
             AdsLog.d("$key -> resume skipped once")

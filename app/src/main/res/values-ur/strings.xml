@@ -35,7 +35,7 @@
     <string name="home_greeting">السلام علیکم 👋</string>
     <string name="home_subtitle">آج آپ کیا آزمانا چاہیں گے؟</string>
     <string name="home_interstitial_title">انٹراسٹیشل</string>
-    <string name="home_interstitial_desc">پہلے اشتہار، پھر اسکرین کھلتی ہے</string>
+    <string name="home_interstitial_desc">اسکرین کھولتا ہے؛ ہر چند کلکس پر پہلے اشتہار</string>
     <string name="home_rewarded_title">انعامی اشتہار</string>
     <string name="home_rewarded_desc">اشتہار دیکھ کر فیچر ان لاک کریں</string>
 

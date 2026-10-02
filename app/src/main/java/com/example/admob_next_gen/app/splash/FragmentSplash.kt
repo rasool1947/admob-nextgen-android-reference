@@ -15,15 +15,16 @@ import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.control.AdsControlStore
-import com.nextgen.ads.control.SplashFullScreen
 import com.nextgen.ads.fullscreen.AppOpenOnResume
 import com.nextgen.ads.fullscreen.FullScreenAdListener
 import com.nextgen.ads.fullscreen.FullScreenAds
+import com.nextgen.ads.slot.AdSlotListener
 import org.koin.android.ext.android.inject
 
 /**
- * Branding + progress bar while consent and the launch ads load. The bar fills over the ads
- * control timeout (25 s by default) and jumps to the end as soon as the full-screen ad is ready.
+ * Branding + progress bar while consent and the launch ads load (bottom native/banner + App Open
+ * or interstitial, see [ViewModelSplash]). The bar fills over the ads control timeout (25 s by
+ * default) and jumps to the end as soon as both ads answered.
  */
 class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding::inflate) {
 
@@ -32,7 +33,7 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
     private var progressAnimator: ValueAnimator? = null
 
     override fun onViewCreated() {
-        binding.adSlotSplash.load(viewLifecycleOwner, AdsControlStore.current.splash.bottom, AppAdSlot.SPLASH)
+        loadBottomAd()
         initConsent()
         initObservers()
     }
@@ -57,21 +58,24 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
 
     /* ------------------------------------------- Ads ------------------------------------------- */
 
+    /** Shown as soon as it loads (it waits for consent by itself); the view model hears when it is up. */
+    private fun loadBottomAd() {
+        val viewModel = viewModel
+        val listener = object : AdSlotListener {
+            override fun onAdLoaded() = viewModel.onBottomAdResult(isLoaded = true)
+            override fun onAdFailedToLoad(reason: String) = viewModel.onBottomAdResult(isLoaded = false)
+        }
+        binding.adSlotSplash.load(viewLifecycleOwner, AdsControlStore.current.splash.bottom, AppAdSlot.SPLASH, listener = listener)
+    }
+
     private fun loadAds() {
-        // Warm up the next screen's ad (Language, onboarding or main, whichever comes next).
+        // Warm up the next screen's ad (Language or main, whichever comes next).
         AdPreloadChain.afterSplash(prefs)
 
         val viewModel = viewModel
-        when (AdsControlStore.current.splash.fullScreen) {
-            SplashFullScreen.APP_OPEN -> {
-                FullScreenAds.preload(AppAdPlacements.APP_OPEN)
-                FullScreenAds.whenReady(AppAdPlacements.APP_OPEN, viewModel.remainingMillis) { isReady ->
-                    viewModel.onFullScreenAdResult(isReady)
-                }
-            }
-            // Splash interstitial comes with the splash ad flow step.
-            SplashFullScreen.INTERSTITIAL, SplashFullScreen.OFF -> viewModel.onFullScreenAdResult(false)
-        }
+        val key = viewModel.fullScreenKey ?: return viewModel.onFullScreenAdResult(false)
+        FullScreenAds.preload(key)
+        FullScreenAds.whenReady(key, viewModel.remainingMillis) { isReady -> viewModel.onFullScreenAdResult(isReady) }
     }
 
     private fun onWaitingDone(showAd: Boolean) {
@@ -80,8 +84,13 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
         viewModel.isAdShowStarted = true
 
         val viewModel = viewModel
-        FullScreenAds.show(requireActivity(), AppAdPlacements.APP_OPEN, object : FullScreenAdListener {
-            override fun onAdFinished() = viewModel.onAdFlowFinished()
+        val key = viewModel.fullScreenKey ?: return viewModel.onAdFlowFinished()
+        FullScreenAds.show(requireActivity(), key, object : FullScreenAdListener {
+            override fun onAdFinished() {
+                // The splash interstitial is shown once per launch; the App Open ad keeps preloading for resume.
+                if (key == AppAdPlacements.INTER_SPLASH) FullScreenAds.stop(key)
+                viewModel.onAdFlowFinished()
+            }
         })
     }
 
