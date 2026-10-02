@@ -51,8 +51,10 @@ Rules built in:
 - **First flow**: until the user reaches Main from onboarding once, every launch runs
   Splash → Language → Onboarding → Main again (the language picked earlier is preselected).
   After that: Splash → Main.
-- **Preload chain**: every screen loads the next screen's ad while the user is still on it, so ads
-  appear instantly. Only ads that are on in the ads control are loaded.
+- **Preload chain** (first flow only): Splash loads the Language ad, Language loads onboarding
+  page 1's ad, each onboarding page loads the next page's, and the last page loads the "Get Started"
+  interstitial, so each ad appears instantly. Only ads that are on in the ads control are loaded; the
+  main screen loads its own ads.
 - **Loaders**: native/banner slots show a shimmer of the ad's size while loading;
   interstitials/rewarded show a "Loading ad…" dialog for 1 s first.
 - **Safety**: a double tap never shows two ads or navigates under an ad; ads keep a gap from

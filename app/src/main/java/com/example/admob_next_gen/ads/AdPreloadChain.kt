@@ -5,32 +5,32 @@ import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.fullscreen.FullScreenAds
 
 /**
- * Each screen of the launch flow loads the next screen's ad while the user is still on it, so
- * that ad shows instantly. Only slots that are on in the ads control are loaded.
+ * Each screen of the first flow loads the next screen's ad while the user is still on it, so that
+ * ad shows instantly. Only slots that are on in the ads control are loaded:
  *
- * Splash -> Language -> Onboarding page 1 -> page 2 -> ... -> last page -> Main
+ * - Splash          -> Language ad
+ * - Language        -> onboarding page 1 ad
+ * - Onboarding page -> next page's ad; on the last page -> the "Get Started" interstitial
+ *
+ * The main screen loads its own ads (nothing is preloaded for it).
  */
 object AdPreloadChain {
 
     private val control get() = AdsControlStore.current
 
-    /** From the splash: Language until the first flow was finished once, else the main screen. */
-    fun afterSplash(prefs: SharedPreferenceUtils) = if (prefs.isFirstFlowDone) forMain() else forLanguage()
+    /** From the splash: the Language ad, only while the first flow isn't finished (else Main comes next). */
+    fun afterSplash(prefs: SharedPreferenceUtils) {
+        if (!prefs.isFirstFlowDone) forLanguage()
+    }
 
     fun forLanguage() = AppAdSlot.LANGUAGE.preload(control.language.bottom)
 
-    /** First onboarding page, plus the "Get Started" interstitial. */
-    fun forOnboarding() {
-        AppAdSlot.ON_BOARDING.preload(control.onboarding.slotForPage(0))
-        if (control.onboarding.getStartedInter) FullScreenAds.preload(AppAdPlacements.INTER_ON_BOARDING)
-    }
-
+    /** The ad of onboarding page [index] (0 = the first page, preloaded by Language). */
     fun forOnboardingPage(index: Int) = AppAdSlot.ON_BOARDING.preload(control.onboarding.slotForPage(index))
 
-    /** The ad below the bottom navigation and the one in the first tab (Home). */
-    fun forMain() {
-        AppAdSlot.MAIN.preload(control.main.bottom)
-        AppAdSlot.TAB.preload(control.main.tab(MainTabKeys.HOME))
+    /** From the last onboarding page: the "Get Started" interstitial. */
+    fun forGetStarted() {
+        if (control.onboarding.getStartedInter) FullScreenAds.preload(AppAdPlacements.INTER_ON_BOARDING)
     }
 }
 

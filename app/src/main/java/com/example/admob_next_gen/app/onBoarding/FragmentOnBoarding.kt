@@ -39,7 +39,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
 
     override fun onViewCreated() {
         shownAdPage = NO_PAGE
-        AdPreloadChain.forOnboarding() // normally done by the previous screen; covers a restored app
+        AdPreloadChain.forOnboardingPage(0) // normally done by Language; covers a restored app
         initPager()
 
         binding.mbSkipOnBoarding.setOnClickListener { binding.vpOnBoarding.currentItem = pages.lastIndex }
@@ -81,17 +81,25 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
 
     /**
      * Per-page mode: each page shows its own ad (onboarding.pages). Shared mode: one ad for all pages.
-     * While a page is on screen, the next page's ad (or, on the last page, the main screen's) is preloaded.
+     * While a page is on screen, the next page's ad is preloaded; on the last page, the "Get Started"
+     * interstitial instead.
      */
     private fun loadAdSlot(position: Int) {
         val control = AdsControlStore.current.onboarding
-        if (position < pages.lastIndex) AdPreloadChain.forOnboardingPage(position + 1) else AdPreloadChain.forMain()
+        val isLastPage = position == pages.lastIndex
+        val isPerPage = control.mode == OnboardingAdMode.PER_PAGE
+        when {
+            isLastPage -> AdPreloadChain.forGetStarted()
+            isPerPage -> AdPreloadChain.forOnboardingPage(position + 1)
+        }
 
-        val page = if (control.mode == OnboardingAdMode.SHARED) 0 else position
+        val page = if (isPerPage) position else 0
         if (page == shownAdPage) return
         shownAdPage = page
-        // Keep preloading: the following pages take their ads from the same slot.
-        binding.adSlotOnBoarding.load(viewLifecycleOwner, control.slotForPage(position), AppAdSlot.ON_BOARDING, keepPreloading = true)
+        // The next page takes its ad from the same cache, so keep it filling until the last page.
+        binding.adSlotOnBoarding.load(
+            viewLifecycleOwner, control.slotForPage(position), AppAdSlot.ON_BOARDING, keepPreloading = isPerPage && !isLastPage,
+        )
     }
 
     private fun onNextClick() {

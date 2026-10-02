@@ -57,10 +57,10 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
         AppLanguage.apply(language)
     }
 
-    /** Bottom slot (preloaded by the splash). On first run, warms up the first onboarding ad too. */
+    /** Bottom slot (preloaded by the splash). On first run, warms up onboarding page 1's ad. */
     private fun loadAdSlot() {
         binding.adSlotLanguage.load(viewLifecycleOwner, AdsControlStore.current.language.bottom, AppAdSlot.LANGUAGE)
-        if (!isFromSettings) AdPreloadChain.forOnboarding()
+        if (!isFromSettings) AdPreloadChain.forOnboardingPage(0)
     }
 
     private companion object {
