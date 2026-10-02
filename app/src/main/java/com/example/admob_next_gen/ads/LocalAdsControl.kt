@@ -16,10 +16,10 @@ object LocalAdsControl {
           "app_open_resume": true,
 
           "splash": {
-            "fullscreen": "app_open",
+            "fullscreen": "inter",
             "timeout_sec": 25,
             "bottom_first_ms": 2000,
-            "bottom": { "type": "native", "style": "medium" }
+            "bottom": { "type": "banner", "style": "adaptive" }
           },
 
           "language": {
@@ -29,12 +29,12 @@ object LocalAdsControl {
           "onboarding": {
             "mode": "per_page",
             "pages": [
-              { "type": "native", "style": "large" },
-              { "type": "banner", "style": "medium_rectangle" },
-              { "type": "native", "style": "medium" },
-              { "type": "native", "style": "small" }
+              { "type": "banner", "style": "inline_adaptive" },
+              { "type": "banner", "style": "inline_adaptive" },
+              { "type": "banner", "style": "inline_adaptive" },
+              { "type": "banner", "style": "inline_adaptive" }
             ],
-            "shared": { "type": "native", "style": "medium" },
+            "shared": { "type": "banner", "style": "inline_adaptive" },
             "get_started_inter": true
           },
 

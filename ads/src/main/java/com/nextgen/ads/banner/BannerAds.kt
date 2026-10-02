@@ -223,7 +223,7 @@ object BannerAds {
         destroyWith(lifecycleOwner, container, adView, placement)
 
         AdsLog.d("${placement.key} -> banner from preload (collapsible = ${ad.isCollapsible()})")
-        AdsFlowLog.log(placement, AdsFlowLog.Event.FROM_CACHE)
+        AdsFlowLog.log(placement, AdsFlowLog.Event.FROM_CACHE, "${ad.getAdSize().width}x${ad.getAdSize().height}dp")
         listener?.onAdLoaded(ad.isCollapsible())
     }
 
@@ -254,7 +254,10 @@ object BannerAds {
                 MainDispatch.post {
                     if (adView.parent == null) return@post // screen already destroyed
                     AdsLog.d("${placement.key} -> banner loaded (collapsible = ${ad.isCollapsible()})")
-                    AdsFlowLog.log(placement, AdsFlowLog.Event.LOADED)
+                    // Inline adaptive banners can be shorter than the height reserved for them: shrink to the ad.
+                    val loadedSize = ad.getAdSize()
+                    container.minimumHeight = loadedSize.getHeightInPixels(container.context)
+                    AdsFlowLog.log(placement, AdsFlowLog.Event.LOADED, "${loadedSize.width}x${loadedSize.height}dp")
                     listener?.onAdLoaded(ad.isCollapsible())
                 }
             }
