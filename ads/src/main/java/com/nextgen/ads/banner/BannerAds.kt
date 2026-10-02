@@ -277,7 +277,13 @@ object BannerAds {
     }
 
     private fun eventCallback(placement: AdPlacement, listener: BannerAdListener?) = object : BannerAdEventCallback {
-        override fun onAdImpression() = MainDispatch.post { AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION) }
+        // Banners refresh every 30-60 s and report an impression each time; the first one is enough in the log.
+        private var isImpressionLogged = false
+
+        override fun onAdImpression() = MainDispatch.post {
+            if (!isImpressionLogged) AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION)
+            isImpressionLogged = true
+        }
         override fun onAdClicked() = MainDispatch.post {
             AdsFlowLog.log(placement, AdsFlowLog.Event.CLICKED)
             listener?.onAdClicked()

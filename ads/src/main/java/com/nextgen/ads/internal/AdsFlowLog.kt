@@ -34,7 +34,6 @@ internal object AdsFlowLog {
         SKIPPED("⛔ SKIPPED"),
         /** A full-screen ad was asked to show but couldn't (none ready, another ad on screen…). */
         NOT_SHOWN("🚫 NOT SHOWN"),
-        SHOWN("📺 SHOWN"),
         IMPRESSION("👁 IMPRESSION"),
         CLICKED("👆 CLICKED"),
         CLOSED("✖️ CLOSED"),
@@ -42,15 +41,30 @@ internal object AdsFlowLog {
         REWARDED("🎁 REWARD earned"),
     }
 
+    /** Placements whose cache was already reported ready since their preload started (main thread only). */
+    private val readyAnnounced = mutableSetOf<String>()
+
+    /**
+     * Logcat level = colour in Android Studio: loaded ads are warnings (yellow), failures errors (red),
+     * everything else debug.
+     */
     fun log(placement: AdPlacement, event: Event, detail: String? = null) {
         if (!AdsLog.verbose) return
+        when (event) {
+            Event.PRELOADING -> readyAnnounced -= placement.key
+            // The SDK refills the cache after every use; only the first fill is news.
+            Event.READY_IN_CACHE -> if (!readyAnnounced.add(placement.key)) return
+            else -> Unit
+        }
+
         val screen = (placement.screen ?: "-").take(SCREEN_WIDTH).padEnd(SCREEN_WIDTH)
         val key = placement.key.take(KEY_WIDTH).padEnd(KEY_WIDTH)
         val format = placement.format.label.padEnd(FORMAT_WIDTH)
         val line = "$screen │ $key │ $format │ ${event.label}" + (detail?.let { "  $it" } ?: "")
         when (event) {
-            Event.FAILED -> Log.w(TAG, line)
-            else -> Log.i(TAG, line)
+            Event.LOADED, Event.FROM_CACHE -> Log.w(TAG, line)
+            Event.FAILED -> Log.e(TAG, line)
+            else -> Log.d(TAG, line)
         }
     }
 
@@ -59,7 +73,7 @@ internal object AdsFlowLog {
         if (!AdsLog.verbose) return
         val screen = (slotPlacement.screen ?: "-").take(SCREEN_WIDTH).padEnd(SCREEN_WIDTH)
         val keys = "$nativeKey/$bannerKey".take(KEY_WIDTH).padEnd(KEY_WIDTH)
-        Log.i(TAG, "$screen │ $keys │ ${"Slot".padEnd(FORMAT_WIDTH)} │ ${Event.SKIPPED.label}  slot is off (ads control)")
+        Log.d(TAG, "$screen │ $keys │ ${"Slot".padEnd(FORMAT_WIDTH)} │ ${Event.SKIPPED.label}  slot is off (ads control)")
     }
 
     private val AdFormat.label: String

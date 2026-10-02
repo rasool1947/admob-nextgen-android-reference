@@ -219,7 +219,6 @@ object FullScreenAds {
         val key = placement.key
 
         override fun onAdShowedFullScreenContent() = MainDispatch.post {
-            AdsFlowLog.log(placement, AdsFlowLog.Event.SHOWN, "from cache")
             lastShownAtMillis = SystemClock.elapsedRealtime()
             listener?.onAdShowed()
         }
