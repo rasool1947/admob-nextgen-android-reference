@@ -1,175 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
-    tools:context=".app.home.FragmentHome">
+    tools:context=".app.main.home.FragmentHome">
 
-    <!-- Top bar -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/mtvTitleHome"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="52dp"
-        android:text="Home"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <!-- Premium button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/mbPremiumHome"
-        style="@style/Widget.Material3.Button.IconButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="44dp"
-        app:icon="@drawable/ic_svg_premium"
-        app:iconSize="28dp"
-        app:iconTint="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/home_greeting"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+            android:textStyle="bold" />
 
-    <!-- Subtitle -->
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="4dp"
-        android:text="Explore ad formats below"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:alpha="0.55"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mtvTitleHome"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <!-- Ad format cards -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardFeaturesHome"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:layout_constraintEnd_toStartOf="@+id/cardSettingsHome"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mtvTitleHome"
-        app:layout_constraintWidth_percent="0.42"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintHorizontal_bias="0.5"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp">
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:alpha="0.6"
+            android:text="@string/home_subtitle"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_marginTop="24dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
+            <include
+                android:id="@+id/cardInterstitialHome"
+                layout="@layout/view_home_card"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="🎬"
-                android:textSize="28sp" />
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
+            <include
+                android:id="@+id/cardRewardedHome"
+                layout="@layout/view_home_card"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Interstitial"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Full-screen ad experience"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:alpha="0.6" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/mbFeaturesHome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Open"
-                android:textAllCaps="false"
-                android:paddingVertical="8dp"
-                app:cornerRadius="8dp" />
-
+                android:layout_marginStart="6dp"
+                android:layout_weight="1" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardSettingsHome"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cardFeaturesHome"
-        app:layout_constraintTop_toBottomOf="@+id/mtvTitleHome"
-        app:layout_constraintWidth_percent="0.42"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="16dp">
-
-        <LinearLayout
+        <!-- In-content ad slot of this tab (ads control main.tabs.home; filled in a later step) -->
+        <FrameLayout
+            android:id="@+id/adSlotHome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_marginTop="20dp" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⚙️"
-                android:textSize="28sp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Settings"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Native ad &amp; preferences"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:alpha="0.6" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/mbSettingsHome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Open"
-                android:textAllCaps="false"
-                android:paddingVertical="8dp"
-                app:cornerRadius="8dp" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Banner Ad -->
-    <FrameLayout
-        android:id="@+id/bannerAdViewHome"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_min="50dp"
-        app:layout_constraintStart_toStartOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

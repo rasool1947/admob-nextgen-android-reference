@@ -15,8 +15,8 @@ import androidx.viewbinding.ViewBinding
 abstract class ParentActivity<T : ViewBinding>(private val bindingFactory: (LayoutInflater) -> T) : AppCompatActivity() {
 
     protected val binding by lazy { bindingFactory(layoutInflater) }
-    protected var includeTopPadding = true
-    protected var includeBottomPadding = true
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -29,9 +29,8 @@ abstract class ParentActivity<T : ViewBinding>(private val bindingFactory: (Layo
     private fun setPadding() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            val topPadding = if (includeTopPadding) bars.top else 0
-            val bottomPadding = if (includeBottomPadding) bars.bottom else 0
-            v.updatePadding(left = bars.left, top = topPadding, right = bars.right, bottom = bottomPadding)
+
+            v.updatePadding(left = bars.left, top = bars.top, right = bars.right, bottom = bars.bottom)
             WindowInsetsCompat.CONSUMED
         }
     }

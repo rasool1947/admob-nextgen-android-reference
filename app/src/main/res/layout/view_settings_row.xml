@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:minHeight="56dp"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp">
+
+    <ImageView
+        android:id="@+id/ivIconRow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@null"
+        app:tint="?attr/colorPrimary"
+        tools:src="@drawable/ic_svg_language" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/mtvTitleRow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_weight="1"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        tools:text="@string/settings_language" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/mtvValueRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:alpha="0.6"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        tools:text="English" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="4dp"
+        android:alpha="0.5"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_svg_chevron" />
+</LinearLayout>

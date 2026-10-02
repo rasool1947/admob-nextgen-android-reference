@@ -1,139 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
-    tools:context=".app.settings.FragmentSettings">
+    tools:context=".app.main.settings.FragmentSettings">
 
-    <!-- Back button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/mbBackSettings"
-        style="@style/Widget.Material3.Button.IconButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:icon="@drawable/ic_svg_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        android:paddingVertical="20dp">
 
-    <!-- Title -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/mtvTitleSettings"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:layout_marginStart="24dp"
-        android:text="Settings"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.8" />
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:text="@string/tab_settings"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+            android:textStyle="bold" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="6dp"
-        android:text="Native ad displayed at the bottom"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:alpha="0.55"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mtvTitleSettings"
-        app:layout_constraintWidth_percent="0.75" />
-
-    <!-- Info card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardInfoSettings"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mtvTitleSettings"
-        app:layout_constraintWidth_percent="0.88">
-
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Material3.CardView.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🖼️  Native Ad"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Native ads match the look and feel of your app. They are customizable and blend seamlessly into your content for a better user experience."
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:alpha="0.7"
-                android:lineSpacingMultiplier="1.4" />
-
-            <com.google.android.material.divider.MaterialDivider
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginVertical="16dp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✅  Custom UI\n✅  Non-intrusive\n✅  Higher engagement"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:lineSpacingMultiplier="1.6" />
+                android:orientation="vertical"
+                android:paddingVertical="4dp">
 
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                <include
+                    android:id="@+id/rowLanguage"
+                    layout="@layout/view_settings_row" />
 
-    <!-- Privacy options (shown only when consent rules require it, e.g. GDPR) -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/mbPrivacySettings"
-        style="@style/Widget.Material3.Button.TonalButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/privacy_settings"
-        android:textAllCaps="false"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/cardInfoSettings"
-        app:layout_constraintStart_toStartOf="@+id/cardInfoSettings"
-        app:layout_constraintTop_toBottomOf="@+id/cardInfoSettings"
-        tools:visibility="visible" />
+                <include
+                    android:id="@+id/rowPrivacy"
+                    layout="@layout/view_settings_row" />
 
-    <!-- Ad Inspector (debug builds only) -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/mbAdInspectorSettings"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/ad_inspector"
-        android:textAllCaps="false"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/cardInfoSettings"
-        app:layout_constraintStart_toStartOf="@+id/cardInfoSettings"
-        app:layout_constraintTop_toBottomOf="@+id/mbPrivacySettings"
-        app:layout_goneMarginTop="16dp"
-        tools:visibility="visible" />
+                <include
+                    android:id="@+id/rowShare"
+                    layout="@layout/view_settings_row" />
 
-    <!-- Native Ad -->
-    <com.nextgen.ads.nativead.NativeAdTemplateView
-        android:id="@+id/nativeAdSettings"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:nativeTemplate="small" />
+                <include
+                    android:id="@+id/rowRate"
+                    layout="@layout/view_settings_row" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <include
+                    android:id="@+id/rowAdInspector"
+                    layout="@layout/view_settings_row" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/mtvVersionSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:alpha="0.5"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            tools:text="Version 0.0.1" />
+
+        <!-- In-content ad slot of this tab (ads control main.tabs.settings) -->
+        <com.nextgen.ads.nativead.NativeAdTemplateView
+            android:id="@+id/adSlotSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:nativeTemplate="medium" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

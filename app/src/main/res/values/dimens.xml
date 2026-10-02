@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="ob_dot_gap">6dp</dimen>
+    <dimen name="ob_dot_size">8dp</dimen>
+    <dimen name="ob_dot_selected_width">24dp</dimen>
+    <!-- Space between an ad and nearby buttons / navigation, against accidental clicks. -->
+    <dimen name="ad_safe_gap">8dp</dimen>
+</resources>

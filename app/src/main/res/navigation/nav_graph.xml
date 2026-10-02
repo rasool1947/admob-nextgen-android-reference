@@ -1,71 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- First run: Splash -> Language -> Onboarding -> Main. Later launches: Splash -> Main. -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/fragmentEntrance">
+    app:startDestination="@id/fragmentSplash">
 
     <fragment
-        android:id="@+id/fragmentEntrance"
-        android:name="com.example.admob_next_gen.app.entrance.FragmentEntrance"
-        android:label="fragment_entrance"
-        tools:layout="@layout/fragment_entrance">
+        android:id="@+id/fragmentSplash"
+        android:name="com.example.admob_next_gen.app.splash.FragmentSplash"
+        tools:layout="@layout/fragment_splash">
         <action
-            android:id="@+id/action_fragmentEntrance_to_fragmentLanguage"
+            android:id="@+id/action_fragmentSplash_to_fragmentLanguage"
             app:destination="@id/fragmentLanguage"
-            app:popUpTo="@id/fragmentEntrance"
+            app:popUpTo="@id/fragmentSplash"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_fragmentSplash_to_fragmentOnBoarding"
+            app:destination="@id/fragmentOnBoarding"
+            app:popUpTo="@id/fragmentSplash"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_fragmentSplash_to_fragmentMain"
+            app:destination="@id/fragmentMain"
+            app:popUpTo="@id/fragmentSplash"
             app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/fragmentLanguage"
         android:name="com.example.admob_next_gen.app.language.FragmentLanguage"
-        android:label="fragment_language"
         tools:layout="@layout/fragment_language">
+        <!-- true when opened from Settings: "Done" goes back instead of on to onboarding. -->
+        <argument
+            android:name="fromSettings"
+            android:defaultValue="false"
+            app:argType="boolean" />
         <action
             android:id="@+id/action_fragmentLanguage_to_fragmentOnBoarding"
-            app:destination="@id/fragmentOnBoarding" />
+            app:destination="@id/fragmentOnBoarding"
+            app:popUpTo="@id/fragmentLanguage"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/fragmentOnBoarding"
         android:name="com.example.admob_next_gen.app.onBoarding.FragmentOnBoarding"
-        android:label="fragment_on_boarding"
         tools:layout="@layout/fragment_on_boarding">
         <action
-            android:id="@+id/action_fragmentOnBoarding_to_fragmentHome"
-            app:destination="@id/fragmentHome" />
+            android:id="@+id/action_fragmentOnBoarding_to_fragmentMain"
+            app:destination="@id/fragmentMain"
+            app:popUpTo="@id/fragmentOnBoarding"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
-        android:id="@+id/fragmentHome"
-        android:name="com.example.admob_next_gen.app.home.FragmentHome"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        android:id="@+id/fragmentMain"
+        android:name="com.example.admob_next_gen.app.main.FragmentMain"
+        tools:layout="@layout/fragment_main">
         <action
-            android:id="@+id/action_fragmentHome_to_fragmentFeature"
+            android:id="@+id/action_fragmentMain_to_fragmentFeature"
             app:destination="@id/fragmentFeature" />
         <action
-            android:id="@+id/action_fragmentHome_to_fragmentSettings"
-            app:destination="@id/fragmentSettings" />
-        <action
-            android:id="@+id/action_fragmentHome_to_fragmentPremium"
+            android:id="@+id/action_fragmentMain_to_fragmentPremium"
             app:destination="@id/fragmentPremium" />
+        <action
+            android:id="@+id/action_fragmentMain_to_fragmentLanguage"
+            app:destination="@id/fragmentLanguage">
+            <argument
+                android:name="fromSettings"
+                android:defaultValue="true"
+                app:argType="boolean" />
+        </action>
     </fragment>
+
     <fragment
         android:id="@+id/fragmentFeature"
         android:name="com.example.admob_next_gen.app.feature.FragmentFeature"
-        android:label="fragment_feature"
         tools:layout="@layout/fragment_feature" />
-    <fragment
-        android:id="@+id/fragmentSettings"
-        android:name="com.example.admob_next_gen.app.settings.FragmentSettings"
-        android:label="fragment_settings"
-        tools:layout="@layout/fragment_settings" />
+
     <fragment
         android:id="@+id/fragmentPremium"
         android:name="com.example.admob_next_gen.app.premium.FragmentPremium"
-        android:label="fragment_premium"
         tools:layout="@layout/fragment_premium">
         <action
             android:id="@+id/action_fragmentPremium_to_fragmentFeature"

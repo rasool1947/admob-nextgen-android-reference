@@ -1,0 +1,96 @@
+<resources>
+    <string name="action_open">فتح</string>
+    <string name="action_back">رجوع</string>
+
+    <!-- Splash -->
+    <string name="splash_tagline">إعلانات Google للجوال — الجيل التالي</string>
+    <string name="splash_loading">جارٍ التحميل…</string>
+    <string name="splash_ads_notice">قد يتضمن هذا الإجراء إعلانات</string>
+
+    <!-- Language -->
+    <string name="language_title">اختر اللغة</string>
+    <string name="language_subtitle">يمكنك تغييرها لاحقًا من الإعدادات</string>
+    <string name="language_done">تم</string>
+
+    <!-- Onboarding -->
+    <string name="ob_skip">تخطي</string>
+    <string name="ob_next">التالي</string>
+    <string name="ob_get_started">ابدأ الآن</string>
+    <string name="ob_title_1">مرحبًا بك</string>
+    <string name="ob_desc_1">تطبيق بداية نظيف يتضمن جميع أنواع إعلانات AdMob Next-Gen.</string>
+    <string name="ob_title_2">إعلانات تناسب التصميم</string>
+    <string name="ob_desc_2">إعلانات الأصلية والبانر تظهر داخل التصميم وتتبع إعدادات Remote Config.</string>
+    <string name="ob_title_3">إعلانات ملء الشاشة الذكية</string>
+    <string name="ob_desc_3">تظهر الإعلانات البينية وإعلانات فتح التطبيق في فترات التوقف الطبيعية، وليس أثناء المهمة.</string>
+    <string name="ob_title_4">أنت جاهز</string>
+    <string name="ob_desc_4">غيّر اللغة والخصوصية وخيارات الإعلانات في أي وقت من الإعدادات.</string>
+
+    <!-- Main tabs -->
+    <string name="tab_home">الرئيسية</string>
+    <string name="tab_explore">استكشاف</string>
+    <string name="tab_history">السجل</string>
+    <string name="tab_settings">الإعدادات</string>
+
+    <!-- Home -->
+    <string name="home_greeting">مرحبًا 👋</string>
+    <string name="home_subtitle">ماذا تود أن تجرب اليوم؟</string>
+    <string name="home_interstitial_title">إعلان بيني</string>
+    <string name="home_interstitial_desc">يفتح شاشة بعد إعلان</string>
+    <string name="home_rewarded_title">إعلان بمكافأة</string>
+    <string name="home_rewarded_desc">افتح ميزة بمشاهدة إعلان</string>
+
+    <!-- Explore -->
+    <string name="explore_subtitle">أفكار لتطبيقك القادم</string>
+    <string-array name="explore_titles">
+        <item>محرر الصور</item>
+        <item>ماسح PDF</item>
+        <item>مسجل الصوت</item>
+        <item>قارئ رمز QR</item>
+        <item>محول الوحدات</item>
+        <item>الخلفيات</item>
+    </string-array>
+    <string-array name="explore_descriptions">
+        <item>فلاتر وقص وملصقات</item>
+        <item>حوّل الورق إلى ملفات PDF واضحة</item>
+        <item>سجّل الصوت وقصّه وشاركه</item>
+        <item>امسح الرموز في ثانية</item>
+        <item>الطول والوزن والعملات والمزيد</item>
+        <item>خلفيات جديدة كل يوم</item>
+    </string-array>
+
+    <!-- History -->
+    <string name="history_empty_title">لا شيء هنا بعد</string>
+    <string name="history_empty_desc">ما تفتحه سيظهر هنا.</string>
+
+    <!-- Settings -->
+    <string name="settings_language">اللغة</string>
+    <string name="settings_privacy">إعدادات الخصوصية</string>
+    <string name="settings_ad_inspector">فاحص الإعلانات (تصحيح)</string>
+    <string name="settings_share">مشاركة التطبيق</string>
+    <string name="settings_share_text">جرّب %1$s: https://play.google.com/store/apps/details?id=%2$s</string>
+    <string name="settings_rate">قيّمنا</string>
+    <string name="settings_version">الإصدار %1$s</string>
+
+    <!-- Feature -->
+    <string name="feature_title">شاشة الميزة</string>
+    <string name="feature_subtitle">فُتحت بعد إعلان بيني</string>
+    <string name="feature_card_title">🎬  إعلان بيني</string>
+    <string name="feature_card_desc">إعلانات ملء الشاشة تظهر عند نقاط الانتقال الطبيعية في التطبيق. تغطي الشاشة بالكامل ويمكن للمستخدم إغلاقها.</string>
+    <string name="feature_card_points">✅  عائد eCPM مرتفع\n✅  تفاعل بملء الشاشة\n✅  نقاط انتقال طبيعية</string>
+
+    <!-- Premium (rewarded) -->
+    <string name="reward_ad_not_available">لا يوجد إعلان متاح الآن، حاول مرة أخرى بعد قليل.</string>
+    <string name="reward_not_earned">شاهد الإعلان كاملًا للحصول على المكافأة.</string>
+    <string name="premium_title">افتح بالإعلانات</string>
+    <string name="premium_subtitle">لا تُعرض الإعلانات بمكافأة إلا عندما تختار مشاهدتها.</string>
+    <string name="premium_rewarded_title">🤖  ميزة الذكاء الاصطناعي</string>
+    <string name="premium_rewarded_description">شاهد إعلان فيديو قصيرًا لفتح ميزة الذكاء الاصطناعي.</string>
+    <string name="premium_rewarded_button">▶  شاهد إعلانًا للفتح</string>
+    <string name="premium_bonus_title">🎁  عملات إضافية</string>
+    <string name="premium_bonus_description">سيبدأ إعلان قصير بعد بضع ثوانٍ. يمكنك تخطيه قبل أن يبدأ.</string>
+    <string name="premium_bonus_button">احصل على المكافأة</string>
+    <string name="premium_bonus_earned">🎉  ربحت %1$d %2$s</string>
+    <string name="bonus_intro_title">عملات إضافية</string>
+    <string name="bonus_intro_message">شاهد إعلانًا قصيرًا لربح عملات إضافية.\nيبدأ الإعلان خلال %1$d ث.</string>
+    <string name="bonus_intro_skip">لا، شكرًا</string>
+</resources>

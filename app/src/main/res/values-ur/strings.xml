@@ -1,0 +1,96 @@
+<resources>
+    <string name="action_open">کھولیں</string>
+    <string name="action_back">واپس</string>
+
+    <!-- Splash -->
+    <string name="splash_tagline">گوگل موبائل ایڈز — نئی نسل</string>
+    <string name="splash_loading">لوڈ ہو رہا ہے…</string>
+    <string name="splash_ads_notice">اس عمل میں اشتہار شامل ہو سکتے ہیں</string>
+
+    <!-- Language -->
+    <string name="language_title">زبان منتخب کریں</string>
+    <string name="language_subtitle">آپ اسے بعد میں سیٹنگز سے بدل سکتے ہیں</string>
+    <string name="language_done">ہو گیا</string>
+
+    <!-- Onboarding -->
+    <string name="ob_skip">چھوڑیں</string>
+    <string name="ob_next">اگلا</string>
+    <string name="ob_get_started">شروع کریں</string>
+    <string name="ob_title_1">خوش آمدید</string>
+    <string name="ob_desc_1">ایک صاف ستھری اسٹارٹر ایپ جس میں AdMob Next-Gen کے تمام اشتہارات شامل ہیں۔</string>
+    <string name="ob_title_2">اشتہار جو ڈیزائن میں فٹ ہوں</string>
+    <string name="ob_desc_2">نیٹو اور بینر اشتہار آپ کے لے آؤٹ میں رہتے ہیں اور ریموٹ کنفیگ کے مطابق چلتے ہیں۔</string>
+    <string name="ob_title_3">سمجھدار فل اسکرین اشتہار</string>
+    <string name="ob_desc_3">انٹراسٹیشل اور ایپ اوپن اشتہار مناسب وقفے پر آتے ہیں، کام کے بیچ میں کبھی نہیں۔</string>
+    <string name="ob_title_4">آپ تیار ہیں</string>
+    <string name="ob_desc_4">زبان، پرائیویسی اور اشتہارات کی ترتیبات کسی بھی وقت سیٹنگز سے بدلیں۔</string>
+
+    <!-- Main tabs -->
+    <string name="tab_home">ہوم</string>
+    <string name="tab_explore">دریافت</string>
+    <string name="tab_history">ہسٹری</string>
+    <string name="tab_settings">سیٹنگز</string>
+
+    <!-- Home -->
+    <string name="home_greeting">السلام علیکم 👋</string>
+    <string name="home_subtitle">آج آپ کیا آزمانا چاہیں گے؟</string>
+    <string name="home_interstitial_title">انٹراسٹیشل</string>
+    <string name="home_interstitial_desc">پہلے اشتہار، پھر اسکرین کھلتی ہے</string>
+    <string name="home_rewarded_title">انعامی اشتہار</string>
+    <string name="home_rewarded_desc">اشتہار دیکھ کر فیچر ان لاک کریں</string>
+
+    <!-- Explore -->
+    <string name="explore_subtitle">آپ کی اگلی ایپ کے لیے آئیڈیاز</string>
+    <string-array name="explore_titles">
+        <item>فوٹو ایڈیٹر</item>
+        <item>پی ڈی ایف اسکینر</item>
+        <item>وائس ریکارڈر</item>
+        <item>کیو آر کوڈ ریڈر</item>
+        <item>یونٹ کنورٹر</item>
+        <item>وال پیپرز</item>
+    </string-array>
+    <string-array name="explore_descriptions">
+        <item>فلٹرز، کراپ اور اسٹیکرز</item>
+        <item>کاغذ کو صاف پی ڈی ایف میں بدلیں</item>
+        <item>آواز ریکارڈ، کاٹیں اور شیئر کریں</item>
+        <item>ایک سیکنڈ میں کوڈ اسکین کریں</item>
+        <item>لمبائی، وزن، کرنسی اور بہت کچھ</item>
+        <item>ہر روز نئے بیک گراؤنڈز</item>
+    </string-array>
+
+    <!-- History -->
+    <string name="history_empty_title">ابھی یہاں کچھ نہیں</string>
+    <string name="history_empty_desc">جو آپ کھولیں گے وہ یہاں نظر آئے گا۔</string>
+
+    <!-- Settings -->
+    <string name="settings_language">زبان</string>
+    <string name="settings_privacy">پرائیویسی سیٹنگز</string>
+    <string name="settings_ad_inspector">ایڈ انسپکٹر (ڈیبگ)</string>
+    <string name="settings_share">ایپ شیئر کریں</string>
+    <string name="settings_share_text">%1$s آزمائیں: https://play.google.com/store/apps/details?id=%2$s</string>
+    <string name="settings_rate">ریٹ کریں</string>
+    <string name="settings_version">ورژن %1$s</string>
+
+    <!-- Feature -->
+    <string name="feature_title">فیچر اسکرین</string>
+    <string name="feature_subtitle">انٹراسٹیشل اشتہار کے بعد کھلی</string>
+    <string name="feature_card_title">🎬  انٹراسٹیشل اشتہار</string>
+    <string name="feature_card_desc">فل اسکرین اشتہار جو ایپ میں قدرتی وقفوں پر آتے ہیں۔ یہ پوری اسکرین پر ہوتے ہیں اور صارف انہیں بند کر سکتا ہے۔</string>
+    <string name="feature_card_points">✅  زیادہ eCPM\n✅  فل اسکرین توجہ\n✅  قدرتی وقفے</string>
+
+    <!-- Premium (rewarded) -->
+    <string name="reward_ad_not_available">ابھی کوئی اشتہار دستیاب نہیں، تھوڑی دیر بعد دوبارہ کوشش کریں۔</string>
+    <string name="reward_not_earned">انعام کے لیے پورا اشتہار دیکھیں۔</string>
+    <string name="premium_title">اشتہار سے ان لاک کریں</string>
+    <string name="premium_subtitle">انعامی اشتہار صرف تب چلتے ہیں جب آپ خود دیکھنا چاہیں۔</string>
+    <string name="premium_rewarded_title">🤖  اے آئی فیچر</string>
+    <string name="premium_rewarded_description">اے آئی فیچر ان لاک کرنے کے لیے ایک مختصر ویڈیو اشتہار دیکھیں۔</string>
+    <string name="premium_rewarded_button">▶  اشتہار دیکھ کر ان لاک کریں</string>
+    <string name="premium_bonus_title">🎁  بونس سکے</string>
+    <string name="premium_bonus_description">چند سیکنڈ بعد ایک مختصر اشتہار چلے گا۔ شروع ہونے سے پہلے آپ اسے چھوڑ سکتے ہیں۔</string>
+    <string name="premium_bonus_button">بونس حاصل کریں</string>
+    <string name="premium_bonus_earned">🎉  آپ نے %1$d %2$s حاصل کیے</string>
+    <string name="bonus_intro_title">بونس سکے</string>
+    <string name="bonus_intro_message">بونس سکے حاصل کرنے کے لیے ایک مختصر اشتہار دیکھیں۔\nاشتہار %1$d سیکنڈ میں شروع ہوگا۔</string>
+    <string name="bonus_intro_skip">نہیں شکریہ</string>
+</resources>

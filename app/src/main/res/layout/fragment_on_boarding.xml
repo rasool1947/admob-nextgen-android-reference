@@ -7,70 +7,55 @@
     android:background="?attr/colorSurface"
     tools:context=".app.onBoarding.FragmentOnBoarding">
 
-    <!-- Step indicator -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/mtvStepOnBoarding"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mbSkipOnBoarding"
+        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:background="@drawable/bg_ads"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="4dp"
-        android:text="STEP 1 OF 3"
-        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/ob_skip"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/mtvTitleOnBoarding"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vpOnBoarding"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:text="Welcome to\nAdMob Next Gen"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineLarge"
-        android:textStyle="bold"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/mbNextOnBoarding"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mtvStepOnBoarding"
-        app:layout_constraintWidth_percent="0.85" />
+        app:layout_constraintTop_toBottomOf="@+id/mbSkipOnBoarding" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="0dp"
+    <!-- Page indicator, filled in code -->
+    <LinearLayout
+        android:id="@+id/llDotsOnBoarding"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
-        android:text="Experience the next generation of Google Mobile Ads SDK with improved performance, new ad formats, and better monetization."
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:alpha="0.65"
-        android:lineSpacingMultiplier="1.4"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/mbNextOnBoarding"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mtvTitleOnBoarding"
-        app:layout_constraintWidth_percent="0.8" />
+        app:layout_constraintTop_toTopOf="@+id/mbNextOnBoarding" />
 
-    <!-- Continue button -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/mbContinueOnBoarding"
-        android:layout_width="0dp"
+        android:id="@+id/mbNextOnBoarding"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:text="Next →"
-        android:textAllCaps="false"
-        android:paddingVertical="14dp"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/nativeAdOnBoarding"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        android:minWidth="128dp"
+        android:paddingVertical="12dp"
+        android:text="@string/ob_next"
+        android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+        app:layout_constraintBottom_toTopOf="@+id/adSlotOnBoarding"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Native Ad -->
+    <!-- Bottom ad slot (per page or shared, from ads control) -->
     <com.nextgen.ads.nativead.NativeAdTemplateView
-        android:id="@+id/nativeAdOnBoarding"
+        android:id="@+id/adSlotOnBoarding"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

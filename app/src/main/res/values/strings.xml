@@ -1,17 +1,88 @@
 <resources>
-    <string name="app_name">Admob-Next-Gen</string>
+    <string name="app_name" translatable="false">Admob-Next-Gen</string>
+    <string name="app_display_name" translatable="false">AdMob Next Gen</string>
+    <string name="action_open">Open</string>
+    <string name="action_back">Back</string>
 
-    <string name="consent_checking">⏳  Checking consent…</string>
-    <string name="consent_ads_enabled">✅  Consent checked: ads enabled</string>
-    <string name="consent_ads_disabled">ℹ️  Continuing without ads</string>
-    <string name="native_response">Native Responded</string>
-    <string name="app_open_response">App Open Responded</string>
+    <!-- Splash -->
+    <string name="splash_tagline">Google Mobile Ads — Next Generation</string>
+    <string name="splash_loading">Loading…</string>
+    <string name="splash_ads_notice">This action may contain ads</string>
 
-    <string name="privacy_settings">Privacy settings</string>
-    <string name="ad_inspector">Ad Inspector (debug)</string>
+    <!-- Language -->
+    <string name="language_title">Choose language</string>
+    <string name="language_subtitle">You can change it later in Settings</string>
+    <string name="language_done">Done</string>
+
+    <!-- Onboarding -->
+    <string name="ob_skip">Skip</string>
+    <string name="ob_next">Next</string>
+    <string name="ob_get_started">Get Started</string>
+    <string name="ob_title_1">Welcome</string>
+    <string name="ob_desc_1">A clean starter app with every AdMob Next-Gen ad format built in.</string>
+    <string name="ob_title_2">Ads that fit in</string>
+    <string name="ob_desc_2">Native and banner ads sit inside your layout and follow your remote config.</string>
+    <string name="ob_title_3">Smart full-screen ads</string>
+    <string name="ob_desc_3">Interstitial and app open ads show at natural breaks, never in the middle of a task.</string>
+    <string name="ob_title_4">Ready when you are</string>
+    <string name="ob_desc_4">Change the language, privacy and ad choices any time from Settings.</string>
+
+    <!-- Main tabs -->
+    <string name="tab_home">Home</string>
+    <string name="tab_explore">Explore</string>
+    <string name="tab_history">History</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hello 👋</string>
+    <string name="home_subtitle">What would you like to try today?</string>
+    <string name="home_interstitial_title">Interstitial</string>
+    <string name="home_interstitial_desc">Opens a screen with an ad first</string>
+    <string name="home_rewarded_title">Rewarded</string>
+    <string name="home_rewarded_desc">Unlock a feature by watching an ad</string>
+
+    <!-- Explore -->
+    <string name="explore_subtitle">Ideas for your next app</string>
+    <string-array name="explore_titles">
+        <item>Photo editor</item>
+        <item>PDF scanner</item>
+        <item>Voice recorder</item>
+        <item>QR code reader</item>
+        <item>Unit converter</item>
+        <item>Wallpapers</item>
+    </string-array>
+    <string-array name="explore_descriptions">
+        <item>Filters, crop and stickers</item>
+        <item>Turn paper into clean PDFs</item>
+        <item>Record, trim and share audio</item>
+        <item>Scan codes in a second</item>
+        <item>Length, weight, money and more</item>
+        <item>Fresh backgrounds every day</item>
+    </string-array>
+
+    <!-- History -->
+    <string name="history_empty_title">Nothing here yet</string>
+    <string name="history_empty_desc">Things you open will show up here.</string>
+
+    <!-- Settings -->
+    <string name="settings_language">Language</string>
+    <string name="settings_privacy">Privacy settings</string>
+    <string name="settings_ad_inspector">Ad Inspector (debug)</string>
+    <string name="settings_share">Share app</string>
+    <string name="settings_share_text">Try %1$s: https://play.google.com/store/apps/details?id=%2$s</string>
+    <string name="settings_rate">Rate us</string>
+    <string name="settings_version">Version %1$s</string>
+
+    <!-- Feature -->
+    <string name="feature_title">Feature screen</string>
+    <string name="feature_subtitle">Opened after an interstitial ad</string>
+    <string name="feature_card_title">🎬  Interstitial ad</string>
+    <string name="feature_card_desc">Full-screen ads that appear at natural transition points in your app. They cover the whole screen and the user can close them.</string>
+    <string name="feature_card_points">✅  High eCPM\n✅  Full-screen engagement\n✅  Natural transition points</string>
+
+    <!-- Premium (rewarded) -->
     <string name="reward_ad_not_available">No ad available right now, please try again in a moment.</string>
     <string name="reward_not_earned">Watch the full ad to get the reward.</string>
-
     <string name="premium_title">Unlock with ads</string>
     <string name="premium_subtitle">Rewarded ads only play when you choose to watch one.</string>
     <string name="premium_rewarded_title">🤖  AI Feature</string>

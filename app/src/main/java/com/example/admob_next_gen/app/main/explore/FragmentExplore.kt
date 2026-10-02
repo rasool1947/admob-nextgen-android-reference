@@ -1,0 +1,42 @@
+package com.example.admob_next_gen.app.main.explore
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.admob_next_gen.R
+import com.example.admob_next_gen.databinding.FragmentExploreBinding
+import com.example.admob_next_gen.databinding.ItemExploreBinding
+import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
+
+/** Explore tab: a sample content list. */
+class FragmentExplore : BaseFragment<FragmentExploreBinding>(FragmentExploreBinding::inflate) {
+
+    override fun onViewCreated() {
+        val titles = resources.getStringArray(R.array.explore_titles)
+        val descriptions = resources.getStringArray(R.array.explore_descriptions)
+        binding.rvExplore.adapter = AdapterExplore(titles.indices.map { i -> Item(ICONS[i % ICONS.size], titles[i], descriptions[i]) })
+    }
+
+    private data class Item(val icon: String, val title: String, val description: String)
+
+    private class AdapterExplore(private val items: List<Item>) : RecyclerView.Adapter<AdapterExplore.ViewHolder>() {
+
+        class ViewHolder(val binding: ItemExploreBinding) : RecyclerView.ViewHolder(binding.root)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+            ViewHolder(ItemExploreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+        override fun getItemCount() = items.size
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val item = items[position]
+            holder.binding.mtvIconExplore.text = item.icon
+            holder.binding.mtvTitleExplore.text = item.title
+            holder.binding.mtvDescExplore.text = item.description
+        }
+    }
+
+    private companion object {
+        val ICONS = listOf("📷", "📄", "🎙️", "🔳", "📏", "🖼️")
+    }
+}

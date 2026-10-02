@@ -7,53 +7,76 @@
     android:background="?attr/colorSurface"
     tools:context=".app.language.FragmentLanguage">
 
-    <!-- Top bar -->
+    <!-- Back (only when opened from Settings) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mbBackLanguage"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:contentDescription="@string/action_back"
+        android:visibility="gone"
+        app:icon="@drawable/ic_svg_back"
+        app:layout_constraintBottom_toBottomOf="@+id/mtvTitleLanguage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/mtvTitleLanguage"
+        tools:visibility="visible" />
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/mtvTitleLanguage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:gravity="center"
-        android:text="🌐  Choose Language"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/language_title"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.85" />
+        app:layout_constraintEnd_toStartOf="@+id/mbDoneLanguage"
+        app:layout_constraintStart_toEndOf="@+id/mbBackLanguage"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/mtvSubtitleLanguage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:text="Select your preferred language to continue"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_marginTop="2dp"
         android:alpha="0.6"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mtvTitleLanguage"
-        app:layout_constraintWidth_percent="0.75" />
+        android:text="@string/language_subtitle"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        app:layout_constraintEnd_toEndOf="@+id/mtvTitleLanguage"
+        app:layout_constraintStart_toStartOf="@+id/mtvTitleLanguage"
+        app:layout_constraintTop_toBottomOf="@+id/mtvTitleLanguage" />
 
-    <!-- Continue button -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/mbContinueLanguage"
-        android:layout_width="0dp"
+        android:id="@+id/mbDoneLanguage"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Continue"
-        android:textAllCaps="false"
-        android:paddingVertical="14dp"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/nativeAdLanguage"
+        android:layout_marginEnd="16dp"
+        android:text="@string/language_done"
+        app:icon="@drawable/ic_svg_check"
+        app:layout_constraintBottom_toBottomOf="@+id/mtvSubtitleLanguage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/mtvTitleLanguage" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvLanguages"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="12dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/adSlotLanguage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        app:layout_constraintTop_toBottomOf="@+id/mtvSubtitleLanguage"
+        tools:itemCount="6"
+        tools:listitem="@layout/item_language" />
 
-    <!-- Native Ad -->
+    <!-- Bottom ad slot (native / banner from ads control) -->
     <com.nextgen.ads.nativead.NativeAdTemplateView
-        android:id="@+id/nativeAdLanguage"
+        android:id="@+id/adSlotLanguage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

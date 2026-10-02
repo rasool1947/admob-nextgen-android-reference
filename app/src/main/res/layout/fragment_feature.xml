@@ -14,6 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
+        android:contentDescription="@string/action_back"
         app:icon="@drawable/ic_svg_back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
         android:layout_marginStart="24dp"
-        android:text="Feature Screen"
+        android:text="@string/feature_title"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="6dp"
-        android:text="Interstitial ad shown on navigation"
+        android:text="@string/feature_subtitle"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         android:alpha="0.55"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +67,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🎬  Interstitial Ad"
+                android:text="@string/feature_card_title"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:textStyle="bold" />
 
@@ -74,7 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Full-screen ads that appear at natural transition points in your app flow. They cover the entire screen and can be dismissed by the user."
+                android:text="@string/feature_card_desc"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:alpha="0.7"
                 android:lineSpacingMultiplier="1.4" />
@@ -87,7 +88,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✅  High eCPM\n✅  Full-screen engagement\n✅  Natural transition points"
+                android:text="@string/feature_card_points"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:lineSpacingMultiplier="1.6" />
 
