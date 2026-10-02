@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="nextgen_ad_loading">جارٍ تحميل الإعلان…</string>
+    <string name="nextgen_welcome_back">مرحبًا بعودتك</string>
 </resources>

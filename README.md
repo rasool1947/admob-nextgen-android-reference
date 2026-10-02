@@ -1,103 +1,283 @@
-# AdMob Next Gen SDK — Android Integration
+# AdMob Next-Gen Android Reference
 
-A complete Android integration of the **Google Mobile Ads Next Gen SDK** (`ads-mobile-sdk:1.0.0`) using Clean Architecture, Koin DI, and MVVM.
+A ready-to-copy starter for Android apps monetized with the **Google Mobile Ads Next-Gen SDK**
+(`com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.5.0`). It contains:
+
+- **`:ads`**: a reusable Android library module with consent, every ad format, preloading, shimmer
+  placeholders, frequency capping and a JSON "ads control" that turns any ad on, off or into
+  another type at runtime (Firebase Remote Config ready).
+- **`:app`**: a sample app built on the flow most utility apps use:
+  **Splash → Language → Onboarding → Main (bottom navigation)**, in English, Urdu and Arabic (RTL).
+
+Debug builds use Google's test ad units, so the project runs as-is.
 
 ---
 
-## 📦 SDK
+## Contents
 
-```gradle
-implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.0.0")
+1. [The app flow and its ads](#1-the-app-flow-and-its-ads)
+2. [Run it](#2-run-it)
+3. [The ads control (JSON)](#3-the-ads-control-json)
+4. [Ad units and placements](#4-ad-units-and-placements)
+5. [Using `:ads` in a new app](#5-using-ads-in-a-new-app)
+6. [`:ads` API cheat sheet](#6-ads-api-cheat-sheet)
+7. [Project structure](#7-project-structure)
+8. [Notes and gotchas](#8-notes-and-gotchas)
+
+---
+
+## 1. The app flow and its ads
+
+```
+Splash ──► Language ──► Onboarding (pages) ──► Main ──► Home / Explore / History / Settings
+  │           │             │                    │
+  │ full-screen ad          │ ad per page        │ ad below the bottom navigation
+  │ + bottom ad │ bottom ad │ (or one shared)    │ ad inside each tab
+  │           │             │ "Get Started" inter │ interstitial on navigation (paced)
+  └──────── consent first                        └ App Open on return ("Welcome back" first)
 ```
 
----
-
-## 🎯 Ad Formats Covered
-
-| Format | Status |
+| Screen | Ads |
 |---|---|
-| App Open Ad | ✅ |
-| Banner Ad (Adaptive + Collapsible) | ✅ |
-| Interstitial Ad | ✅ |
-| Native Ad (Large + Small) | ✅ |
-| Rewarded Ad | ✅ |
-| Rewarded Interstitial Ad | ✅ |
+| **Splash** | App Open **or** interstitial (or none) + a bottom native/banner. Both load together; the splash waits for both (max 25 s, counted after consent), keeps a loaded bottom ad on screen 2 s, then shows the full-screen ad and moves on. A progress bar shows the wait. |
+| **Language** | Bottom native/banner. Shown on first run and from Settings. |
+| **Onboarding** | One ad per page or one shared ad; interstitial on "Get Started". |
+| **Main** | Ad below the bottom navigation, an ad inside each tab, interstitial on screen navigation (every *n*th click, optional first click, minimum interval). |
+| **Return to the app** | "Welcome back" screen for 1 s, then an App Open ad. |
 
----
+Rules built in:
 
-## 🏗️ Architecture
+- **First flow**: until the user reaches Main from onboarding once, every launch runs
+  Splash → Language → Onboarding → Main again (the language picked earlier is preselected).
+  After that: Splash → Main.
+- **Preload chain**: every screen loads the next screen's ad while the user is still on it, so ads
+  appear instantly. Only ads that are on in the ads control are loaded.
+- **Loaders**: native/banner slots show a shimmer of the ad's size while loading;
+  interstitials/rewarded show a "Loading ad…" dialog for 1 s first.
+- **Safety**: a double tap never shows two ads or navigates under an ad; ads keep a gap from
+  navigation and buttons; every ad is destroyed with its screen.
 
+## 2. Run it
+
+Requirements: Android Studio (AGP 9), JDK 17+, min SDK 24, compile SDK 36.
+
+```bash
+./gradlew :app:installDebug     # test ads, consent form forced to EEA on test devices
+./gradlew testDebugUnitTest     # ads control parser + interstitial pacing tests
 ```
-Clean Architecture + MVVM + Koin DI
-├── data/
-│   ├── dataSources/local   → Cache (ConcurrentHashMap)
-│   ├── dataSources/remote  → SDK load calls
-│   ├── entities            → Data models
-│   └── repositories        → Repository implementations
-├── domain/
-│   ├── repositories        → Interfaces
-│   └── useCases            → Business logic
-└── presentation/
-    ├── enums               → Ad keys
-    ├── viewModels          → LiveData + coroutines
-    └── ui                  → Custom ad views
+
+**Your test device**: run once, then copy the hashed id from logcat
+(`UserMessagingPlatform ... addTestDeviceHashedId("…")`) into `TEST_DEVICE_IDS` in
+`MainApplication.kt`. Test devices get test ads and, in debug, the EEA consent form.
+
+**Release**: copy `admob.properties.example` to `admob.properties` (git-ignored) and fill in your
+App ID and ad unit IDs. Any missing key falls back to Google's test ID and Gradle prints a warning.
+
+**Firebase (optional)**: drop `google-services.json` into `app/`; the Google Services and
+Crashlytics plugins are applied only when the file exists. Paid impressions are then logged to
+Analytics as `ad_paid` (see `FirebaseAdRevenue`).
+
+## 3. The ads control (JSON)
+
+Everything about *which* ad shows *where* lives in one JSON document. The default is in
+`app/.../ads/LocalAdsControl.kt`; in a real app publish the same JSON as the Firebase Remote
+Config parameter `ads_config` and pass the fetched string to the store:
+
+```kotlin
+AdsControlStore.update(LocalAdsControl.JSON, source = "local")          // Application.onCreate()
+AdsControlStore.update(remoteConfig.getString("ads_config"), "remote")  // after fetch
 ```
 
----
+Every field is optional. A missing or invalid value keeps its default and is logged as a warning,
+so a typo in Remote Config never breaks the app.
 
-## 🔑 Key Changes from Old SDK
+```json
+{
+  "ads_enabled": true,
+  "app_open_resume": true,
 
-| Old SDK (`play-services-ads`) | New SDK (`ads-mobile-sdk`) |
+  "splash": {
+    "fullscreen": "app_open",
+    "timeout_sec": 25,
+    "bottom_first_ms": 2000,
+    "bottom": { "type": "native", "style": "medium" }
+  },
+
+  "language": { "bottom": { "type": "native", "style": "medium" } },
+
+  "onboarding": {
+    "mode": "per_page",
+    "pages": [
+      { "type": "native", "style": "large" },
+      { "type": "banner", "style": "medium_rectangle" },
+      { "type": "native", "style": "medium" },
+      { "type": "native", "style": "small" }
+    ],
+    "shared": { "type": "native", "style": "medium" },
+    "get_started_inter": true
+  },
+
+  "main": {
+    "bottom": { "type": "banner", "style": "adaptive" },
+    "tabs": {
+      "home": { "type": "native", "style": "medium" },
+      "explore": { "type": "banner", "style": "inline_adaptive" },
+      "history": { "type": "native", "style": "small" },
+      "settings": "off"
+    },
+    "inter": { "enabled": true, "every_nth": 3, "show_on_first_click": false, "min_interval_sec": 30 }
+  }
+}
+```
+
+| Field | Values | Default | Meaning |
+|---|---|---|---|
+| `ads_enabled` | `true` / `false` | `true` | Master switch. `false` turns every ad off at once. |
+| `app_open_resume` | `true` / `false` | `true` | App Open ad (after "Welcome back") when the user returns to the app. |
+| `splash.fullscreen` | `app_open` / `inter` / `off` | `app_open` | Full-screen ad at launch. Google recommends App Open for launch. |
+| `splash.timeout_sec` | seconds | `25` | Longest the splash waits for its ads, counted after consent. |
+| `splash.bottom_first_ms` | ms | `2000` | A loaded bottom ad stays visible at least this long before the full-screen ad. |
+| `splash.bottom`, `language.bottom`, `main.bottom` | slot | see JSON | Native/banner/off at that position. |
+| `onboarding.mode` | `per_page` / `shared` | `per_page` | Own ad per page (`pages`) or one ad for all pages (`shared`). |
+| `onboarding.pages` | list of slots | 4 natives | One entry per page; **its length is the number of onboarding pages** (up to the 4 designed pages). |
+| `onboarding.get_started_inter` | `true` / `false` | `true` | Interstitial on "Get Started". |
+| `main.tabs.<tab>` | slot | off | Ad inside a tab: `home`, `explore`, `history`, `settings`. |
+| `main.inter.enabled` | `true` / `false` | `true` | Interstitial on navigation inside Main. |
+| `main.inter.every_nth` | ≥ 1 | `3` | Show on every *n*th click since the last interstitial. |
+| `main.inter.show_on_first_click` | `true` / `false` | `false` | Also show on the very first click. |
+| `main.inter.min_interval_sec` | seconds | `30` | Never closer than this to the previous full-screen ad of any kind (App Open included). |
+
+**Slot** = `{ "type": "native", "style": … }`, `{ "type": "banner", "style": … }` or `"off"`:
+
+| Type | Styles |
 |---|---|
-| `AdRequest.Builder().build()` | `AdRequest.Builder(adUnitId).build()` |
-| `InterstitialAd.load(context, id, request, cb)` | `InterstitialAd.load(request, cb)` |
-| `FullScreenContentCallback` | `InterstitialAdEventCallback` |
-| `AdLoader.Builder(context, id)` | `NativeAdLoader.load(NativeAdRequest, cb)` |
-| `AdMobAdapter` bundle for collapsible | `BannerAdRequest.Builder.setGoogleExtrasBundle()` |
-| App ID in `AndroidManifest.xml` | `MobileAds.initialize(context, InitializationConfig)` |
-| Callbacks on main thread | **Callbacks on background thread** → use `postValue` / `Handler(Main)` |
+| `native` | `small` (no media), `medium` (130 dp media), `large` (200 dp media, price/store) |
+| `banner` | `standard` 320×50, `large` 320×100, `medium_rectangle` 300×250, `adaptive` (anchored), `inline_adaptive` (in content, ≤ 250 dp), `collapsible_top`, `collapsible_bottom` |
 
----
+## 4. Ad units and placements
 
-## 🚀 Setup
+A **placement** is one place an ad can appear; each has its own AdMob ad unit, so revenue is
+reported per place. Placements are declared in `app/.../ads/AppAdPlacements.kt`, IDs come from
+`app/build.gradle.kts` (test) and `admob.properties` (release):
 
-1. Clone the repo
-2. Open in Android Studio
-3. Replace test ad IDs in `app/build.gradle.kts` with your real AdMob IDs
-4. Add your `google-services.json` for Firebase (optional — app works without it)
-5. Run on device/emulator
+| Placement | Format | `admob.properties` key |
+|---|---|---|
+| `app_open` | App Open (launch + resume) | `admob_app_open_id` |
+| `inter_splash` | Interstitial | `admob_inter_splash_id` |
+| `inter_on_boarding` | Interstitial | `admob_inter_on_boarding_id` |
+| `inter_main` | Interstitial | `admob_inter_main_id` |
+| `rewarded_ai_feature` | Rewarded | `admob_rewarded_ai_feature_id` |
+| `rewarded_inter_ai_feature` | Rewarded interstitial | `admob_rewarded_inter_ai_feature_id` |
+| `native_splash` / `banner_splash` | Native / Banner | `admob_native_splash_id` / `admob_banner_splash_id` |
+| `native_language` / `banner_language` | Native / Banner | `admob_native_language_id` / `admob_banner_language_id` |
+| `native_on_boarding` / `banner_on_boarding` | Native / Banner | `admob_native_on_boarding_id` / `admob_banner_on_boarding_id` |
+| `native_main` / `banner_main` | Native / Banner | `admob_native_main_id` / `admob_banner_main_id` |
+| `native_tab` / `banner_tab` | Native / Banner (all tabs) | `admob_native_tab_id` / `admob_banner_tab_id` |
+| `native_feature` | Native (Feature screen) | `admob_native_feature_id` |
 
----
+Each **slot** (splash, language, onboarding, main, tab) has a native *and* a banner placement
+because the ads control can switch its type at runtime (`AppAdSlot`).
 
-## 📋 Requirements
+## 5. Using `:ads` in a new app
 
-- Android min SDK: 24
-- Compile SDK: 36
-- Kotlin
-- No Firebase required to run
+1. Copy the `ads/` folder and add `include(":ads")` to `settings.gradle.kts`, then
+   `implementation(project(":ads"))` in the app. Copy the `[versions]`/`[libraries]` entries it
+   uses from `gradle/libs.versions.toml`, and the `play-services-ads` exclusion from
+   `app/build.gradle.kts`.
+2. Manifest: `com.google.android.gms.ads.APPLICATION_ID` meta-data (UMP still reads it there).
+3. `Application.onCreate()`:
 
----
+   ```kotlin
+   AdsSdk.configure(this, AdsConfig(
+       appId = getString(R.string.admob_app_id),
+       placements = AppAdPlacements.create(this, prefs),
+       isPremium = { prefs.isAppPurchased },          // true = no ads at all
+       testDeviceIds = listOf("YOUR_HASHED_ID"),
+       isDebug = BuildConfig.DEBUG,
+       onAdPaid = { revenue -> /* analytics */ },
+   ))
+   AdsControlStore.update(LocalAdsControl.JSON, source = "local")
+   ```
+4. Launcher activity `onCreate`: `AdsSdk.gatherConsent(this)`. The splash waits for the result
+   with `AdsSdk.gatherConsent(activity) { canLoadAds -> … }`. Show a "Privacy settings" entry
+   when `AdsSdk.isPrivacyOptionsRequired` (`AdsSdk.showPrivacyOptionsForm(activity)`).
+5. Put an `AdSlotView` wherever a native/banner may go and load it with its slot from the control.
+6. Use `FullScreenAds` for interstitial/rewarded/App Open, `InterstitialPacer` for navigation
+   interstitials, and `AppOpenOnResume.enable("app_open")` once the splash is done.
 
-## 📁 Project Structure
+The sample screens (`app/.../app/`) show each step in a real flow; `AdPreloadChain` and
+`MainInterstitial` are the app-side glue worth copying.
+
+## 6. `:ads` API cheat sheet
+
+All calls are main-thread; all callbacks arrive on the main thread.
+
+```kotlin
+// Native / banner slot driven by the ads control (layout: <com.nextgen.ads.slot.AdSlotView .../>)
+binding.adSlot.load(viewLifecycleOwner, AdsControlStore.current.language.bottom, "native_language", "banner_language")
+AdSlotView.preload(slot, nativeKey, bannerKey)   // one screen early
+AdSlotView.stopPreload(nativeKey, bannerKey)
+
+// Full-screen formats (preloaded with the SDK preloaders, one ad buffered per placement)
+FullScreenAds.preload("inter_main")
+FullScreenAds.whenReady("app_open", timeoutMillis) { isReady -> }
+FullScreenAds.show(activity, "inter_main", listener)          // onAdFinished() always called once
+FullScreenAds.showWithLoading(activity, "inter_main", listener) // 1 s "Loading ad…" first
+FullScreenAds.stop("inter_on_boarding")
+
+// Pacing (every nth click, first click, min interval since ANY full-screen ad)
+val pacer = InterstitialPacer({ AdsControlStore.current.main.inter })
+if (pacer.onClick()) /* show, then */ pacer.onShown()
+
+// App Open on returning to the app (with "Welcome back"; follows app_open_resume)
+AppOpenOnResume.enable("app_open")
+AppOpenOnResume.welcomeBackMillis = 1_000   // 0 = no welcome screen
+AppOpenOnResume.skipNextResume()            // before opening share sheet, billing, …
+
+// Lower level, without the ads control
+NativeAds.loadInto(nativeAdTemplateView, viewLifecycleOwner, "native_feature")
+BannerAds.load(container, viewLifecycleOwner, "banner_main", BannerSize.Anchored)
+```
+
+`NativeAdTemplateView` (`app:nativeTemplate="small|medium|large"`) can also be used directly in XML.
+
+## 7. Project structure
 
 ```
+ads/                      reusable library (namespace com.nextgen.ads)
+├── AdsSdk.kt             configure, consent → init, privacy options, Ad Inspector
+├── config/               AdsConfig, AdPlacement, AdRevenue
+├── consent/              UMP consent manager
+├── control/              AdsControl model, AdsControlParser (JSON), AdsControlStore
+├── slot/                 AdSlotView (native/banner/off + shimmer + preload)
+├── nativead/             NativeAds (preloader), NativeAdTemplateView (small/medium/large)
+├── banner/               BannerAds (preloader), BannerSize
+├── fullscreen/           FullScreenAds, AppOpenOnResume, InterstitialPacer, loading dialogs
+└── internal/             logging, main-thread dispatch, shimmer
+
 app/
-├── ads/
-│   ├── appOpen/       → App Open Ad
-│   ├── banner/        → Banner Ad
-│   ├── cmp/           → Consent (UMP)
-│   ├── interstitial/  → Interstitial Ad
-│   ├── natives/       → Native Ad
-│   └── rewarded/      → Rewarded + Rewarded Interstitial
-├── app/               → Screens (Entrance, Home, Feature, Settings, Premium)
-├── di/                → Koin modules
-└── utilities/         → Base classes, extensions, Firebase, SharedPrefs
+├── ads/                  AppAdPlacements, AppAdSlot, LocalAdsControl (JSON), AdPreloadChain, MainInterstitial
+├── app/splash|language|onBoarding|main|feature|premium/   screens
+├── utilities/            base classes, language (AppLanguage), prefs, Firebase revenue logging
+└── res/values{,-ur,-ar}/ strings in English, Urdu, Arabic
 ```
 
----
+## 8. Notes and gotchas
 
-## 📄 License
+- **Policy**: Google prefers App Open over an interstitial at launch; keep ads away from
+  navigation and buttons (the layouts keep an 8 dp gap); rewarded interstitials need an intro with
+  an opt-out (see the Premium screen).
+- **Native ad validator**: on test devices the SDK shows an "AdMob native ad validator" popup next
+  to native ads. Turn it off with `AdsConfig(nativeAdValidatorEnabled = false)`.
+- **Release builds / R8**: the Ads SDK pulls WorkManager 2.7.0, whose database R8 strips (crash on
+  launch). `:ads` pins a newer WorkManager; keep that line when updating.
+- **Legacy SDK**: `play-services-ads` must not be on the classpath with the Next-Gen SDK; both
+  modules exclude it.
+- **Threads**: the Next-Gen SDK calls back on background threads; `:ads` moves every callback to
+  the main thread before it reaches your code.
+- **Consent first**: no ad request is made before UMP says ads may be requested; the SDK is
+  initialized right after.
 
-```
-MIT License — free to use, modify, and distribute.
-```
+## License
+
+MIT. Free to use, modify and distribute.

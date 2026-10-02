@@ -27,6 +27,12 @@ object AppOpenOnResume {
     private var skipNextResume = false
     private var isRegistered = false
 
+    /**
+     * How long a full-screen "Welcome back" screen (app icon + loading) shows before the ad, so the
+     * ad doesn't jump at the user the moment the app opens. 0 shows the ad straight away.
+     */
+    var welcomeBackMillis: Long = DEFAULT_WELCOME_BACK_MILLIS
+
     @MainThread
     fun enable(placementKey: String) {
         this.placementKey = placementKey
@@ -85,7 +91,11 @@ object AppOpenOnResume {
             AdsLog.d("$key -> resume: no ad ready")
             return
         }
-        FullScreenAds.show(activity, key)
+        if (welcomeBackMillis > 0) {
+            FullScreenAds.showAfterDialog(activity, key, null, welcomeBackMillis) { AdWaitDialog.welcomeBack(activity) }
+        } else {
+            FullScreenAds.show(activity, key)
+        }
     }
 
     private val activityTracker = object : Application.ActivityLifecycleCallbacks {
@@ -103,4 +113,6 @@ object AppOpenOnResume {
         override fun onActivityStopped(activity: Activity) {}
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
     }
+
+    private const val DEFAULT_WELCOME_BACK_MILLIS = 1_000L
 }

@@ -10,6 +10,7 @@
 
     <string name="nextgen_ad_badge" translatable="false">Ad</string>
     <string name="nextgen_ad_loading">Loading ad…</string>
+    <string name="nextgen_welcome_back">Welcome back</string>
 
     <color name="nextgen_ad_badge_background">#FFB300</color>
     <!-- Loading placeholder: grey blocks with a light band sweeping over them -->

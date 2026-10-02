@@ -147,21 +147,32 @@ object FullScreenAds {
         listener: FullScreenAdListener? = null,
         loadingMillis: Long = LOADING_DIALOG_MILLIS,
     ) {
+        showAfterDialog(activity, placementKey, listener, loadingMillis) { AdWaitDialog.loading(activity) }
+    }
+
+    /** Shows [dialog] for [waitMillis], then the ad; the dialog closes when the ad appears or the show ends. */
+    internal fun showAfterDialog(
+        activity: Activity,
+        placementKey: String,
+        listener: FullScreenAdListener?,
+        waitMillis: Long,
+        dialog: () -> AdWaitDialog,
+    ) {
         if (isDuplicate(placementKey)) return
         if (isShowing || !isReady(placementKey)) return show(activity, placementKey, listener) // reports why not
         activeKey = placementKey
 
-        val dialog = AdLoadingDialog(activity).also { it.show() }
+        val waitDialog = dialog().also { it.show() }
         val delegate = listener ?: object : FullScreenAdListener {}
-        MainDispatch.postDelayed(loadingMillis) {
+        MainDispatch.postDelayed(waitMillis) {
             showNow(activity, placementKey, object : FullScreenAdListener by delegate {
                 override fun onAdShowed() {
-                    dialog.dismissSafely()
+                    waitDialog.dismissSafely()
                     delegate.onAdShowed()
                 }
 
                 override fun onAdFinished() {
-                    dialog.dismissSafely()
+                    waitDialog.dismissSafely()
                     delegate.onAdFinished()
                 }
             })
