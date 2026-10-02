@@ -10,7 +10,6 @@ import com.example.admob_next_gen.ads.AdPreloadChain
 import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.AppAdSlot
 import com.example.admob_next_gen.ads.load
-import com.example.admob_next_gen.ads.onboardingPageLabel
 import com.example.admob_next_gen.databinding.FragmentOnBoardingBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
@@ -97,12 +96,8 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         val page = if (isPerPage) position else 0
         if (page == shownAdPage) return
         shownAdPage = page
-        // The next page takes its ad from the same cache, so keep it filling until the last page.
-        binding.adSlotOnBoarding.load(
-            viewLifecycleOwner, control.slotForPage(position), AppAdSlot.ON_BOARDING,
-            keepPreloading = isPerPage && !isLastPage,
-            screen = if (isPerPage) onboardingPageLabel(position) else null,
-        )
+        val appSlot = AppAdSlot.onboardingPage(position, control.mode) // each page has its own ad units and cache
+        binding.adSlotOnBoarding.load(viewLifecycleOwner, control.slotForPage(position), appSlot)
     }
 
     private fun onNextClick() {
@@ -126,7 +121,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
     }
 
     private fun navigateScreen() {
-        AppAdSlot.ON_BOARDING.stopPreload()
+        AppAdSlot.allOnboarding.forEach { it.stopPreload() } // e.g. a page that was skipped
         prefs.isFirstFlowDone = true // only now: closing the app earlier restarts the first flow
         navigateTo(R.id.fragmentOnBoarding, R.id.action_fragmentOnBoarding_to_fragmentMain)
     }

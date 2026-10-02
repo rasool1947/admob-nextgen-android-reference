@@ -187,13 +187,15 @@ reported per place. Placements are declared in `app/.../ads/AppAdPlacements.kt`,
 | `rewarded_inter_ai_feature` | Rewarded interstitial | `admob_rewarded_inter_ai_feature_id` |
 | `native_splash` / `banner_splash` | Native / Banner | `admob_native_splash_id` / `admob_banner_splash_id` |
 | `native_language` / `banner_language` | Native / Banner | `admob_native_language_id` / `admob_banner_language_id` |
-| `native_on_boarding` / `banner_on_boarding` | Native / Banner | `admob_native_on_boarding_id` / `admob_banner_on_boarding_id` |
+| `native_on_boarding` / `banner_on_boarding` | Native / Banner (onboarding, shared mode) | `admob_native_on_boarding_id` / `admob_banner_on_boarding_id` |
+| `native_ob1`…`native_ob4` / `banner_ob1`…`banner_ob4` | Native / Banner (one pair per onboarding page) | `admob_native_ob1_id`… / `admob_banner_ob1_id`… |
 | `native_main` / `banner_main` | Native / Banner | `admob_native_main_id` / `admob_banner_main_id` |
 | `native_tab` / `banner_tab` | Native / Banner (all tabs) | `admob_native_tab_id` / `admob_banner_tab_id` |
 | `native_feature` | Native (Feature screen) | `admob_native_feature_id` |
 
-Each **slot** (splash, language, onboarding, main, tab) has a native *and* a banner placement
-because the ads control can switch its type at runtime (`AppAdSlot`).
+Each **slot** (splash, language, each onboarding page, main, tab) has a native *and* a banner placement
+because the ads control can switch its type at runtime (`AppAdSlot`). The ad cache is per placement,
+so every screen that has its own placement also has its own cache.
 
 ## 5. Using `:ads` in a new app
 
@@ -309,8 +311,8 @@ Language      │ native_language           │ Native        │ ♻️ LOADED 
 | 🚫 NOT SHOWN | A full-screen ad was due but couldn't show (none ready, another ad on screen, …). |
 | 👁 IMPRESSION, 👆 CLICKED, ✖️ CLOSED, 🎁 REWARD earned | What the user saw and did (a banner logs only its first impression, not every refresh). |
 
-The screen names come from `AdPlacement(screen = …)` in `AppAdPlacements`; onboarding pages are
-labelled OB1, OB2, … (`screen` parameter of `AdSlotView.load` / `preload`). The tag `NextGenAds`
+The screen names come from `AdPlacement(screen = …)` in `AppAdPlacements` (each onboarding page has
+its own placements: OB1, OB2, …). The tag `NextGenAds`
 keeps the detailed technical log (consent, SDK init, preload buffers) for debugging the module.
 
 ## 9. Notes and gotchas

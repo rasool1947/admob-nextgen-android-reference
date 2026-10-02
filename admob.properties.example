@@ -20,8 +20,18 @@ admob_native_splash_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_banner_splash_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_native_language_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_banner_language_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+# Onboarding, one shared ad for all pages (shared mode)
 admob_native_on_boarding_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_banner_on_boarding_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+# Onboarding pages 1-4 (per_page mode), each its own native + banner unit
+admob_native_ob1_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_ob1_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_ob2_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_ob2_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_ob3_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_ob3_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_ob4_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_ob4_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_native_main_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_banner_main_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_native_tab_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX

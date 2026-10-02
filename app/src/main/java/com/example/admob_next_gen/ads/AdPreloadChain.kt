@@ -2,7 +2,6 @@ package com.example.admob_next_gen.ads
 
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.control.AdsControlStore
-import com.nextgen.ads.control.OnboardingAdMode
 import com.nextgen.ads.fullscreen.FullScreenAds
 
 /**
@@ -27,13 +26,10 @@ object AdPreloadChain {
     fun forLanguage() = AppAdSlot.LANGUAGE.preload(control.language.bottom)
 
     /** The ad of onboarding page [index] (0 = the first page, preloaded by Language). */
-    fun forOnboardingPage(index: Int) =
-        AppAdSlot.ON_BOARDING.preload(
-            control.onboarding.slotForPage(index),
-            screen = onboardingPageLabel(index),
-            // Pages share one cache: keep 2 so the page after this one is ready while this one shows.
-            bufferSize = if (control.onboarding.mode == OnboardingAdMode.PER_PAGE) 2 else 1,
-        )
+    fun forOnboardingPage(index: Int) {
+        val onboarding = control.onboarding
+        AppAdSlot.onboardingPage(index, onboarding.mode).preload(onboarding.slotForPage(index))
+    }
 
     /** From the last onboarding page: the "Get Started" interstitial. */
     fun forGetStarted() {
@@ -49,5 +45,3 @@ object MainTabKeys {
     const val SETTINGS = "settings"
 }
 
-/** Log label of onboarding page [index] (0-based): "OB1", "OB2", … */
-fun onboardingPageLabel(index: Int) = "OB${index + 1}"

@@ -32,8 +32,13 @@ object AppAdPlacements {
     const val BANNER_SPLASH = "banner_splash"
     const val NATIVE_LANGUAGE = "native_language"
     const val BANNER_LANGUAGE = "banner_language"
+    /** Onboarding with one shared ad for all pages (`onboarding.mode = shared`). */
     const val NATIVE_ON_BOARDING = "native_on_boarding"
     const val BANNER_ON_BOARDING = "banner_on_boarding"
+
+    /** Onboarding pages 1-4, each with its own ad units and cache (`onboarding.mode = per_page`). */
+    val NATIVE_OB = List(4) { i -> "native_ob${i + 1}" }
+    val BANNER_OB = List(4) { i -> "banner_ob${i + 1}" }
     const val NATIVE_MAIN = "native_main"
     const val BANNER_MAIN = "banner_main"
     const val NATIVE_TAB = "native_tab"
@@ -51,7 +56,7 @@ object AppAdPlacements {
             placement(APP_OPEN_SPLASH, AdFormat.APP_OPEN, R.string.admob_app_open_splash_id, "Splash"),
             placement(APP_OPEN_RESUME, AdFormat.APP_OPEN, R.string.admob_app_open_resume_id, "Resume"),
 
-            placement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, R.string.admob_inter_on_boarding_id, "Onboarding"),
+            placement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, R.string.admob_inter_on_boarding_id, "Get Started"),
             placement(INTER_SPLASH, AdFormat.INTERSTITIAL, R.string.admob_inter_splash_id, "Splash"),
             placement(INTER_MAIN, AdFormat.INTERSTITIAL, R.string.admob_inter_main_id, "Main"),
 
@@ -64,8 +69,16 @@ object AppAdPlacements {
             placement(BANNER_SPLASH, AdFormat.BANNER, R.string.admob_banner_splash_id, "Splash"),
             placement(NATIVE_LANGUAGE, AdFormat.NATIVE, R.string.admob_native_language_id, "Language"),
             placement(BANNER_LANGUAGE, AdFormat.BANNER, R.string.admob_banner_language_id, "Language"),
-            placement(NATIVE_ON_BOARDING, AdFormat.NATIVE, R.string.admob_native_on_boarding_id, "Onboarding"),
-            placement(BANNER_ON_BOARDING, AdFormat.BANNER, R.string.admob_banner_on_boarding_id, "Onboarding"),
+            placement(NATIVE_ON_BOARDING, AdFormat.NATIVE, R.string.admob_native_on_boarding_id, "OB shared"),
+            placement(BANNER_ON_BOARDING, AdFormat.BANNER, R.string.admob_banner_on_boarding_id, "OB shared"),
+            placement(NATIVE_OB[0], AdFormat.NATIVE, R.string.admob_native_ob1_id, "OB1"),
+            placement(BANNER_OB[0], AdFormat.BANNER, R.string.admob_banner_ob1_id, "OB1"),
+            placement(NATIVE_OB[1], AdFormat.NATIVE, R.string.admob_native_ob2_id, "OB2"),
+            placement(BANNER_OB[1], AdFormat.BANNER, R.string.admob_banner_ob2_id, "OB2"),
+            placement(NATIVE_OB[2], AdFormat.NATIVE, R.string.admob_native_ob3_id, "OB3"),
+            placement(BANNER_OB[2], AdFormat.BANNER, R.string.admob_banner_ob3_id, "OB3"),
+            placement(NATIVE_OB[3], AdFormat.NATIVE, R.string.admob_native_ob4_id, "OB4"),
+            placement(BANNER_OB[3], AdFormat.BANNER, R.string.admob_banner_ob4_id, "OB4"),
             placement(NATIVE_MAIN, AdFormat.NATIVE, R.string.admob_native_main_id, "Main bottom"),
             placement(BANNER_MAIN, AdFormat.BANNER, R.string.admob_banner_main_id, "Main bottom"),
             placement(NATIVE_TAB, AdFormat.NATIVE, R.string.admob_native_tab_id, "Main tab"),
