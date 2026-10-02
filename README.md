@@ -74,18 +74,31 @@ Requirements: Android Studio (AGP 9), JDK 17+, min SDK 24, compile SDK 36.
 App ID and ad unit IDs. Any missing key falls back to Google's test ID and Gradle prints a warning.
 
 **Firebase (optional)**: drop `google-services.json` into `app/`; the Google Services and
-Crashlytics plugins are applied only when the file exists. Paid impressions are then logged to
-Analytics as `ad_paid` (see `FirebaseAdRevenue`).
+Crashlytics plugins are applied only when the file exists. Remote Config then drives the ads
+control (section 3) and paid impressions are logged to Analytics as `ad_paid` (see
+`FirebaseAdRevenue`).
 
 ## 3. The ads control (JSON)
 
 Everything about *which* ad shows *where* lives in one JSON document. The default is in
-`app/.../ads/LocalAdsControl.kt`; in a real app publish the same JSON as the Firebase Remote
-Config parameter `ads_config` and pass the fetched string to the store:
+`app/.../ads/LocalAdsControl.kt`; Firebase Remote Config can replace it without an app update:
+
+1. Add `app/google-services.json` (Firebase project with Remote Config enabled).
+2. In the Firebase console, create the Remote Config parameter **`ads_config`** (type JSON or
+   String) and paste the JSON below as its value. Publish.
+
+`RemoteAdsControl` (`app/.../utilities/firebase/`) does the rest:
+
+- `Application.onCreate()` applies the local JSON, then the value activated on the previous launch
+  (cached by Firebase), then fetches a new one (debug: every launch; release: at most hourly).
+- The splash waits for the fetch up to 4 s (in parallel with consent) before choosing its ads, so a
+  published change works from the next launch screen. If the fetch is slow or fails, the cached or
+  local JSON is used.
+- Without `google-services.json` nothing is fetched and the local JSON is used.
 
 ```kotlin
-AdsControlStore.update(LocalAdsControl.JSON, source = "local")          // Application.onCreate()
-AdsControlStore.update(remoteConfig.getString("ads_config"), "remote")  // after fetch
+AdsControlStore.update(LocalAdsControl.JSON, source = "local")  // MainApplication
+RemoteAdsControl.fetch(this, BuildConfig.DEBUG)
 ```
 
 Every field is optional. A missing or invalid value keeps its default and is logged as a warning,
@@ -258,7 +271,7 @@ ads/                      reusable library (namespace com.nextgen.ads)
 app/
 ├── ads/                  AppAdPlacements, AppAdSlot, LocalAdsControl (JSON), AdPreloadChain, MainInterstitial
 ├── app/splash|language|onBoarding|main|feature|premium/   screens
-├── utilities/            base classes, language (AppLanguage), prefs, Firebase revenue logging
+├── utilities/            base classes, language (AppLanguage), prefs, Firebase (Remote Config, revenue)
 └── res/values{,-ur,-ar}/ strings in English, Urdu, Arabic
 ```
 

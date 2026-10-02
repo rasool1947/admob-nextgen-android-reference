@@ -12,9 +12,9 @@ import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentSplashBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
+import com.example.admob_next_gen.utilities.firebase.RemoteAdsControl
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.AdsSdk
-import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.fullscreen.AppOpenOnResume
 import com.nextgen.ads.fullscreen.FullScreenAdListener
 import com.nextgen.ads.fullscreen.FullScreenAds
@@ -33,7 +33,6 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
     private var progressAnimator: ValueAnimator? = null
 
     override fun onViewCreated() {
-        loadBottomAd()
         initConsent()
         initObservers()
     }
@@ -44,7 +43,10 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
 
         // ActivityMain already started the check; this just waits for its result (shows the form if required).
         val viewModel = viewModel
-        AdsSdk.gatherConsent(requireActivity()) { canLoadAds -> viewModel.onConsentResult(canLoadAds) }
+        AdsSdk.gatherConsent(requireActivity()) { canLoadAds ->
+            // Give Remote Config a moment too, so this launch already uses the latest ads control.
+            RemoteAdsControl.whenFetched(REMOTE_CONFIG_WAIT_MILLIS) { viewModel.onConsentResult(canLoadAds) }
+        }
     }
 
     private fun initObservers() {
@@ -58,19 +60,20 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
 
     /* ------------------------------------------- Ads ------------------------------------------- */
 
-    /** Shown as soon as it loads (it waits for consent by itself); the view model hears when it is up. */
+    /** Loads with the full-screen ad and shows as soon as it arrives; the view model hears when it is up. */
     private fun loadBottomAd() {
         val viewModel = viewModel
         val listener = object : AdSlotListener {
             override fun onAdLoaded() = viewModel.onBottomAdResult(isLoaded = true)
             override fun onAdFailedToLoad(reason: String) = viewModel.onBottomAdResult(isLoaded = false)
         }
-        binding.adSlotSplash.load(viewLifecycleOwner, AdsControlStore.current.splash.bottom, AppAdSlot.SPLASH, listener = listener)
+        binding.adSlotSplash.load(viewLifecycleOwner, viewModel.bottomSlot, AppAdSlot.SPLASH, listener = listener)
     }
 
     private fun loadAds() {
         // Warm up the next screen's ad (Language or main, whichever comes next).
         AdPreloadChain.afterSplash(prefs)
+        loadBottomAd()
 
         val viewModel = viewModel
         val key = viewModel.fullScreenKey ?: return viewModel.onFullScreenAdResult(false)
@@ -147,5 +150,8 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
 
     private companion object {
         const val COMPLETE_MILLIS = 400L
+
+        /** Longest the splash waits for a Remote Config fetch; after that the cached/local ads control is used. */
+        const val REMOTE_CONFIG_WAIT_MILLIS = 4_000L
     }
 }

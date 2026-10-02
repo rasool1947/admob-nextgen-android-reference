@@ -5,6 +5,7 @@ import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.LocalAdsControl
 import com.example.admob_next_gen.di.KoinModules
 import com.example.admob_next_gen.utilities.firebase.FirebaseAdRevenue
+import com.example.admob_next_gen.utilities.firebase.RemoteAdsControl
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdsConfig
@@ -21,6 +22,7 @@ class MainApplication : Application() {
         initKoin()
         initAds()
         AdsControlStore.update(LocalAdsControl.JSON, source = "local")
+        RemoteAdsControl.fetch(this, BuildConfig.DEBUG)
     }
 
     private fun initKoin() {

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.admob_next_gen.ads.AppAdPlacements
+import com.nextgen.ads.control.AdSlot
 import com.nextgen.ads.control.AdsControlStore
 import com.nextgen.ads.control.SplashFullScreen
 import kotlinx.coroutines.Job
@@ -14,26 +15,31 @@ import kotlinx.coroutines.launch
 
 /**
  * Splash ad flow, kept here so a rotation doesn't restart it (ads control `splash`):
- * 1. consent, then the full-screen ad (App Open or interstitial) and the bottom ad load together;
+ * 1. consent (and Remote Config, briefly), then the full-screen ad (App Open or interstitial) and
+ *    the bottom ad load together;
  * 2. the splash waits for both answers, at most `timeout_sec` (25 s) counted from consent;
  * 3. a loaded bottom ad stays on screen at least `bottom_first_ms` (2 s) before anything else;
  * 4. the full-screen ad shows (if it is ready), then the app moves on.
  */
 class ViewModelSplash : ViewModel() {
 
-    private val control = AdsControlStore.current.splash
+    /** Read when the ads start (after consent and Remote Config), then fixed for this launch. */
+    private var control = AdsControlStore.current.splash
     private val createdAt = SystemClock.elapsedRealtime()
     private var adsStartedAt = 0L
 
     /** Full-screen placement of this launch, or null when the control turned it off. */
-    val fullScreenKey: String? = when (control.fullScreen) {
+    val fullScreenKey: String? get() = when (control.fullScreen) {
         SplashFullScreen.APP_OPEN -> AppAdPlacements.APP_OPEN
         SplashFullScreen.INTERSTITIAL -> AppAdPlacements.INTER_SPLASH
         SplashFullScreen.OFF -> null
     }
 
+    /** Bottom native/banner/off of this launch. */
+    val bottomSlot: AdSlot get() = control.bottom
+
     /** Longest the splash waits for its ads (ads control `splash.timeout_sec`, default 25 s). */
-    val timeoutMillis: Long = control.timeoutMillis
+    val timeoutMillis: Long get() = control.timeoutMillis
 
     /** True once consent is known and ads are loading; the progress bar fills from then on. */
     val isLoadingAds: Boolean get() = adsStartedAt != 0L
@@ -68,6 +74,7 @@ class ViewModelSplash : ViewModel() {
         if (!canLoadAds) return finish(showAd = false)
         if (isLoadingAds) return
 
+        control = AdsControlStore.current.splash
         adsStartedAt = SystemClock.elapsedRealtime()
         _loadAdsLiveData.value = Unit
         timeoutJob = viewModelScope.launch {
