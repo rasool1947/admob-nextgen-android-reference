@@ -1,26 +1,11 @@
 <resources>
     <string name="app_name">Admob-Next-Gen</string>
 
-    <string name="visit_site">Visit Site</string>
-
-    <string name="entrance_screen">Entrance Screen</string>
-    <string name="language_screen">Language Screen</string>
-    <string name="on_boarding_screen">OnBoarding Screen</string>
-    <string name="home_screen">Home Screen</string>
-    <string name="feature_screen">Feature Screen</string>
-    <string name="settings_screen">Settings Screen</string>
-    <string name="premium_screen">Premium Screen</string>
-
     <string name="consent_checking">⏳  Checking consent…</string>
     <string name="consent_ads_enabled">✅  Consent checked: ads enabled</string>
     <string name="consent_ads_disabled">ℹ️  Continuing without ads</string>
-    <string name="loading_native">Loading Native…</string>
-    <string name="loading_app_open">Loading App Open…</string>
     <string name="native_response">Native Responded</string>
     <string name="app_open_response">App Open Responded</string>
-
-    <string name="_continue">Continue</string>
-    <string name="navigate">Navigate</string>
 
     <string name="privacy_settings">Privacy settings</string>
     <string name="ad_inspector">Ad Inspector (debug)</string>

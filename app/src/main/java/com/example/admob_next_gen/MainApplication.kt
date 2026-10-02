@@ -3,6 +3,7 @@ package com.example.admob_next_gen
 import android.app.Application
 import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.di.KoinModules
+import com.example.admob_next_gen.utilities.firebase.FirebaseAdRevenue
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdsConfig
@@ -37,6 +38,7 @@ class MainApplication : Application() {
                 testDeviceIds = TEST_DEVICE_IDS,
                 isDebug = BuildConfig.DEBUG,
                 debugGeographyEea = true,
+                onAdPaid = { revenue -> FirebaseAdRevenue.log(this, revenue) },
             )
         )
     }

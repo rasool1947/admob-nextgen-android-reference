@@ -24,8 +24,7 @@ val testAdIds = linkedMapOf(
     "admob_rewarded_inter_ai_feature_id" to "ca-app-pub-3940256099942544/5354046379",
     "admob_native_language_id" to "ca-app-pub-3940256099942544/2247696110",
     "admob_native_on_boarding_id" to "ca-app-pub-3940256099942544/2247696110",
-    "admob_native_home_id" to "ca-app-pub-3940256099942544/2247696110",
-    "admob_native_full_screen_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_native_feature_id" to "ca-app-pub-3940256099942544/2247696110",
     "admob_native_settings_id" to "ca-app-pub-3940256099942544/2247696110",
 )
 
@@ -73,7 +72,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
-        dataBinding = true
         viewBinding = true
         buildConfig = true
         resValues = true
@@ -102,10 +100,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.kotlinx.coroutines.android)
-
-    // SDP layout size && SSP Text sizes
-    implementation(libs.sdp.android)
-    implementation(libs.ssp.android)
 
     // Firebase (no-op at runtime unless google-services.json is present)
     implementation(platform(libs.firebase.bom))

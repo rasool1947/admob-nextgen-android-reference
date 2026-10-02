@@ -1,170 +1,31 @@
 package com.example.admob_next_gen.utilities.manager
 
 import android.content.SharedPreferences
-
+import androidx.core.content.edit
 
 
 class SharedPreferenceUtils(private val sharedPreferences: SharedPreferences) {
 
-    private val billingRequireKey = "isAppPurchased"
-    private val isShowFirstScreenKey = "showFirstScreen"
-
     /* ---------- Billing ---------- */
 
+    /** True after the user bought "remove ads"; the ads module then stops serving every ad. */
     var isAppPurchased: Boolean
-        get() = sharedPreferences.getBoolean(billingRequireKey, false)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putBoolean(billingRequireKey, value)
-                apply()
-            }
-        }
+        get() = sharedPreferences.getBoolean(KEY_APP_PURCHASED, false)
+        set(value) = sharedPreferences.edit { putBoolean(KEY_APP_PURCHASED, value) }
 
-    /* ---------- UI ---------- */
+    /* ---------- Ads (remote on/off switches) ---------- */
 
-    var showFirstScreen: Boolean
-        get() = sharedPreferences.getBoolean(isShowFirstScreenKey, true)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putBoolean(isShowFirstScreenKey, value)
-                apply()
-            }
-        }
+    /** Per-placement switch, read on every ad load. Defaults to enabled. */
+    fun isAdEnabled(placementKey: String): Boolean =
+        sharedPreferences.getBoolean(adEnabledKey(placementKey), true)
 
-    /* ---------------------------------------- Ads ---------------------------------------- */
+    /** Store the value fetched from your remote config (e.g. Firebase Remote Config) here. */
+    fun setAdEnabled(placementKey: String, enabled: Boolean) =
+        sharedPreferences.edit { putBoolean(adEnabledKey(placementKey), enabled) }
 
-    val appOpen = "appOpen"
-    val appOpenSplash = "appOpenSplash"
+    private fun adEnabledKey(placementKey: String) = "ad_enabled_$placementKey"
 
-    val bannerHome = "bannerHome"
-
-    val interOnBoarding = "interOnBoarding"
-    val interFeature = "interFeature"
-
-    val rewardedAiFeature = "rewardedAiFeature"
-    val rewardedInterAiFeature = "rewardedInterAiFeature"
-
-    val nativeLanguage = "nativeLanguage"
-    val nativeOnBoarding = "nativeOnBoarding"
-    val nativeFeature = "nativeFeature"
-    val nativeHome = "nativeHome"
-    val nativeExit = "nativeExit"
-
-    /* ----- AppOpen Ads ----- */
-
-    var rcAppOpen: Int
-        get() = sharedPreferences.getInt(appOpen, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(appOpen, value)
-                apply()
-            }
-        }
-
-    var rcAppOpenSplash: Int
-        get() = sharedPreferences.getInt(appOpenSplash, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(appOpenSplash, value)
-                apply()
-            }
-        }
-
-    /* ----- Banner Ads ----- */
-
-    var rcBannerHome: Int
-        get() = sharedPreferences.getInt(bannerHome, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(bannerHome, value)
-                apply()
-            }
-        }
-
-    /* ----- Interstitial Ads ----- */
-
-    var rcInterFeature: Int
-        get() = sharedPreferences.getInt(interFeature, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(interFeature, value)
-                apply()
-            }
-        }
-
-    var rcInterOnBoarding: Int
-        get() = sharedPreferences.getInt(interOnBoarding, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(interOnBoarding, value)
-                apply()
-            }
-        }
-
-    /* ----- Rewarded Ads ----- */
-
-    var rcRewardedAiFeature: Int
-        get() = sharedPreferences.getInt(rewardedAiFeature, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(rewardedAiFeature, value)
-                apply()
-            }
-        }
-
-    var rcRewardedInterAiFeature: Int
-        get() = sharedPreferences.getInt(rewardedInterAiFeature, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(rewardedInterAiFeature, value)
-                apply()
-            }
-        }
-
-    /* ----- Native Ads ----- */
-
-    var rcNativeLanguage: Int
-        get() = sharedPreferences.getInt(nativeLanguage, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(nativeLanguage, value)
-                apply()
-            }
-        }
-
-    var rcNativeOnBoarding: Int
-        get() = sharedPreferences.getInt(nativeOnBoarding, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(nativeOnBoarding, value)
-                apply()
-            }
-        }
-
-    var rcNativeHome: Int
-        get() = sharedPreferences.getInt(nativeHome, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(nativeHome, value)
-                apply()
-            }
-        }
-
-    var rcNativeFeature: Int
-        get() = sharedPreferences.getInt(nativeFeature, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(nativeFeature, value)
-                apply()
-            }
-        }
-
-    var rcNativeExit: Int
-        get() = sharedPreferences.getInt(nativeExit, 1)
-        set(value) {
-            sharedPreferences.edit().apply {
-                putInt(nativeExit, value)
-                apply()
-            }
-        }
+    private companion object {
+        const val KEY_APP_PURCHASED = "isAppPurchased"
+    }
 }

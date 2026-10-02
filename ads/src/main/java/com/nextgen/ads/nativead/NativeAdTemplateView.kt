@@ -1,5 +1,6 @@
 package com.nextgen.ads.nativead
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
@@ -135,6 +136,7 @@ class NativeAdTemplateView @JvmOverloads constructor(
         isVisible = !value.isNullOrBlank()
     }
 
+    @SuppressLint("SetTextI18n") // Android Studio layout preview only
     private fun showSample() {
         headline.text = "Sample ad headline"
         body.text = "Sample body text of the native ad."
