@@ -128,10 +128,10 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
         // Launch flow is over: from now on, returning to the app may show an App Open ad.
         AppOpenOnResume.enable(AppAdPlacements.APP_OPEN)
 
-        val action = when {
-            !prefs.isLanguageSelected -> R.id.action_fragmentSplash_to_fragmentLanguage
-            !prefs.isOnboardingDone -> R.id.action_fragmentSplash_to_fragmentOnBoarding
-            else -> R.id.action_fragmentSplash_to_fragmentMain
+        // The whole first flow runs again until the user reaches Main from onboarding once.
+        val action = when (prefs.isFirstFlowDone) {
+            true -> R.id.action_fragmentSplash_to_fragmentMain
+            false -> R.id.action_fragmentSplash_to_fragmentLanguage
         }
         navigateTo(R.id.fragmentSplash, action)
     }

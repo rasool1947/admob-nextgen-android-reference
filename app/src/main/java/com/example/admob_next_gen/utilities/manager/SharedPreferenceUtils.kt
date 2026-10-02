@@ -7,15 +7,14 @@ class SharedPreferenceUtils(private val sharedPreferences: SharedPreferences) {
 
     /* ---------- First-run flow ---------- */
 
-    /** True once the user picked a language; the splash then skips the Language screen. */
-    var isLanguageSelected: Boolean
-        get() = sharedPreferences.getBoolean(KEY_LANGUAGE_SELECTED, false)
-        set(value) = sharedPreferences.edit { putBoolean(KEY_LANGUAGE_SELECTED, value) }
-
-    /** True once onboarding was finished; the splash then goes straight to the main screen. */
-    var isOnboardingDone: Boolean
-        get() = sharedPreferences.getBoolean(KEY_ONBOARDING_DONE, false)
-        set(value) = sharedPreferences.edit { putBoolean(KEY_ONBOARDING_DONE, value) }
+    /**
+     * True once the user reached the main screen from onboarding. Until then every launch runs the
+     * whole first flow again (Splash -> Language -> Onboarding -> Main), even if a language was
+     * already picked before the app was closed.
+     */
+    var isFirstFlowDone: Boolean
+        get() = sharedPreferences.getBoolean(KEY_FIRST_FLOW_DONE, false)
+        set(value) = sharedPreferences.edit { putBoolean(KEY_FIRST_FLOW_DONE, value) }
 
     /* ---------- Billing ---------- */
 
@@ -37,8 +36,7 @@ class SharedPreferenceUtils(private val sharedPreferences: SharedPreferences) {
     private fun adEnabledKey(placementKey: String) = "ad_enabled_$placementKey"
 
     private companion object {
-        const val KEY_LANGUAGE_SELECTED = "isLanguageSelected"
-        const val KEY_ONBOARDING_DONE = "isOnboardingDone"
+        const val KEY_FIRST_FLOW_DONE = "isFirstFlowDone"
         const val KEY_APP_PURCHASED = "isAppPurchased"
     }
 }

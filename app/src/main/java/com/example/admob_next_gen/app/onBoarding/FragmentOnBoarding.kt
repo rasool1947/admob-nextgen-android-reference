@@ -116,7 +116,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
 
     private fun navigateScreen() {
         AppAdSlot.ON_BOARDING.stopPreload()
-        prefs.isOnboardingDone = true
+        prefs.isFirstFlowDone = true // only now: closing the app earlier restarts the first flow
         navigateTo(R.id.fragmentOnBoarding, R.id.action_fragmentOnBoarding_to_fragmentMain)
     }
 

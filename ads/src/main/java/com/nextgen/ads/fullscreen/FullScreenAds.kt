@@ -39,6 +39,9 @@ object FullScreenAds {
     var isShowing: Boolean = false
         private set
 
+    /** Placement whose show is in progress (loading dialog or on screen); repeated calls for it are ignored. */
+    private var activeKey: String? = null
+
     @MainThread
     fun preload(placementKey: String) {
         val placement = AdsSdk.placement(placementKey)
@@ -90,10 +93,17 @@ object FullScreenAds {
 
     /**
      * Shows the next preloaded ad of this placement. [listener] always gets exactly one
-     * [FullScreenAdListener.onAdFinished], whether or not an ad was shown.
+     * [FullScreenAdListener.onAdFinished], whether or not an ad was shown. A second call for a
+     * placement that is already being shown (e.g. a double tap) is ignored and gets no callbacks.
      */
     @MainThread
     fun show(activity: Activity, placementKey: String, listener: FullScreenAdListener? = null) {
+        if (isDuplicate(placementKey)) return
+        if (activeKey == null) activeKey = placementKey
+        showNow(activity, placementKey, listener)
+    }
+
+    private fun showNow(activity: Activity, placementKey: String, listener: FullScreenAdListener?) {
         val placement = AdsSdk.placement(placementKey)
         val format = FullScreenFormat.of(placement.format)
 
@@ -132,12 +142,14 @@ object FullScreenAds {
         listener: FullScreenAdListener? = null,
         loadingMillis: Long = LOADING_DIALOG_MILLIS,
     ) {
+        if (isDuplicate(placementKey)) return
         if (isShowing || !isReady(placementKey)) return show(activity, placementKey, listener) // reports why not
+        activeKey = placementKey
 
         val dialog = AdLoadingDialog(activity).also { it.show() }
         val delegate = listener ?: object : FullScreenAdListener {}
         MainDispatch.postDelayed(loadingMillis) {
-            show(activity, placementKey, object : FullScreenAdListener by delegate {
+            showNow(activity, placementKey, object : FullScreenAdListener by delegate {
                 override fun onAdShowed() {
                     dialog.dismissSafely()
                     delegate.onAdShowed()
@@ -165,7 +177,18 @@ object FullScreenAds {
     @MainThread
     fun stopAll() = preloading.toList().forEach(::stop)
 
+    private fun isDuplicate(placementKey: String): Boolean {
+        val isDuplicate = activeKey == placementKey
+        if (isDuplicate) AdsLog.d("$placementKey -> ignored: already showing (e.g. a double tap)")
+        return isDuplicate
+    }
+
+    private fun release(placementKey: String) {
+        if (activeKey == placementKey) activeKey = null
+    }
+
     private fun notShown(placementKey: String, reason: String, listener: FullScreenAdListener?) {
+        release(placementKey)
         AdsLog.d("$placementKey -> not shown: $reason")
         listener?.onAdFailedToShow(reason)
         listener?.onAdFinished()
@@ -182,6 +205,7 @@ object FullScreenAds {
 
         override fun onAdDismissedFullScreenContent() = MainDispatch.post {
             AdsLog.d("$key -> dismissed")
+            release(key)
             isShowing = false
             listener?.onAdDismissed()
             listener?.onAdFinished()
@@ -189,6 +213,7 @@ object FullScreenAds {
 
         override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) = MainDispatch.post {
             AdsLog.w("$key -> failed to show: ${fullScreenContentError.message}")
+            release(key)
             isShowing = false
             listener?.onAdFailedToShow(fullScreenContentError.message)
             listener?.onAdFinished()

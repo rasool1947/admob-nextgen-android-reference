@@ -14,12 +14,8 @@ object AdPreloadChain {
 
     private val control get() = AdsControlStore.current
 
-    /** From the splash: the next screen depends on how far the first run got. */
-    fun afterSplash(prefs: SharedPreferenceUtils) = when {
-        !prefs.isLanguageSelected -> forLanguage()
-        !prefs.isOnboardingDone -> forOnboarding()
-        else -> forMain()
-    }
+    /** From the splash: Language until the first flow was finished once, else the main screen. */
+    fun afterSplash(prefs: SharedPreferenceUtils) = if (prefs.isFirstFlowDone) forMain() else forLanguage()
 
     fun forLanguage() = AppAdSlot.LANGUAGE.preload(control.language.bottom)
 

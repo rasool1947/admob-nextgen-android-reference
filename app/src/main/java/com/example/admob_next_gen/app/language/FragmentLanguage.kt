@@ -12,9 +12,7 @@ import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
 import com.example.admob_next_gen.utilities.extensions.navigateTo
 import com.example.admob_next_gen.utilities.extensions.popFrom
 import com.example.admob_next_gen.utilities.language.AppLanguage
-import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.control.AdsControlStore
-import org.koin.android.ext.android.inject
 
 /**
  * First run: pick a language, then onboarding. From Settings: pick a language, then back.
@@ -28,7 +26,6 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
     }
 
     private val selection by viewModels<SelectionViewModel>()
-    private val prefs by inject<SharedPreferenceUtils>()
     private val isFromSettings get() = arguments?.getBoolean(ARG_FROM_SETTINGS) ?: false
 
     override fun onViewCreated() {
@@ -54,7 +51,6 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
         if (isFromSettings) {
             popFrom(R.id.fragmentLanguage)
         } else {
-            prefs.isLanguageSelected = true
             navigateTo(R.id.fragmentLanguage, R.id.action_fragmentLanguage_to_fragmentOnBoarding)
         }
         // After navigating, so the recreated activity restores the next screen.

@@ -16,11 +16,6 @@
             app:popUpTo="@id/fragmentSplash"
             app:popUpToInclusive="true" />
         <action
-            android:id="@+id/action_fragmentSplash_to_fragmentOnBoarding"
-            app:destination="@id/fragmentOnBoarding"
-            app:popUpTo="@id/fragmentSplash"
-            app:popUpToInclusive="true" />
-        <action
             android:id="@+id/action_fragmentSplash_to_fragmentMain"
             app:destination="@id/fragmentMain"
             app:popUpTo="@id/fragmentSplash"
