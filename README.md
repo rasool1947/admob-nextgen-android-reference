@@ -178,7 +178,8 @@ reported per place. Placements are declared in `app/.../ads/AppAdPlacements.kt`,
 
 | Placement | Format | `admob.properties` key |
 |---|---|---|
-| `app_open` | App Open (launch + resume) | `admob_app_open_id` |
+| `app_open_splash` | App Open at launch | `admob_app_open_splash_id` |
+| `app_open_resume` | App Open on returning to the app | `admob_app_open_resume_id` |
 | `inter_splash` | Interstitial | `admob_inter_splash_id` |
 | `inter_on_boarding` | Interstitial | `admob_inter_on_boarding_id` |
 | `inter_main` | Interstitial | `admob_inter_main_id` |
@@ -219,7 +220,7 @@ because the ads control can switch its type at runtime (`AppAdSlot`).
    when `AdsSdk.isPrivacyOptionsRequired` (`AdsSdk.showPrivacyOptionsForm(activity)`).
 5. Put an `AdSlotView` wherever a native/banner may go and load it with its slot from the control.
 6. Use `FullScreenAds` for interstitial/rewarded/App Open, `InterstitialPacer` for navigation
-   interstitials, and `AppOpenOnResume.enable("app_open")` once the splash is done.
+   interstitials, and `AppOpenOnResume.enable("app_open_resume")` once the splash is done.
 
 The sample screens (`app/.../app/`) show each step in a real flow; `AdPreloadChain` and
 `MainInterstitial` are the app-side glue worth copying.
@@ -236,7 +237,7 @@ AdSlotView.stopPreload(nativeKey, bannerKey)
 
 // Full-screen formats (preloaded with the SDK preloaders, one ad buffered per placement)
 FullScreenAds.preload("inter_main")
-FullScreenAds.whenReady("app_open", timeoutMillis) { isReady -> }
+FullScreenAds.whenReady("app_open_splash", timeoutMillis) { isReady -> }
 FullScreenAds.show(activity, "inter_main", listener)          // onAdFinished() always called once
 FullScreenAds.showWithLoading(activity, "inter_main", listener) // 1 s "Loading ad…" first
 FullScreenAds.stop("inter_on_boarding")
@@ -246,7 +247,7 @@ val pacer = InterstitialPacer({ AdsControlStore.current.main.inter })
 if (pacer.onClick()) /* show, then */ pacer.onShown()
 
 // App Open on returning to the app (with "Welcome back"; follows app_open_resume)
-AppOpenOnResume.enable("app_open")
+AppOpenOnResume.enable("app_open_resume")
 AppOpenOnResume.welcomeBackMillis = 1_000   // 0 = no welcome screen
 AppOpenOnResume.skipNextResume()            // before opening share sheet, billing, …
 
@@ -288,11 +289,11 @@ Filter Logcat by `tag:AdsFlow` to follow each ad:
 ```
 Language      │ native_language           │ Native        │ 📦 PRELOADING
 Splash        │ native_splash             │ Native        │ ⏳ LOADING
-Splash/Resume │ app_open                  │ App Open      │ 📦 PRELOADING
+Splash        │ app_open_splash           │ App Open      │ 📦 PRELOADING
 Splash        │ native_splash             │ Native        │ ✅ LOADED
 Language      │ native_language           │ Native        │ 📦 READY in cache
 Splash        │ native_splash             │ Native        │ 👁 IMPRESSION
-Splash/Resume │ app_open                  │ App Open      │ ✅ LOADED (in cache)
+Splash        │ app_open_splash           │ App Open      │ ✅ LOADED (in cache)
 Language      │ native_language           │ Native        │ ♻️ LOADED from cache
 ```
 

@@ -30,7 +30,7 @@ class ViewModelSplash : ViewModel() {
 
     /** Full-screen placement of this launch, or null when the control turned it off. */
     val fullScreenKey: String? get() = when (control.fullScreen) {
-        SplashFullScreen.APP_OPEN -> AppAdPlacements.APP_OPEN
+        SplashFullScreen.APP_OPEN -> AppAdPlacements.APP_OPEN_SPLASH
         SplashFullScreen.INTERSTITIAL -> AppAdPlacements.INTER_SPLASH
         SplashFullScreen.OFF -> null
     }

@@ -15,7 +15,9 @@ import com.nextgen.ads.config.AdPlacement
  */
 object AppAdPlacements {
 
-    const val APP_OPEN = "app_open"
+    /** App Open at launch (splash) and on returning to the app: two separate ads with their own units. */
+    const val APP_OPEN_SPLASH = "app_open_splash"
+    const val APP_OPEN_RESUME = "app_open_resume"
 
     const val INTER_ON_BOARDING = "inter_on_boarding"
     const val INTER_SPLASH = "inter_splash"
@@ -46,7 +48,8 @@ object AppAdPlacements {
             AdPlacement(key, format, id(adUnitRes), isEnabled = { prefs.isAdEnabled(key) }, screen = screen)
 
         return listOf(
-            placement(APP_OPEN, AdFormat.APP_OPEN, R.string.admob_app_open_id, "Splash/Resume"),
+            placement(APP_OPEN_SPLASH, AdFormat.APP_OPEN, R.string.admob_app_open_splash_id, "Splash"),
+            placement(APP_OPEN_RESUME, AdFormat.APP_OPEN, R.string.admob_app_open_resume_id, "Resume"),
 
             placement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, R.string.admob_inter_on_boarding_id, "Onboarding"),
             placement(INTER_SPLASH, AdFormat.INTERSTITIAL, R.string.admob_inter_splash_id, "Splash"),

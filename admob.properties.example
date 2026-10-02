@@ -5,7 +5,8 @@
 
 admob_app_id=ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX
 
-admob_app_open_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_app_open_splash_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_app_open_resume_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 
 admob_inter_splash_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_inter_main_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX

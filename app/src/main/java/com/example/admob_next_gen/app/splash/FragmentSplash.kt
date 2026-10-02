@@ -89,11 +89,7 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
         val viewModel = viewModel
         val key = viewModel.fullScreenKey ?: return viewModel.onAdFlowFinished()
         FullScreenAds.show(requireActivity(), key, object : FullScreenAdListener {
-            override fun onAdFinished() {
-                // The splash interstitial is shown once per launch; the App Open ad keeps preloading for resume.
-                if (key == AppAdPlacements.INTER_SPLASH) FullScreenAds.stop(key)
-                viewModel.onAdFlowFinished()
-            }
+            override fun onAdFinished() = viewModel.onAdFlowFinished()
         })
     }
 
@@ -137,8 +133,10 @@ class FragmentSplash : BaseFragment<FragmentSplashBinding>(FragmentSplashBinding
     /* ---------------------------------------- Navigation ---------------------------------------- */
 
     private fun navigateNext() {
-        // Launch flow is over: from now on, returning to the app may show an App Open ad.
-        AppOpenOnResume.enable(AppAdPlacements.APP_OPEN)
+        // The splash ad (shown, or never ready) is done for this launch: stop caching it.
+        viewModel.fullScreenKey?.let(FullScreenAds::stop)
+        // Launch flow is over: from now on, returning to the app may show its own App Open ad.
+        AppOpenOnResume.enable(AppAdPlacements.APP_OPEN_RESUME)
 
         // The whole first flow runs again until the user reaches Main from onboarding once.
         val action = when (prefs.isFirstFlowDone) {

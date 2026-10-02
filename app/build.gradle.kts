@@ -16,7 +16,8 @@ if (file("google-services.json").exists()) {
 // Used for every debug build, and as the release fallback for any key missing from admob.properties.
 val testAdIds = linkedMapOf(
     "admob_app_id" to "ca-app-pub-3940256099942544~3347511713",
-    "admob_app_open_id" to "ca-app-pub-3940256099942544/9257395921",
+    "admob_app_open_splash_id" to "ca-app-pub-3940256099942544/9257395921",
+    "admob_app_open_resume_id" to "ca-app-pub-3940256099942544/9257395921",
     "admob_inter_splash_id" to "ca-app-pub-3940256099942544/1033173712",
     "admob_inter_main_id" to "ca-app-pub-3940256099942544/1033173712",
     "admob_inter_on_boarding_id" to "ca-app-pub-3940256099942544/1033173712",

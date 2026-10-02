@@ -54,7 +54,7 @@ class FragmentMain : BaseFragment<FragmentMainBinding>(FragmentMainBinding::infl
         // Destroyed automatically with this screen's view.
         binding.adSlotMain.load(viewLifecycleOwner, AdsControlStore.current.main.bottom, AppAdSlot.MAIN)
         // Normally enabled by the splash; repeated here for when Android restores the app on this screen.
-        AppOpenOnResume.enable(AppAdPlacements.APP_OPEN)
+        AppOpenOnResume.enable(AppAdPlacements.APP_OPEN_RESUME)
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backToHome)
         initTabs()
