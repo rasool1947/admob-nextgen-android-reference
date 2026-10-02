@@ -2,6 +2,7 @@ package com.nextgen.ads
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.MainThread
@@ -80,6 +81,9 @@ object AdsSdk {
     }
 
     fun placement(key: String): AdPlacement = config.placement(key)
+
+    /** Application context, for work that has no screen yet (e.g. sizing a preloaded banner). */
+    internal val appContext: Context get() = application
 
     /** Why this placement can't load/show right now, or null if it can. Shared by every format. */
     internal fun blockReason(placement: AdPlacement): String? = when {

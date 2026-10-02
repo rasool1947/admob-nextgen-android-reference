@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.MainTabKeys
 import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentExploreBinding
 import com.example.admob_next_gen.databinding.ItemExploreBinding
@@ -15,7 +16,7 @@ import com.nextgen.ads.control.AdsControlStore
 class FragmentExplore : BaseFragment<FragmentExploreBinding>(FragmentExploreBinding::inflate) {
 
     override fun onViewCreated() {
-        binding.adSlotExplore.load(viewLifecycleOwner, AdsControlStore.current.main.tab("explore"), AppAdSlot.TAB)
+        binding.adSlotExplore.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.EXPLORE), AppAdSlot.TAB)
 
         val titles = resources.getStringArray(R.array.explore_titles)
         val descriptions = resources.getStringArray(R.array.explore_descriptions)

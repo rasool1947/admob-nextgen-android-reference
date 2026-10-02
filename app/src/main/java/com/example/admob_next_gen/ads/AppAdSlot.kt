@@ -15,9 +15,40 @@ enum class AppAdSlot(val nativeKey: String, val bannerKey: String) {
     MAIN(AppAdPlacements.NATIVE_MAIN, AppAdPlacements.BANNER_MAIN),
 
     /** Inside the content of a main-screen tab (shared by all tabs). */
-    TAB(AppAdPlacements.NATIVE_TAB, AppAdPlacements.BANNER_TAB),
+    TAB(AppAdPlacements.NATIVE_TAB, AppAdPlacements.BANNER_TAB);
+
+    /** Loads [slot]'s ad ahead of time, for the screen that comes next. Does nothing if the slot is off. */
+    fun preload(slot: AdSlot) = AdSlotView.preload(slot, nativeKey, bannerKey)
+
+    fun stopPreload() = AdSlotView.stopPreload(nativeKey, bannerKey)
 }
 
-/** Loads [slot] (from the ads control) with the placements of [appSlot]. */
-fun AdSlotView.load(lifecycleOwner: LifecycleOwner, slot: AdSlot, appSlot: AppAdSlot, listener: AdSlotListener? = null) =
-    load(lifecycleOwner, slot, appSlot.nativeKey, appSlot.bannerKey, listener)
+/**
+ * Loads [slot] (from the ads control) with the placements of [appSlot]. Uses the ad preloaded by
+ * the previous screen if there is one; preloading then stops unless [keepPreloading] (a screen that
+ * shows several ads from the same slot, like onboarding pages).
+ */
+fun AdSlotView.load(
+    lifecycleOwner: LifecycleOwner,
+    slot: AdSlot,
+    appSlot: AppAdSlot,
+    keepPreloading: Boolean = false,
+    listener: AdSlotListener? = null,
+) {
+    val stopPreloadAfter = object : AdSlotListener {
+        override fun onAdLoaded() {
+            if (!keepPreloading) appSlot.stopPreload()
+            listener?.onAdLoaded()
+        }
+
+        override fun onAdFailedToLoad(reason: String) {
+            if (!keepPreloading) appSlot.stopPreload()
+            listener?.onAdFailedToLoad(reason)
+        }
+
+        override fun onAdClicked() {
+            listener?.onAdClicked()
+        }
+    }
+    load(lifecycleOwner, slot, appSlot.nativeKey, appSlot.bannerKey, stopPreloadAfter)
+}

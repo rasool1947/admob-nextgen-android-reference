@@ -121,6 +121,36 @@ object FullScreenAds {
         }
     }
 
+    /**
+     * Like [show], but first shows a "Loading ad…" dialog for [loadingMillis], so the ad doesn't pop
+     * up out of nowhere. Without a ready ad there is no dialog: [listener] finishes right away.
+     */
+    @MainThread
+    fun showWithLoading(
+        activity: Activity,
+        placementKey: String,
+        listener: FullScreenAdListener? = null,
+        loadingMillis: Long = LOADING_DIALOG_MILLIS,
+    ) {
+        if (isShowing || !isReady(placementKey)) return show(activity, placementKey, listener) // reports why not
+
+        val dialog = AdLoadingDialog(activity).also { it.show() }
+        val delegate = listener ?: object : FullScreenAdListener {}
+        MainDispatch.postDelayed(loadingMillis) {
+            show(activity, placementKey, object : FullScreenAdListener by delegate {
+                override fun onAdShowed() {
+                    dialog.dismissSafely()
+                    delegate.onAdShowed()
+                }
+
+                override fun onAdFinished() {
+                    dialog.dismissSafely()
+                    delegate.onAdFinished()
+                }
+            })
+        }
+    }
+
     /** Stops preloading this placement and discards its buffered ads. */
     @MainThread
     fun stop(placementKey: String) {
@@ -183,4 +213,7 @@ object FullScreenAds {
 
     /** One ad in memory per placement: enough for one show, refilled right after. */
     private const val BUFFER_SIZE = 1
+
+    /** How long [showWithLoading] shows its dialog before the ad. */
+    const val LOADING_DIALOG_MILLIS = 1_000L
 }

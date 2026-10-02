@@ -9,9 +9,12 @@
     </declare-styleable>
 
     <string name="nextgen_ad_badge" translatable="false">Ad</string>
+    <string name="nextgen_ad_loading">Loading ad…</string>
 
     <color name="nextgen_ad_badge_background">#FFB300</color>
     <!-- Loading placeholder: grey blocks with a light band sweeping over them -->
     <color name="nextgen_skeleton">#1A000000</color>
     <color name="nextgen_shimmer_highlight">#B3FFFFFF</color>
+    <color name="nextgen_dialog_background">#FFFFFFFF</color>
+    <color name="nextgen_dialog_text">#DE000000</color>
 </resources>

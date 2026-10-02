@@ -7,6 +7,7 @@ import androidx.core.view.isVisible
 import com.example.admob_next_gen.BuildConfig
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.MainTabKeys
 import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentSettingsBinding
 import com.example.admob_next_gen.databinding.ViewSettingsRowBinding
@@ -20,7 +21,7 @@ import com.nextgen.ads.control.AdsControlStore
 class FragmentSettings : BaseFragment<FragmentSettingsBinding>(FragmentSettingsBinding::inflate) {
 
     override fun onViewCreated() {
-        binding.adSlotSettings.load(viewLifecycleOwner, AdsControlStore.current.main.tab("settings"), AppAdSlot.TAB)
+        binding.adSlotSettings.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.SETTINGS), AppAdSlot.TAB)
 
         binding.rowLanguage.bind(R.drawable.ic_svg_language, R.string.settings_language, AppLanguage.current().nativeName) {
             navigateTo(R.id.fragmentMain, R.id.action_fragmentMain_to_fragmentLanguage)

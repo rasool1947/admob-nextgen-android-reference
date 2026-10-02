@@ -4,7 +4,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import com.example.admob_next_gen.R
-import com.example.admob_next_gen.ads.AppAdPlacements
+import com.example.admob_next_gen.ads.AdPreloadChain
 import com.example.admob_next_gen.ads.AppAdSlot
 import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentLanguageBinding
@@ -14,8 +14,6 @@ import com.example.admob_next_gen.utilities.extensions.popFrom
 import com.example.admob_next_gen.utilities.language.AppLanguage
 import com.example.admob_next_gen.utilities.manager.SharedPreferenceUtils
 import com.nextgen.ads.control.AdsControlStore
-import com.nextgen.ads.nativead.NativeAds
-import com.nextgen.ads.slot.AdSlotListener
 import org.koin.android.ext.android.inject
 
 /**
@@ -63,16 +61,10 @@ class FragmentLanguage : BaseFragment<FragmentLanguageBinding>(FragmentLanguageB
         AppLanguage.apply(language)
     }
 
-    /**
-     * Bottom slot from the ads control. A native ad comes from the splash preload; preloading stops
-     * once it is used (this screen is rarely shown).
-     */
+    /** Bottom slot (preloaded by the splash). On first run, warms up the first onboarding ad too. */
     private fun loadAdSlot() {
-        val stopPreload = object : AdSlotListener {
-            override fun onAdLoaded() = NativeAds.stop(AppAdPlacements.NATIVE_LANGUAGE)
-            override fun onAdFailedToLoad(reason: String) = NativeAds.stop(AppAdPlacements.NATIVE_LANGUAGE)
-        }
-        binding.adSlotLanguage.load(viewLifecycleOwner, AdsControlStore.current.language.bottom, AppAdSlot.LANGUAGE, stopPreload)
+        binding.adSlotLanguage.load(viewLifecycleOwner, AdsControlStore.current.language.bottom, AppAdSlot.LANGUAGE)
+        if (!isFromSettings) AdPreloadChain.forOnboarding()
     }
 
     private companion object {

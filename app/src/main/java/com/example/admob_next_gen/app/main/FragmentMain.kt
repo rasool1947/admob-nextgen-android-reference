@@ -7,6 +7,7 @@ import androidx.fragment.app.commit
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.MainTabKeys
 import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.app.main.explore.FragmentExplore
 import com.example.admob_next_gen.app.main.history.FragmentHistory
@@ -24,10 +25,10 @@ import com.nextgen.ads.fullscreen.AppOpenOnResume
 class FragmentMain : BaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate) {
 
     private enum class Tab(val menuId: Int, val tag: String, val create: () -> Fragment) {
-        HOME(R.id.tabHome, "home", ::FragmentHome),
-        EXPLORE(R.id.tabExplore, "explore", ::FragmentExplore),
-        HISTORY(R.id.tabHistory, "history", ::FragmentHistory),
-        SETTINGS(R.id.tabSettings, "settings", ::FragmentSettings),
+        HOME(R.id.tabHome, MainTabKeys.HOME, ::FragmentHome),
+        EXPLORE(R.id.tabExplore, MainTabKeys.EXPLORE, ::FragmentExplore),
+        HISTORY(R.id.tabHistory, MainTabKeys.HISTORY, ::FragmentHistory),
+        SETTINGS(R.id.tabSettings, MainTabKeys.SETTINGS, ::FragmentSettings),
     }
 
     private var currentTab = Tab.HOME

@@ -6,6 +6,7 @@ import androidx.core.view.isInvisible
 import androidx.core.view.updateLayoutParams
 import androidx.viewpager2.widget.ViewPager2
 import com.example.admob_next_gen.R
+import com.example.admob_next_gen.ads.AdPreloadChain
 import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.AppAdSlot
 import com.example.admob_next_gen.ads.load
@@ -38,8 +39,8 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
 
     override fun onViewCreated() {
         shownAdPage = NO_PAGE
+        AdPreloadChain.forOnboarding() // normally done by the previous screen; covers a restored app
         initPager()
-        if (AdsControlStore.current.onboarding.getStartedInter) FullScreenAds.preload(AppAdPlacements.INTER_ON_BOARDING)
 
         binding.mbSkipOnBoarding.setOnClickListener { binding.vpOnBoarding.currentItem = pages.lastIndex }
         binding.mbNextOnBoarding.setOnClickListener { onNextClick() }
@@ -78,16 +79,19 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         }
     }
 
-    /** Per-page mode: each page shows its own ad (onboarding.pages). Shared mode: one ad for all pages. */
+    /**
+     * Per-page mode: each page shows its own ad (onboarding.pages). Shared mode: one ad for all pages.
+     * While a page is on screen, the next page's ad (or, on the last page, the main screen's) is preloaded.
+     */
     private fun loadAdSlot(position: Int) {
         val control = AdsControlStore.current.onboarding
-        val (page, slot) = when (control.mode) {
-            OnboardingAdMode.PER_PAGE -> position to control.page(position)
-            OnboardingAdMode.SHARED -> 0 to control.shared
-        }
+        if (position < pages.lastIndex) AdPreloadChain.forOnboardingPage(position + 1) else AdPreloadChain.forMain()
+
+        val page = if (control.mode == OnboardingAdMode.SHARED) 0 else position
         if (page == shownAdPage) return
         shownAdPage = page
-        binding.adSlotOnBoarding.load(viewLifecycleOwner, slot, AppAdSlot.ON_BOARDING)
+        // Keep preloading: the following pages take their ads from the same slot.
+        binding.adSlotOnBoarding.load(viewLifecycleOwner, control.slotForPage(position), AppAdSlot.ON_BOARDING, keepPreloading = true)
     }
 
     private fun onNextClick() {
@@ -101,7 +105,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
 
     private fun showInterstitialAd() {
         if (!AdsControlStore.current.onboarding.getStartedInter) return navigateScreen()
-        FullScreenAds.show(requireActivity(), AppAdPlacements.INTER_ON_BOARDING, object : FullScreenAdListener {
+        FullScreenAds.showWithLoading(requireActivity(), AppAdPlacements.INTER_ON_BOARDING, object : FullScreenAdListener {
             override fun onAdFinished() {
                 // Onboarding is shown once; don't keep an ad preloaded for it.
                 FullScreenAds.stop(AppAdPlacements.INTER_ON_BOARDING)
@@ -111,6 +115,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
     }
 
     private fun navigateScreen() {
+        AppAdSlot.ON_BOARDING.stopPreload()
         prefs.isOnboardingDone = true
         navigateTo(R.id.fragmentOnBoarding, R.id.action_fragmentOnBoarding_to_fragmentMain)
     }

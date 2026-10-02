@@ -102,6 +102,12 @@ data class OnboardingControl(
     /** The ad of page [index] (0-based) in [OnboardingAdMode.PER_PAGE] mode. */
     fun page(index: Int): AdSlot = pages.getOrElse(index) { AdSlot.Off }
 
+    /** The ad shown while page [index] is on screen, for either [mode]. */
+    fun slotForPage(index: Int): AdSlot = when (mode) {
+        OnboardingAdMode.PER_PAGE -> page(index)
+        OnboardingAdMode.SHARED -> shared
+    }
+
     companion object {
         const val DEFAULT_PAGE_COUNT = 4
     }

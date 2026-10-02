@@ -3,6 +3,7 @@ package com.example.admob_next_gen.app.main.home
 import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdPlacements
 import com.example.admob_next_gen.ads.AppAdSlot
+import com.example.admob_next_gen.ads.MainTabKeys
 import com.example.admob_next_gen.ads.load
 import com.example.admob_next_gen.databinding.FragmentHomeBinding
 import com.example.admob_next_gen.databinding.ViewHomeCardBinding
@@ -16,7 +17,7 @@ import com.nextgen.ads.fullscreen.FullScreenAds
 class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
     override fun onViewCreated() {
-        binding.adSlotHome.load(viewLifecycleOwner, AdsControlStore.current.main.tab("home"), AppAdSlot.TAB)
+        binding.adSlotHome.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.HOME), AppAdSlot.TAB)
 
         FullScreenAds.preload(AppAdPlacements.INTER_FEATURE)
         // Warm up the rewarded ad so it's ready when the user opens the Premium screen.
@@ -39,7 +40,7 @@ class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun showInterstitial(action: Int) {
-        FullScreenAds.show(requireActivity(), AppAdPlacements.INTER_FEATURE, object : FullScreenAdListener {
+        FullScreenAds.showWithLoading(requireActivity(), AppAdPlacements.INTER_FEATURE, object : FullScreenAdListener {
             override fun onAdFinished() = navigateTo(R.id.fragmentMain, action)
         })
     }

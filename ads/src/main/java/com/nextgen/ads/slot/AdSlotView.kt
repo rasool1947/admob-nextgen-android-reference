@@ -151,16 +151,6 @@ class AdSlotView @JvmOverloads constructor(
         NativeStyle.LARGE -> NativeAdTemplateView.Template.LARGE
     }
 
-    private fun BannerStyle.toBannerSize(): BannerSize = when (this) {
-        BannerStyle.STANDARD -> BannerSize.Standard
-        BannerStyle.LARGE -> BannerSize.Large
-        BannerStyle.MEDIUM_RECTANGLE -> BannerSize.MediumRectangle
-        BannerStyle.ADAPTIVE -> BannerSize.Anchored
-        BannerStyle.INLINE_ADAPTIVE -> BannerSize.Inline(maxHeightDp = INLINE_MAX_HEIGHT_DP)
-        BannerStyle.COLLAPSIBLE_TOP -> BannerSize.Collapsible(fromTop = true)
-        BannerStyle.COLLAPSIBLE_BOTTOM -> BannerSize.Collapsible(fromTop = false)
-    }
-
     /** Height reserved before the banner's real size is known (BannerAds sets the exact one when loading starts). */
     private fun BannerStyle.placeholderHeightPx(): Int {
         val dp = when (this) {
@@ -198,10 +188,40 @@ class AdSlotView @JvmOverloads constructor(
         }
     }
 
-    private companion object {
-        /** Inline banners in content: about the height of a medium rectangle. */
-        const val INLINE_MAX_HEIGHT_DP = 250
+    companion object {
+        /**
+         * Starts loading [slot]'s ad in the background (native or banner, per the ads control) so an
+         * AdSlotView on the next screen shows it at once. Nothing happens for an [AdSlot.Off] slot.
+         */
+        @MainThread
+        fun preload(slot: AdSlot, nativePlacementKey: String, bannerPlacementKey: String) {
+            when (slot) {
+                AdSlot.Off -> Unit
+                is AdSlot.Native -> NativeAds.preload(nativePlacementKey)
+                is AdSlot.Banner -> BannerAds.preload(bannerPlacementKey, slot.style.toBannerSize())
+            }
+        }
+
+        /** Stops both preloads of a slot (e.g. once its screen has shown its ad). */
+        @MainThread
+        fun stopPreload(nativePlacementKey: String, bannerPlacementKey: String) {
+            NativeAds.stop(nativePlacementKey)
+            BannerAds.stopPreload(bannerPlacementKey)
+        }
     }
+}
+
+/** Inline banners in content: about the height of a medium rectangle. */
+private const val INLINE_MAX_HEIGHT_DP = 250
+
+private fun BannerStyle.toBannerSize(): BannerSize = when (this) {
+    BannerStyle.STANDARD -> BannerSize.Standard
+    BannerStyle.LARGE -> BannerSize.Large
+    BannerStyle.MEDIUM_RECTANGLE -> BannerSize.MediumRectangle
+    BannerStyle.ADAPTIVE -> BannerSize.Anchored
+    BannerStyle.INLINE_ADAPTIVE -> BannerSize.Inline(maxHeightDp = INLINE_MAX_HEIGHT_DP)
+    BannerStyle.COLLAPSIBLE_TOP -> BannerSize.Collapsible(fromTop = true)
+    BannerStyle.COLLAPSIBLE_BOTTOM -> BannerSize.Collapsible(fromTop = false)
 }
 
 /** Ad slot events, on the main thread. */

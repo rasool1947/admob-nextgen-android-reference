@@ -36,7 +36,7 @@ class FragmentPremium : BaseFragment<FragmentPremiumBinding>(FragmentPremiumBind
     /* ----------------------------------------- Rewarded ----------------------------------------- */
 
     private fun showRewarded() {
-        FullScreenAds.show(requireActivity(), AppAdPlacements.REWARDED_AI_FEATURE, rewardListener { _ ->
+        FullScreenAds.showWithLoading(requireActivity(), AppAdPlacements.REWARDED_AI_FEATURE, rewardListener { _ ->
             navigateTo(R.id.fragmentPremium, R.id.action_fragmentPremium_to_fragmentFeature)
         })
     }
