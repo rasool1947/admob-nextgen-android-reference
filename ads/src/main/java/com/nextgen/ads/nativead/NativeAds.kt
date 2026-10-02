@@ -19,6 +19,7 @@ import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdRequest
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdFormat
 import com.nextgen.ads.config.AdPlacement
+import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
 import com.nextgen.ads.internal.PreloadWaiters
@@ -52,12 +53,14 @@ object NativeAds {
         if (placementKey in preloading) return
         AdsSdk.blockReason(placement)?.let { reason ->
             AdsLog.d("$placementKey -> native preload skipped: $reason")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.SKIPPED, "preload: $reason")
             return
         }
         val configuration = PreloadConfiguration(request(placement), BUFFER_SIZE)
         if (NativeAdPreloader.start(placementKey, configuration, preloadCallback)) {
             preloading += placementKey
             AdsLog.d("$placementKey -> native preload started")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.PRELOADING)
         }
     }
 
@@ -117,7 +120,10 @@ object NativeAds {
     private fun loadWhenReady(lifecycleOwner: LifecycleOwner, placement: AdPlacement, listener: NativeAdListener) {
         val placementKey = placement.key
         if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) return
-        AdsSdk.blockReason(placement)?.let { reason -> return failed(placement, reason, listener) }
+        AdsSdk.blockReason(placement)?.let { reason ->
+            AdsFlowLog.log(placement, AdsFlowLog.Event.SKIPPED, reason)
+            return failed(placement, reason, listener)
+        }
 
         when {
             isReady(placementKey) -> pollPreloaded(lifecycleOwner, placement, listener)
@@ -141,6 +147,7 @@ object NativeAds {
             null -> loadNow(lifecycleOwner, placement, listener)
             else -> {
                 AdsLog.d("${placement.key} -> native from preload")
+                AdsFlowLog.log(placement, AdsFlowLog.Event.FROM_CACHE)
                 deliver(lifecycleOwner, placement, ad, listener)
             }
         }
@@ -148,12 +155,15 @@ object NativeAds {
 
     private fun loadNow(lifecycleOwner: LifecycleOwner, placement: AdPlacement, listener: NativeAdListener) {
         AdsLog.d("${placement.key} -> native loading")
+        AdsFlowLog.log(placement, AdsFlowLog.Event.LOADING)
         NativeAdLoader.load(request(placement), object : NativeAdLoaderCallback {
             override fun onNativeAdLoaded(nativeAd: NativeAd) = MainDispatch.post {
+                AdsFlowLog.log(placement, AdsFlowLog.Event.LOADED)
                 deliver(lifecycleOwner, placement, nativeAd, listener)
             }
 
             override fun onAdFailedToLoad(adError: LoadAdError) = MainDispatch.post {
+                AdsFlowLog.log(placement, AdsFlowLog.Event.FAILED, "${adError.code}: ${adError.message}")
                 failed(placement, "${adError.code}: ${adError.message}", listener)
             }
         })
@@ -168,7 +178,11 @@ object NativeAds {
         }
 
         ad.adEventCallback = object : NativeAdEventCallback {
-            override fun onAdClicked() = MainDispatch.post { listener.onAdClicked() }
+            override fun onAdImpression() = MainDispatch.post { AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION) }
+            override fun onAdClicked() = MainDispatch.post {
+                AdsFlowLog.log(placement, AdsFlowLog.Event.CLICKED)
+                listener.onAdClicked()
+            }
             override fun onAdPaid(value: AdValue) = AdsSdk.reportPaid(placement, value)
         }
         lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -198,11 +212,13 @@ object NativeAds {
     private val preloadCallback = object : PreloadCallback {
         override fun onAdPreloaded(preloadId: String, responseInfo: ResponseInfo) = MainDispatch.post {
             AdsLog.d("$preloadId -> native preloaded")
+            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
             readyWaiters.resolve(preloadId, true)
         }
 
         override fun onAdFailedToPreload(preloadId: String, adError: LoadAdError) = MainDispatch.post {
             AdsLog.w("$preloadId -> native failed to preload: ${adError.code} ${adError.message}")
+            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.FAILED, "preload: ${adError.code}: ${adError.message}")
             readyWaiters.resolve(preloadId, false)
         }
     }

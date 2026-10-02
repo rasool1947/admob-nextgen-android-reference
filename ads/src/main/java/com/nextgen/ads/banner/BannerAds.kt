@@ -29,6 +29,7 @@ import com.google.android.libraries.ads.mobile.sdk.common.ResponseInfo
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdFormat
 import com.nextgen.ads.config.AdPlacement
+import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
 import com.nextgen.ads.internal.PreloadWaiters
@@ -72,7 +73,10 @@ object BannerAds {
         clear(container)
         AdsSdk.whenSdkReady {
             if (lifecycleOwner.isDestroyed) return@whenSdkReady
-            AdsSdk.blockReason(placement)?.let { reason -> return@whenSdkReady notLoaded(container, placement, reason, listener) }
+            AdsSdk.blockReason(placement)?.let { reason ->
+                AdsFlowLog.log(placement, AdsFlowLog.Event.SKIPPED, reason)
+                return@whenSdkReady notLoaded(container, placement, reason, listener)
+            }
 
             // Wait for the container's real width (it is 0 before the first layout pass).
             container.visibility = View.VISIBLE
@@ -126,6 +130,7 @@ object BannerAds {
         }
         AdsSdk.blockReason(placement)?.let { reason ->
             AdsLog.d("$key -> banner preload skipped: $reason")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.SKIPPED, "preload: $reason")
             return
         }
 
@@ -135,17 +140,20 @@ object BannerAds {
         if (BannerAdPreloader.start(key, configuration, preloadCallback)) {
             preloading[key] = size
             AdsLog.d("$key -> banner preload started ($size)")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.PRELOADING, "$size")
         }
     }
 
     private val preloadCallback = object : PreloadCallback {
         override fun onAdPreloaded(preloadId: String, responseInfo: ResponseInfo) = MainDispatch.post {
             AdsLog.d("$preloadId -> banner preloaded")
+            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
             readyWaiters.resolve(preloadId, true)
         }
 
         override fun onAdFailedToPreload(preloadId: String, adError: LoadAdError) = MainDispatch.post {
             AdsLog.w("$preloadId -> banner failed to preload: ${adError.code} ${adError.message}")
+            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.FAILED, "preload: ${adError.code}: ${adError.message}")
             readyWaiters.resolve(preloadId, false)
         }
     }
@@ -196,6 +204,7 @@ object BannerAds {
         destroyWith(lifecycleOwner, container, adView, placement)
 
         AdsLog.d("${placement.key} -> banner from preload (collapsible = ${ad.isCollapsible()})")
+        AdsFlowLog.log(placement, AdsFlowLog.Event.FROM_CACHE)
         listener?.onAdLoaded(ad.isCollapsible())
     }
 
@@ -219,12 +228,14 @@ object BannerAds {
         destroyWith(lifecycleOwner, container, adView, placement)
 
         AdsLog.d("${placement.key} -> banner loading (${adSize.width}x${adSize.height}dp, $size)")
+        AdsFlowLog.log(placement, AdsFlowLog.Event.LOADING, "${adSize.width}x${adSize.height}dp")
         adView.loadAd(request(placement, adSize, size), object : AdLoadCallback<BannerAd> {
             override fun onAdLoaded(ad: BannerAd) {
                 ad.adEventCallback = eventCallback(placement, listener)
                 MainDispatch.post {
                     if (adView.parent == null) return@post // screen already destroyed
                     AdsLog.d("${placement.key} -> banner loaded (collapsible = ${ad.isCollapsible()})")
+                    AdsFlowLog.log(placement, AdsFlowLog.Event.LOADED)
                     listener?.onAdLoaded(ad.isCollapsible())
                 }
             }
@@ -233,6 +244,7 @@ object BannerAds {
                 if (adView.parent == null) return@post
                 container.removeView(adView)
                 adView.destroy()
+                AdsFlowLog.log(placement, AdsFlowLog.Event.FAILED, "${adError.code}: ${adError.message}")
                 notLoaded(container, placement, "${adError.code}: ${adError.message}", listener)
             }
         })
@@ -265,7 +277,11 @@ object BannerAds {
     }
 
     private fun eventCallback(placement: AdPlacement, listener: BannerAdListener?) = object : BannerAdEventCallback {
-        override fun onAdClicked() = MainDispatch.post { listener?.onAdClicked() }
+        override fun onAdImpression() = MainDispatch.post { AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION) }
+        override fun onAdClicked() = MainDispatch.post {
+            AdsFlowLog.log(placement, AdsFlowLog.Event.CLICKED)
+            listener?.onAdClicked()
+        }
         override fun onAdPaid(value: AdValue) = AdsSdk.reportPaid(placement, value)
     }
 

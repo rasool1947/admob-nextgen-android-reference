@@ -14,6 +14,7 @@ import com.google.android.libraries.ads.mobile.sdk.common.ResponseInfo
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardItem
 import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.config.AdPlacement
+import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.MainDispatch
 import com.nextgen.ads.internal.PreloadWaiters
@@ -61,6 +62,7 @@ object FullScreenAds {
         if (placementKey in preloading) return
         AdsSdk.blockReason(placement)?.let { reason ->
             AdsLog.d("$placementKey -> preload skipped: $reason")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.SKIPPED, "preload: $reason")
             return
         }
 
@@ -68,6 +70,7 @@ object FullScreenAds {
         if (format.start(placementKey, configuration, preloadCallback)) {
             preloading += placementKey
             AdsLog.d("$placementKey -> preload started")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.PRELOADING)
         } else {
             AdsLog.w("$placementKey -> preload could not start")
         }
@@ -123,6 +126,7 @@ object FullScreenAds {
         val onReward = { reward: RewardItem ->
             MainDispatch.post {
                 AdsLog.d("$placementKey -> reward earned: ${reward.amount} ${reward.type}")
+                AdsFlowLog.log(placement, AdsFlowLog.Event.REWARDED, "${reward.amount} ${reward.type}")
                 listener?.onUserEarnedReward(reward)
             }
         }
@@ -206,6 +210,7 @@ object FullScreenAds {
     private fun notShown(placementKey: String, reason: String, listener: FullScreenAdListener?) {
         release(placementKey)
         AdsLog.d("$placementKey -> not shown: $reason")
+        AdsFlowLog.log(AdsSdk.placement(placementKey), AdsFlowLog.Event.NOT_SHOWN, reason)
         listener?.onAdFailedToShow(reason)
         listener?.onAdFinished()
     }
@@ -214,16 +219,24 @@ object FullScreenAds {
         val key = placement.key
 
         override fun onAdShowedFullScreenContent() = MainDispatch.post {
+            AdsFlowLog.log(placement, AdsFlowLog.Event.SHOWN, "from cache")
             lastShownAtMillis = SystemClock.elapsedRealtime()
             listener?.onAdShowed()
         }
-        override fun onAdImpression() = MainDispatch.post { listener?.onAdImpression() }
-        override fun onAdClicked() = MainDispatch.post { listener?.onAdClicked() }
+        override fun onAdImpression() = MainDispatch.post {
+            AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION)
+            listener?.onAdImpression()
+        }
+        override fun onAdClicked() = MainDispatch.post {
+            AdsFlowLog.log(placement, AdsFlowLog.Event.CLICKED)
+            listener?.onAdClicked()
+        }
 
         override fun onAdPaid(value: AdValue) = AdsSdk.reportPaid(placement, value)
 
         override fun onAdDismissedFullScreenContent() = MainDispatch.post {
             AdsLog.d("$key -> dismissed")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.CLOSED)
             release(key)
             isShowing = false
             listener?.onAdDismissed()
@@ -232,6 +245,7 @@ object FullScreenAds {
 
         override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) = MainDispatch.post {
             AdsLog.w("$key -> failed to show: ${fullScreenContentError.message}")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.FAILED, "show: ${fullScreenContentError.message}")
             release(key)
             isShowing = false
             listener?.onAdFailedToShow(fullScreenContentError.message)
@@ -242,11 +256,13 @@ object FullScreenAds {
     private val preloadCallback = object : PreloadCallback {
         override fun onAdPreloaded(preloadId: String, responseInfo: ResponseInfo) = MainDispatch.post {
             AdsLog.d("$preloadId -> ad preloaded")
+            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.READY_IN_CACHE)
             readyWaiters.resolve(preloadId, true)
         }
 
         override fun onAdFailedToPreload(preloadId: String, adError: LoadAdError) = MainDispatch.post {
             AdsLog.w("$preloadId -> failed to preload: ${adError.code} ${adError.message}")
+            AdsFlowLog.log(AdsSdk.placement(preloadId), AdsFlowLog.Event.FAILED, "preload: ${adError.code}: ${adError.message}")
             readyWaiters.resolve(preloadId, false)
         }
 

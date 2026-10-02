@@ -42,30 +42,33 @@ object AppAdPlacements {
 
     fun create(context: Context, prefs: SharedPreferenceUtils): List<AdPlacement> {
         fun id(resId: Int) = context.getString(resId).trim()
-        fun placement(key: String, format: AdFormat, adUnitRes: Int) = AdPlacement(key, format, id(adUnitRes)) { prefs.isAdEnabled(key) }
+        fun placement(key: String, format: AdFormat, adUnitRes: Int, screen: String) =
+            AdPlacement(key, format, id(adUnitRes), isEnabled = { prefs.isAdEnabled(key) }, screen = screen)
 
         return listOf(
-            placement(APP_OPEN, AdFormat.APP_OPEN, R.string.admob_app_open_id),
+            placement(APP_OPEN, AdFormat.APP_OPEN, R.string.admob_app_open_id, "Splash/Resume"),
 
-            placement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, R.string.admob_inter_on_boarding_id),
-            placement(INTER_SPLASH, AdFormat.INTERSTITIAL, R.string.admob_inter_splash_id),
-            placement(INTER_MAIN, AdFormat.INTERSTITIAL, R.string.admob_inter_main_id),
+            placement(INTER_ON_BOARDING, AdFormat.INTERSTITIAL, R.string.admob_inter_on_boarding_id, "Onboarding"),
+            placement(INTER_SPLASH, AdFormat.INTERSTITIAL, R.string.admob_inter_splash_id, "Splash"),
+            placement(INTER_MAIN, AdFormat.INTERSTITIAL, R.string.admob_inter_main_id, "Main"),
 
-            placement(REWARDED_AI_FEATURE, AdFormat.REWARDED, R.string.admob_rewarded_ai_feature_id),
-            placement(REWARDED_INTER_AI_FEATURE, AdFormat.REWARDED_INTERSTITIAL, R.string.admob_rewarded_inter_ai_feature_id),
+            placement(REWARDED_AI_FEATURE, AdFormat.REWARDED, R.string.admob_rewarded_ai_feature_id, "Premium"),
+            placement(
+                REWARDED_INTER_AI_FEATURE, AdFormat.REWARDED_INTERSTITIAL, R.string.admob_rewarded_inter_ai_feature_id, "Premium",
+            ),
 
-            placement(NATIVE_SPLASH, AdFormat.NATIVE, R.string.admob_native_splash_id),
-            placement(BANNER_SPLASH, AdFormat.BANNER, R.string.admob_banner_splash_id),
-            placement(NATIVE_LANGUAGE, AdFormat.NATIVE, R.string.admob_native_language_id),
-            placement(BANNER_LANGUAGE, AdFormat.BANNER, R.string.admob_banner_language_id),
-            placement(NATIVE_ON_BOARDING, AdFormat.NATIVE, R.string.admob_native_on_boarding_id),
-            placement(BANNER_ON_BOARDING, AdFormat.BANNER, R.string.admob_banner_on_boarding_id),
-            placement(NATIVE_MAIN, AdFormat.NATIVE, R.string.admob_native_main_id),
-            placement(BANNER_MAIN, AdFormat.BANNER, R.string.admob_banner_main_id),
-            placement(NATIVE_TAB, AdFormat.NATIVE, R.string.admob_native_tab_id),
-            placement(BANNER_TAB, AdFormat.BANNER, R.string.admob_banner_tab_id),
+            placement(NATIVE_SPLASH, AdFormat.NATIVE, R.string.admob_native_splash_id, "Splash"),
+            placement(BANNER_SPLASH, AdFormat.BANNER, R.string.admob_banner_splash_id, "Splash"),
+            placement(NATIVE_LANGUAGE, AdFormat.NATIVE, R.string.admob_native_language_id, "Language"),
+            placement(BANNER_LANGUAGE, AdFormat.BANNER, R.string.admob_banner_language_id, "Language"),
+            placement(NATIVE_ON_BOARDING, AdFormat.NATIVE, R.string.admob_native_on_boarding_id, "Onboarding"),
+            placement(BANNER_ON_BOARDING, AdFormat.BANNER, R.string.admob_banner_on_boarding_id, "Onboarding"),
+            placement(NATIVE_MAIN, AdFormat.NATIVE, R.string.admob_native_main_id, "Main bottom"),
+            placement(BANNER_MAIN, AdFormat.BANNER, R.string.admob_banner_main_id, "Main bottom"),
+            placement(NATIVE_TAB, AdFormat.NATIVE, R.string.admob_native_tab_id, "Main tab"),
+            placement(BANNER_TAB, AdFormat.BANNER, R.string.admob_banner_tab_id, "Main tab"),
 
-            placement(NATIVE_FEATURE, AdFormat.NATIVE, R.string.admob_native_feature_id),
+            placement(NATIVE_FEATURE, AdFormat.NATIVE, R.string.admob_native_feature_id, "Feature"),
         )
     }
 }

@@ -19,12 +19,14 @@ enum class AdFormat {
  * @param format    Ad format this placement serves.
  * @param adUnitId  AdMob ad unit id (`ca-app-pub-xxx/yyy`).
  * @param isEnabled Evaluated on every load, so it can follow remote config at runtime.
+ * @param screen    Where the ad appears, for readable logs (tag `AdsFlow`), e.g. "Language".
  */
 data class AdPlacement(
     val key: String,
     val format: AdFormat,
     val adUnitId: String,
     val isEnabled: () -> Boolean = { true },
+    val screen: String? = null,
 ) {
     init {
         require(key.isNotBlank()) { "AdPlacement key must not be blank" }

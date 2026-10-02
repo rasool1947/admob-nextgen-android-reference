@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd
+import com.nextgen.ads.AdsSdk
 import com.nextgen.ads.R
 import com.nextgen.ads.banner.BannerAdListener
 import com.nextgen.ads.banner.BannerAds
@@ -17,7 +18,7 @@ import com.nextgen.ads.banner.BannerSize
 import com.nextgen.ads.control.AdSlot
 import com.nextgen.ads.control.BannerStyle
 import com.nextgen.ads.control.NativeStyle
-import com.nextgen.ads.internal.AdsLog
+import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.ShimmerLayout
 import com.nextgen.ads.nativead.NativeAdListener
 import com.nextgen.ads.nativead.NativeAdTemplateView
@@ -72,7 +73,7 @@ class AdSlotView @JvmOverloads constructor(
         when (slot) {
             AdSlot.Off -> {
                 visibility = GONE
-                AdsLog.d("ad slot ($nativePlacementKey / $bannerPlacementKey) -> off")
+                AdsFlowLog.slotOff(AdsSdk.placement(nativePlacementKey), nativePlacementKey, bannerPlacementKey)
                 listener?.onAdFailedToLoad("slot is off")
             }
             is AdSlot.Native -> loadNative(SlotLifecycle(lifecycleOwner), slot.style, nativePlacementKey, listener)
