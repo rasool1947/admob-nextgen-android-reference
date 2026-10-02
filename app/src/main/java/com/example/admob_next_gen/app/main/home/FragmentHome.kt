@@ -17,7 +17,7 @@ import com.nextgen.ads.fullscreen.FullScreenAds
 class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
     override fun onViewCreated() {
-        binding.adSlotHome.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.HOME), AppAdSlot.TAB)
+        binding.adSlotHome.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.HOME), AppAdSlot.HOME_TAB)
 
         MainInterstitial.preload()
         // Warm up the rewarded ad so it's ready when the user opens the Premium screen.

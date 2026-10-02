@@ -31,6 +31,8 @@ internal object AdsFlowLog {
         LOADED("✅ LOADED"),
         /** Taken from the cache: no waiting. */
         FROM_CACHE("♻️ LOADED from cache"),
+        /** The ad this screen showed before (kept when it closed): shown again, no new request. */
+        REUSED("♻️ SHOWN again (kept)"),
         FAILED("❌ FAILED"),
         /** Not requested at all: slot off, no consent, premium user, placement disabled… */
         SKIPPED("⛔ SKIPPED"),
@@ -64,7 +66,7 @@ internal object AdsFlowLog {
         val format = placement.format.label.padEnd(FORMAT_WIDTH)
         val line = "$screen │ $key │ $format │ ${event.label}" + (detail?.let { "  $it" } ?: "")
         when (event) {
-            Event.LOADED, Event.FROM_CACHE, Event.LOADED_IN_CACHE -> Log.w(TAG, line)
+            Event.LOADED, Event.FROM_CACHE, Event.LOADED_IN_CACHE, Event.REUSED -> Log.w(TAG, line)
             Event.FAILED -> Log.e(TAG, line)
             else -> Log.d(TAG, line)
         }

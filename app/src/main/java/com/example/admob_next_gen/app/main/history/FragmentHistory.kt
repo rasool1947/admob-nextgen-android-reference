@@ -11,6 +11,6 @@ import com.nextgen.ads.control.AdsControlStore
 class FragmentHistory : BaseFragment<FragmentHistoryBinding>(FragmentHistoryBinding::inflate) {
 
     override fun onViewCreated() {
-        binding.adSlotHistory.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.HISTORY), AppAdSlot.TAB)
+        binding.adSlotHistory.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.HISTORY), AppAdSlot.HISTORY_TAB)
     }
 }

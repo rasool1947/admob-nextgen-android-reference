@@ -23,8 +23,11 @@ enum class AppAdSlot(val nativeKey: String, val bannerKey: String) {
     /** Below the bottom navigation. */
     MAIN(AppAdPlacements.NATIVE_MAIN, AppAdPlacements.BANNER_MAIN),
 
-    /** Inside the content of a main-screen tab (shared by all tabs). */
-    TAB(AppAdPlacements.NATIVE_TAB, AppAdPlacements.BANNER_TAB);
+    /** Inside the content of each main-screen tab, one slot (own units and cache) per tab. */
+    HOME_TAB(AppAdPlacements.NATIVE_HOME, AppAdPlacements.BANNER_HOME),
+    EXPLORE_TAB(AppAdPlacements.NATIVE_EXPLORE, AppAdPlacements.BANNER_EXPLORE),
+    HISTORY_TAB(AppAdPlacements.NATIVE_HISTORY, AppAdPlacements.BANNER_HISTORY),
+    SETTINGS_TAB(AppAdPlacements.NATIVE_SETTINGS, AppAdPlacements.BANNER_SETTINGS);
 
     /** Loads [slot]'s ad ahead of time, for the screen that comes next. Nothing if the slot is off. */
     fun preload(slot: AdSlot) = AdSlotView.preload(slot, nativeKey, bannerKey)

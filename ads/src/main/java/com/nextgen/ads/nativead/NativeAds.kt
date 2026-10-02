@@ -22,6 +22,7 @@ import com.nextgen.ads.config.AdPlacement
 import com.nextgen.ads.config.forScreen
 import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.AdsLog
+import com.nextgen.ads.internal.KeptAds
 import com.nextgen.ads.internal.MainDispatch
 import com.nextgen.ads.internal.PreloadWaiters
 
@@ -152,6 +153,13 @@ object NativeAds {
             return failed(placement, reason, listener)
         }
 
+        // The ad this screen showed last time (kept when it closed): show it again, no new request.
+        KeptAds.take<NativeAd>(placementKey, variant = null)?.let { kept ->
+            AdsLog.d("$placementKey -> native kept from last time")
+            AdsFlowLog.log(placement, AdsFlowLog.Event.REUSED)
+            return deliver(lifecycleOwner, placement, kept.ad, listener, kept.loadedAtMillis)
+        }
+
         when {
             isReady(placementKey) -> pollPreloaded(lifecycleOwner, placement, listener)
             placementKey in preloading -> {
@@ -197,10 +205,16 @@ object NativeAds {
     }
 
     /** Main thread. Hands the ad to the caller and ties its lifetime to [lifecycleOwner]. */
-    private fun deliver(lifecycleOwner: LifecycleOwner, placement: AdPlacement, ad: NativeAd, listener: NativeAdListener) {
+    private fun deliver(
+        lifecycleOwner: LifecycleOwner,
+        placement: AdPlacement,
+        ad: NativeAd,
+        listener: NativeAdListener,
+        loadedAtMillis: Long = KeptAds.now(),
+    ) {
         val lifecycle = lifecycleOwner.lifecycle
         if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
-            ad.destroy() // screen closed while loading
+            KeptAds.keep(placement.key, ad, variant = null, loadedAtMillis) { ad.destroy() } // screen closed while loading
             return
         }
 
@@ -214,8 +228,9 @@ object NativeAds {
         }
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
-                ad.destroy()
-                AdsLog.d("${placement.key} -> native destroyed")
+                // Kept for this placement: the screen shows it again when it reopens (KeptAds).
+                KeptAds.keep(placement.key, ad, variant = null, loadedAtMillis) { ad.destroy() }
+                AdsLog.d("${placement.key} -> native kept for the screen's return")
             }
         })
 

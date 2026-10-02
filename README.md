@@ -55,6 +55,9 @@ Rules built in:
   page 1's ad, each onboarding page loads the next page's, and the last page loads the "Get Started"
   interstitial, so each ad appears instantly. Only ads that are on in the ads control are loaded; the
   main screen loads its own ads.
+- **Kept ads**: a native/banner ad whose screen closes is kept for that screen (per placement) and
+  shown again when the screen reopens (back from another screen, rotation), so no new request is
+  sent; ads older than 50 min (`AdsConfig.keptAdMaxAgeMillis`) are replaced by a fresh load.
 - **Loaders**: native/banner slots show a shimmer of the ad's size while loading;
   interstitials/rewarded show a "Loading ad…" dialog for 1 s first.
 - **Safety**: a double tap never shows two ads or navigates under an ad; ads keep a gap from
@@ -190,7 +193,7 @@ reported per place. Placements are declared in `app/.../ads/AppAdPlacements.kt`,
 | `native_on_boarding` / `banner_on_boarding` | Native / Banner (onboarding, shared mode) | `admob_native_on_boarding_id` / `admob_banner_on_boarding_id` |
 | `native_ob1`…`native_ob4` / `banner_ob1`…`banner_ob4` | Native / Banner (one pair per onboarding page) | `admob_native_ob1_id`… / `admob_banner_ob1_id`… |
 | `native_main` / `banner_main` | Native / Banner | `admob_native_main_id` / `admob_banner_main_id` |
-| `native_tab` / `banner_tab` | Native / Banner (all tabs) | `admob_native_tab_id` / `admob_banner_tab_id` |
+| `native_home` / `banner_home`, `native_explore`…, `native_history`…, `native_settings`… | Native / Banner (one pair per main tab) | `admob_native_home_id` / `admob_banner_home_id`, … |
 | `native_feature` | Native (Feature screen) | `admob_native_feature_id` |
 
 Each **slot** (splash, language, each onboarding page, main, tab) has a native *and* a banner placement
@@ -306,6 +309,7 @@ Language      │ native_language           │ Native        │ ♻️ LOADED 
 | ✅ LOADED (in cache) | Full-screen ads (App Open, interstitial, rewarded) always load through the cache: this is their "loaded". |
 | ⏳ LOADING / ✅ LOADED | Requested for the screen now (nothing in the cache) / arrived. |
 | ♻️ LOADED from cache | Taken from the cache, no waiting. |
+| ♻️ SHOWN again (kept) | The ad this screen showed before (kept when the screen closed): no new request. |
 | ❌ FAILED | Load, preload or show failed; the AdMob error code and message follow. |
 | ⛔ SKIPPED | Not requested: slot off in the ads control, no consent, premium user, placement disabled. |
 | 🚫 NOT SHOWN | A full-screen ad was due but couldn't show (none ready, another ad on screen, …). |

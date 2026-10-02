@@ -34,7 +34,14 @@ admob_native_ob4_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_banner_ob4_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_native_main_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_banner_main_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
-admob_native_tab_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
-admob_banner_tab_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+# Main screen tabs, each its own native + banner unit
+admob_native_home_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_home_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_explore_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_explore_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_history_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_history_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_settings_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_settings_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 
 admob_native_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX

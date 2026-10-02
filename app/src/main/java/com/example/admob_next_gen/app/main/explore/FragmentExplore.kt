@@ -18,7 +18,7 @@ import com.nextgen.ads.control.AdsControlStore
 class FragmentExplore : BaseFragment<FragmentExploreBinding>(FragmentExploreBinding::inflate) {
 
     override fun onViewCreated() {
-        binding.adSlotExplore.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.EXPLORE), AppAdSlot.TAB)
+        binding.adSlotExplore.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.EXPLORE), AppAdSlot.EXPLORE_TAB)
 
         val titles = resources.getStringArray(R.array.explore_titles)
         val descriptions = resources.getStringArray(R.array.explore_descriptions)

@@ -40,8 +40,14 @@ val testAdIds = linkedMapOf(
     "admob_banner_ob4_id" to "ca-app-pub-3940256099942544/9214589741",
     "admob_native_main_id" to "ca-app-pub-3940256099942544/2247696110",
     "admob_banner_main_id" to "ca-app-pub-3940256099942544/9214589741",
-    "admob_native_tab_id" to "ca-app-pub-3940256099942544/2247696110",
-    "admob_banner_tab_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_native_home_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_home_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_native_explore_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_explore_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_native_history_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_history_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_native_settings_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_settings_id" to "ca-app-pub-3940256099942544/9214589741",
     "admob_native_feature_id" to "ca-app-pub-3940256099942544/2247696110",
 )
 

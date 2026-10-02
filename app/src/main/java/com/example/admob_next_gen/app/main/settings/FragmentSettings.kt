@@ -21,7 +21,7 @@ import com.nextgen.ads.control.AdsControlStore
 class FragmentSettings : BaseFragment<FragmentSettingsBinding>(FragmentSettingsBinding::inflate) {
 
     override fun onViewCreated() {
-        binding.adSlotSettings.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.SETTINGS), AppAdSlot.TAB)
+        binding.adSlotSettings.load(viewLifecycleOwner, AdsControlStore.current.main.tab(MainTabKeys.SETTINGS), AppAdSlot.SETTINGS_TAB)
 
         binding.rowLanguage.bind(R.drawable.ic_svg_language, R.string.settings_language, AppLanguage.current().nativeName) {
             navigateTo(R.id.fragmentMain, R.id.action_fragmentMain_to_fragmentLanguage)

@@ -41,8 +41,15 @@ object AppAdPlacements {
     val BANNER_OB = List(4) { i -> "banner_ob${i + 1}" }
     const val NATIVE_MAIN = "native_main"
     const val BANNER_MAIN = "banner_main"
-    const val NATIVE_TAB = "native_tab"
-    const val BANNER_TAB = "banner_tab"
+    /** Inside each main-screen tab: its own units and cache per tab. */
+    const val NATIVE_HOME = "native_home"
+    const val BANNER_HOME = "banner_home"
+    const val NATIVE_EXPLORE = "native_explore"
+    const val BANNER_EXPLORE = "banner_explore"
+    const val NATIVE_HISTORY = "native_history"
+    const val BANNER_HISTORY = "banner_history"
+    const val NATIVE_SETTINGS = "native_settings"
+    const val BANNER_SETTINGS = "banner_settings"
 
     /** Fixed native ad of the Feature screen (not driven by the ads control). */
     const val NATIVE_FEATURE = "native_feature"
@@ -81,8 +88,14 @@ object AppAdPlacements {
             placement(BANNER_OB[3], AdFormat.BANNER, R.string.admob_banner_ob4_id, "OB4"),
             placement(NATIVE_MAIN, AdFormat.NATIVE, R.string.admob_native_main_id, "Main bottom"),
             placement(BANNER_MAIN, AdFormat.BANNER, R.string.admob_banner_main_id, "Main bottom"),
-            placement(NATIVE_TAB, AdFormat.NATIVE, R.string.admob_native_tab_id, "Main tab"),
-            placement(BANNER_TAB, AdFormat.BANNER, R.string.admob_banner_tab_id, "Main tab"),
+            placement(NATIVE_HOME, AdFormat.NATIVE, R.string.admob_native_home_id, "Home tab"),
+            placement(BANNER_HOME, AdFormat.BANNER, R.string.admob_banner_home_id, "Home tab"),
+            placement(NATIVE_EXPLORE, AdFormat.NATIVE, R.string.admob_native_explore_id, "Explore tab"),
+            placement(BANNER_EXPLORE, AdFormat.BANNER, R.string.admob_banner_explore_id, "Explore tab"),
+            placement(NATIVE_HISTORY, AdFormat.NATIVE, R.string.admob_native_history_id, "History tab"),
+            placement(BANNER_HISTORY, AdFormat.BANNER, R.string.admob_banner_history_id, "History tab"),
+            placement(NATIVE_SETTINGS, AdFormat.NATIVE, R.string.admob_native_settings_id, "Settings tab"),
+            placement(BANNER_SETTINGS, AdFormat.BANNER, R.string.admob_banner_settings_id, "Settings tab"),
 
             placement(NATIVE_FEATURE, AdFormat.NATIVE, R.string.admob_native_feature_id, "Feature"),
         )
