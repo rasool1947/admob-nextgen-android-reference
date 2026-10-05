@@ -19,7 +19,7 @@ object LocalAdsControl {
             "fullscreen": "inter",
             "timeout_sec": 25,
             "bottom_first_ms": 2000,
-            "bottom": { "type": "banner", "style": "adaptive" }
+            "bottom": { "type": "banner", "style": "standard" }
           },
 
           "language": {
@@ -39,7 +39,7 @@ object LocalAdsControl {
           },
 
           "main": {
-            "bottom": { "type": "banner", "style": "adaptive" },
+            "bottom": { "type": "banner", "style": "standard" },
             "tabs": {
               "home": { "type": "native", "style": "medium" },
               "explore": { "type": "banner", "style": "inline_adaptive" },
