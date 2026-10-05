@@ -27,7 +27,7 @@ class ActivityAdsOne : BaseActivity<ActivityAdsOneBinding>(ActivityAdsOneBinding
         FullScreenAds.preload(AppAdPlacements.INTER_ACTIVITY_ONE)
 
         binding.mbOpenTwoActivityOne.setOnClickListener { openTwo() }
-        binding.mbCloseActivityOne.setOnClickListener { finish() }
+        binding.mbCloseActivityOne.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     private fun openTwo() {

@@ -22,7 +22,7 @@ class ActivityAdsTwo : BaseActivity<ActivityAdsTwoBinding>(ActivityAdsTwoBinding
         FullScreenAds.preload(AppAdPlacements.REWARDED_ACTIVITY_TWO)
 
         binding.mbRewardedActivityTwo.setOnClickListener { showRewarded() }
-        binding.mbCloseActivityTwo.setOnClickListener { finish() }
+        binding.mbCloseActivityTwo.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     private fun showRewarded() {
