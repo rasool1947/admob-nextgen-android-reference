@@ -19,6 +19,7 @@ data class AdsControl(
     val language: LanguageControl = LanguageControl(),
     val onboarding: OnboardingControl = OnboardingControl(),
     val main: MainControl = MainControl(),
+    val cache: CacheControl = CacheControl(),
 ) {
     /** Same switches with every ad turned off; what the app sees when [adsEnabled] is false. */
     fun allOff(): AdsControl = AdsControl(
@@ -132,4 +133,20 @@ data class MainInterControl(
     val showOnFirstClick: Boolean = false,
     /** Never show two interstitials closer together than this. 0 = no limit. */
     val minIntervalMillis: Long = 30_000L,
+)
+
+/**
+ * How native/banner ads are kept for their screen (per placement) once the screen closes, so that
+ * coming back shows an ad at once and no request is wasted.
+ */
+data class CacheControl(
+    /**
+     * Coming back within this time after the kept ad's last impression shows it again with no new
+     * request (tab switches, quick back and forth). Later, the kept ad still shows at once, a new one
+     * is requested and swapped in when it arrives (a fresh impression); if that fails the kept one
+     * stays. A kept ad that never got an impression is always shown as is.
+     */
+    val reuseShownMillis: Long = 30_000L,
+    /** A kept ad older than this (since it loaded) is destroyed instead of shown. 0 = keep nothing. */
+    val maxAgeMillis: Long = 50 * 60_000L,
 )

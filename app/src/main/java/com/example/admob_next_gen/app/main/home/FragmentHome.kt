@@ -43,4 +43,10 @@ class FragmentHome : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     private fun openWithInterstitial(action: Int) {
         MainInterstitial.showThen(requireActivity()) { navigateTo(R.id.fragmentMain, action) }
     }
+
+    // Tabs are hidden/shown, not recreated: a new ad comes if this one was seen a while ago.
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden && view != null) binding.adSlotHome.onShownAgain()
+    }
 }

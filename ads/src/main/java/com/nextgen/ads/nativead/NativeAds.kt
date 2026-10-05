@@ -3,6 +3,7 @@ package com.nextgen.ads.nativead
 import androidx.annotation.MainThread
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.libraries.ads.mobile.sdk.common.AdValue
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
@@ -25,6 +26,7 @@ import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.KeptAds
 import com.nextgen.ads.internal.MainDispatch
 import com.nextgen.ads.internal.PreloadWaiters
+import com.nextgen.ads.internal.ShownAds
 
 /**
  * Native ads bound to a screen's lifecycle.
@@ -153,11 +155,14 @@ object NativeAds {
             return failed(placement, reason, listener)
         }
 
-        // The ad this screen showed last time (kept when it closed): show it again, no new request.
+        // The ad this screen had last time (kept when it closed): show it again at once. If it was seen a
+        // while ago, also request a new one that replaces it when it arrives (KeptAds).
         KeptAds.take<NativeAd>(placementKey, variant = null)?.let { kept ->
-            AdsLog.d("$placementKey -> native kept from last time")
-            AdsFlowLog.log(placement, AdsFlowLog.Event.REUSED)
-            return deliver(lifecycleOwner, placement, kept.ad, listener, kept.loadedAtMillis)
+            AdsLog.d("$placementKey -> native kept from last time (refresh = ${kept.needsRefresh})")
+            if (!kept.needsRefresh) AdsFlowLog.log(placement, AdsFlowLog.Event.REUSED, KeptAds.agoText(kept.seenAgoMillis))
+            deliver(lifecycleOwner, placement, kept.ad, listener, kept.times)
+            if (kept.needsRefresh) ShownAds.refreshIfSeenLongAgo(lifecycleOwner) // logs REFRESHING
+            return
         }
 
         when {
@@ -204,38 +209,95 @@ object NativeAds {
         })
     }
 
-    /** Main thread. Hands the ad to the caller and ties its lifetime to [lifecycleOwner]. */
+    /**
+     * The ad on screen was seen a while ago (kept from last time, or a tab shown again): load a new one
+     * (from the preload cache if it has one) and swap it in. On failure the old ad simply stays. If the
+     * screen closes first, the new, never-seen ad is the one kept for the screen's return.
+     */
+    private fun refresh(
+        lifecycleOwner: LifecycleOwner,
+        placement: AdPlacement,
+        listener: NativeAdListener,
+        old: Shown,
+        onDone: () -> Unit = {},
+    ) {
+        AdsSdk.blockReason(placement)?.let { return onDone() }
+        fun swapIn(ad: NativeAd) {
+            if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                KeptAds.keep(placement.key, ad, variant = null, KeptAds.AdTimes()) { ad.destroy() } // replaces the old one
+                AdsLog.d("${placement.key} -> native refresh arrived after the screen closed: kept")
+                return
+            }
+            lifecycleOwner.lifecycle.removeObserver(old.observer)
+            AdsFlowLog.log(placement, AdsFlowLog.Event.SWAPPED)
+            deliver(lifecycleOwner, placement, ad, listener)
+            old.ad.destroy()
+            onDone()
+        }
+
+        if (isReady(placement.key)) {
+            (NativeAdPreloader.pollAd(placement.key) as? NativeAdLoadResult.NativeAdSuccess)?.ad?.let { return swapIn(it) }
+        }
+        AdsLog.d("${placement.key} -> native refreshing")
+        NativeAdLoader.load(request(placement), object : NativeAdLoaderCallback {
+            override fun onNativeAdLoaded(nativeAd: NativeAd) = MainDispatch.post { swapIn(nativeAd) }
+
+            override fun onAdFailedToLoad(adError: LoadAdError) = MainDispatch.post {
+                AdsFlowLog.log(placement, AdsFlowLog.Event.FAILED, "refresh: ${adError.code}: ${adError.message} (old ad stays)")
+                onDone()
+            }
+        })
+    }
+
+    /** An ad on screen, and the observer that keeps it when the screen closes. */
+    private class Shown(val ad: NativeAd, val observer: LifecycleObserver)
+
+    /**
+     * Main thread. Hands the ad to the caller and ties its lifetime to [lifecycleOwner].
+     * Returns null when the screen is already gone (the ad is then kept for its return).
+     */
     private fun deliver(
         lifecycleOwner: LifecycleOwner,
         placement: AdPlacement,
         ad: NativeAd,
         listener: NativeAdListener,
-        loadedAtMillis: Long = KeptAds.now(),
-    ) {
+        times: KeptAds.AdTimes = KeptAds.AdTimes(),
+    ): Shown? {
         val lifecycle = lifecycleOwner.lifecycle
         if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
-            KeptAds.keep(placement.key, ad, variant = null, loadedAtMillis) { ad.destroy() } // screen closed while loading
-            return
+            KeptAds.keep(placement.key, ad, variant = null, times) { ad.destroy() } // screen closed while loading
+            return null
         }
 
         ad.adEventCallback = object : NativeAdEventCallback {
-            override fun onAdImpression() = MainDispatch.post { AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION) }
+            override fun onAdImpression() = MainDispatch.post {
+                times.onImpression()
+                AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION)
+            }
             override fun onAdClicked() = MainDispatch.post {
                 AdsFlowLog.log(placement, AdsFlowLog.Event.CLICKED)
                 listener.onAdClicked()
             }
             override fun onAdPaid(value: AdValue) = AdsSdk.reportPaid(placement, value)
         }
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
+        val observer = object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 // Kept for this placement: the screen shows it again when it reopens (KeptAds).
-                KeptAds.keep(placement.key, ad, variant = null, loadedAtMillis) { ad.destroy() }
+                KeptAds.keep(placement.key, ad, variant = null, times) { ad.destroy() }
                 AdsLog.d("${placement.key} -> native kept for the screen's return")
             }
-        })
+        }
+        lifecycle.addObserver(observer)
 
         AdsLog.d("${placement.key} -> native loaded")
         listener.onAdLoaded(ad)
+        val shown = Shown(ad, observer)
+        // Same rules when the screen is shown again without being recreated (a tab): see AdSlotView.onShownAgain.
+        ShownAds.register(lifecycleOwner, { times }) { onDone ->
+            AdsFlowLog.log(placement, AdsFlowLog.Event.REFRESHING, KeptAds.agoText(times.lastImpressionAtMillis?.let { KeptAds.now() - it }))
+            refresh(lifecycleOwner, placement, listener, shown, onDone)
+        }
+        return shown
     }
 
     private fun failed(placement: AdPlacement, reason: String, listener: NativeAdListener) {

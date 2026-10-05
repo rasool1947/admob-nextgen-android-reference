@@ -29,7 +29,8 @@ import org.json.JSONObject
  *     "bottom": { "type": "banner", "style": "collapsible_bottom" },
  *     "tabs": { "home": { "type": "native", "style": "medium" } },
  *     "inter": { "enabled": true, "every_nth": 3, "show_on_first_click": false, "min_interval_sec": 30 }
- *   }
+ *   },
+ *   "cache": { "reuse_shown_sec": 30, "max_age_min": 50 }
  * }
  * ```
  *
@@ -54,6 +55,7 @@ object AdsControlParser {
             language = root.obj("language", "", warnings)?.let { language(it, defaults.language, warnings) } ?: defaults.language,
             onboarding = root.obj("onboarding", "", warnings)?.let { onboarding(it, defaults.onboarding, warnings) } ?: defaults.onboarding,
             main = root.obj("main", "", warnings)?.let { main(it, defaults.main, warnings) } ?: defaults.main,
+            cache = root.obj("cache", "", warnings)?.let { cache(it, defaults.cache, warnings) } ?: defaults.cache,
         )
         return Result(control, warnings)
     }
@@ -99,6 +101,11 @@ object AdsControlParser {
         everyNth = json.nonNegativeLong("every_nth", default.everyNth.toLong(), "main.inter", warnings).toInt().coerceAtLeast(1),
         showOnFirstClick = json.bool("show_on_first_click", default.showOnFirstClick, "main.inter", warnings),
         minIntervalMillis = json.nonNegativeLong("min_interval_sec", default.minIntervalMillis / 1000, "main.inter", warnings) * 1000,
+    )
+
+    private fun cache(json: JSONObject, default: CacheControl, warnings: MutableList<String>) = CacheControl(
+        reuseShownMillis = json.nonNegativeLong("reuse_shown_sec", default.reuseShownMillis / 1000, "cache", warnings) * 1000,
+        maxAgeMillis = json.nonNegativeLong("max_age_min", default.maxAgeMillis / 60_000, "cache", warnings) * 60_000,
     )
 
     /* ---------- slots ---------- */

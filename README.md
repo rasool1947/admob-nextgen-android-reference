@@ -56,8 +56,14 @@ Rules built in:
   interstitial, so each ad appears instantly. Only ads that are on in the ads control are loaded; the
   main screen loads its own ads.
 - **Kept ads**: a native/banner ad whose screen closes is kept for that screen (per placement) and
-  shown again when the screen reopens (back from another screen, rotation), so no new request is
-  sent; ads older than 50 min (`AdsConfig.keptAdMaxAgeMillis`) are replaced by a fresh load.
+  shown again at once when the screen reopens (back from another screen, a tab switch, rotation).
+  JSON `cache` decides whether a new one is requested:
+  - never seen yet, or seen less than `reuse_shown_sec` (30) ago → shown again, **no request**;
+  - seen longer ago → shown again **and** a new ad is requested in the background and swapped in
+    when it arrives (a fresh impression; on failure the kept one stays). If the screen closes before
+    it arrives, the new never-seen ad is kept for next time, so no request is wasted;
+  - loaded more than `max_age_min` (50) ago → destroyed, normal load.
+  Nothing is loaded in the background for a screen the user doesn't come back to.
 - **Loaders**: native/banner slots show a shimmer of the ad's size while loading;
   interstitials/rewarded show a "Loading ad…" dialog for 1 s first.
 - **Safety**: a double tap never shows two ads or navigates under an ad; ads keep a gap from
@@ -145,7 +151,8 @@ so a typo in Remote Config never breaks the app.
       "settings": "off"
     },
     "inter": { "enabled": true, "every_nth": 3, "show_on_first_click": false, "min_interval_sec": 30 }
-  }
+  },
+  "cache": { "reuse_shown_sec": 30, "max_age_min": 50 }
 }
 ```
 
@@ -165,6 +172,8 @@ so a typo in Remote Config never breaks the app.
 | `main.inter.every_nth` | ≥ 1 | `3` | Show on every *n*th click since the last interstitial. |
 | `main.inter.show_on_first_click` | `true` / `false` | `false` | Also show on the very first click. |
 | `main.inter.min_interval_sec` | seconds | `30` | Never closer than this to the previous full-screen ad of any kind (App Open included). |
+| `cache.reuse_shown_sec` | seconds | `30` | A kept native/banner seen less than this ago is shown again with no request; seen longer ago, it shows while a new one loads and is swapped in. `0` = refresh on every return. |
+| `cache.max_age_min` | minutes | `50` | A kept ad loaded longer ago than this is destroyed instead of shown. `0` = keep nothing. |
 
 **Slot** = `{ "type": "native", "style": … }`, `{ "type": "banner", "style": … }` or `"off"`:
 
@@ -309,7 +318,9 @@ Language      │ native_language           │ Native        │ ♻️ LOADED 
 | ✅ LOADED (in cache) | Full-screen ads (App Open, interstitial, rewarded) always load through the cache: this is their "loaded". |
 | ⏳ LOADING / ✅ LOADED | Requested for the screen now (nothing in the cache) / arrived. |
 | ♻️ LOADED from cache | Taken from the cache, no waiting. |
-| ♻️ SHOWN again (kept) | The ad this screen showed before (kept when the screen closed): no new request. |
+| ♻️ SHOWN again (kept) | The ad this screen showed before (kept when the screen closed): no new request. Detail says when it was last seen. |
+| 🔄 SHOWN again + REFRESHING | The kept ad was seen longer than `cache.reuse_shown_sec` ago: it shows while a new one loads. |
+| ✅ LOADED → swapped in | The refreshed ad arrived and replaced the kept one (a fresh impression follows). |
 | ❌ FAILED | Load, preload or show failed; the AdMob error code and message follow. |
 | ⛔ SKIPPED | Not requested: slot off in the ads control, no consent, premium user, placement disabled. |
 | 🚫 NOT SHOWN | A full-screen ad was due but couldn't show (none ready, another ad on screen, …). |

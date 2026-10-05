@@ -31,7 +31,8 @@ class AdsControlParserTest {
                               "get_started_inter": false },
               "main": { "bottom": { "type": "banner", "style": "collapsible_bottom" },
                         "tabs": { "home": { "type": "native", "style": "medium" }, "explore": "off" },
-                        "inter": { "enabled": true, "every_nth": 2, "show_on_first_click": true, "min_interval_sec": 0 } }
+                        "inter": { "enabled": true, "every_nth": 2, "show_on_first_click": true, "min_interval_sec": 0 } },
+              "cache": { "reuse_shown_sec": 45, "max_age_min": 20 }
             }
         """.trimIndent()
 
@@ -58,6 +59,7 @@ class AdsControlParserTest {
         assertEquals(AdSlot.Off, control.main.tab("explore"))
         assertEquals(AdSlot.Off, control.main.tab("unknown"))
         assertEquals(MainInterControl(enabled = true, everyNth = 2, showOnFirstClick = true, minIntervalMillis = 0), control.main.inter)
+        assertEquals(CacheControl(reuseShownMillis = 45_000, maxAgeMillis = 20 * 60_000), control.cache)
     }
 
     @Test

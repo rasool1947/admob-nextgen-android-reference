@@ -52,6 +52,11 @@ object LocalAdsControl {
               "show_on_first_click": false,
               "min_interval_sec": 30
             }
+          },
+
+          "cache": {
+            "reuse_shown_sec": 30,
+            "max_age_min": 50
           }
         }
     """.trimIndent()

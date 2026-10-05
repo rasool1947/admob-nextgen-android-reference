@@ -35,6 +35,7 @@ import com.nextgen.ads.internal.AdsLog
 import com.nextgen.ads.internal.KeptAds
 import com.nextgen.ads.internal.MainDispatch
 import com.nextgen.ads.internal.PreloadWaiters
+import com.nextgen.ads.internal.ShownAds
 import java.util.UUID
 
 /**
@@ -196,7 +197,8 @@ object BannerAds {
         listener: BannerAdListener?,
     ) {
         val key = placement.key
-        // The banner this screen showed last time (kept when it closed): show it again, no new request.
+        // The banner this screen had last time (kept when it closed): show it again at once. If it was seen
+        // a while ago, also request a new one that replaces it when it arrives (KeptAds).
         KeptAds.take<BannerAd>(key, variant = size)?.let { kept ->
             return showKept(container, lifecycleOwner, placement, size, listener, kept)
         }
@@ -215,7 +217,7 @@ object BannerAds {
         }
     }
 
-    /** Shows the banner this screen had before (kept when it closed): no new request. */
+    /** Shows the banner this screen had before (kept when it closed), and refreshes it if it was seen a while ago. */
     private fun showKept(
         container: ViewGroup,
         lifecycleOwner: LifecycleOwner,
@@ -224,18 +226,76 @@ object BannerAds {
         listener: BannerAdListener?,
         kept: KeptAds.Taken<BannerAd>,
     ) {
-        val activity = container.context.findActivity() ?: return loadNow(container, lifecycleOwner, placement, size, listener)
+        val activity = container.context.findActivity()
+        if (activity == null) {
+            kept.ad.destroy()
+            return loadNow(container, lifecycleOwner, placement, size, listener)
+        }
         val ad = kept.ad
         val adView = AdView(container.context)
         container.minimumHeight = ad.getAdSize().getHeightInPixels(container.context)
         container.addView(adView, bannerLayoutParams(size))
         adView.registerBannerAd(ad, activity)
-        ad.adEventCallback = eventCallback(placement, listener)
-        destroyWith(lifecycleOwner, container, adView, placement, size) { kept.loadedAtMillis }
+        ad.adEventCallback = eventCallback(placement, listener, kept.times)
+        destroyWith(lifecycleOwner, container, Shown(adView, kept.times), placement, size, listener)
 
-        AdsLog.d("${placement.key} -> banner kept from last time")
-        AdsFlowLog.log(placement, AdsFlowLog.Event.REUSED, "${ad.getAdSize().width}x${ad.getAdSize().height}dp")
+        AdsLog.d("${placement.key} -> banner kept from last time (refresh = ${kept.needsRefresh})")
+        if (!kept.needsRefresh) {
+            AdsFlowLog.log(placement, AdsFlowLog.Event.REUSED, "${ad.getAdSize().width}x${ad.getAdSize().height}dp, ${KeptAds.agoText(kept.seenAgoMillis)}")
+        }
         listener?.onAdLoaded(ad.isCollapsible())
+        if (kept.needsRefresh) ShownAds.refreshIfSeenLongAgo(lifecycleOwner) // logs REFRESHING
+    }
+
+    /**
+     * The banner on screen was seen a while ago (kept from last time, or a tab shown again): load a new
+     * one in the background and swap it into the container when it arrives. On failure the old banner
+     * simply stays. If the screen closes first, the new, never-seen banner is kept for its return.
+     */
+    private fun refresh(
+        container: ViewGroup,
+        lifecycleOwner: LifecycleOwner,
+        placement: AdPlacement,
+        size: BannerSize,
+        listener: BannerAdListener?,
+        shown: Shown,
+        onDone: () -> Unit,
+    ) {
+        AdsSdk.blockReason(placement)?.let { return onDone() }
+        val adSize = adSizeFor(container.context, size, widthDpOf(container))
+        // A collapsible banner is refreshed as a plain anchored one, so the swap doesn't expand it again.
+        val request = request(placement, adSize, if (size is BannerSize.Collapsible) BannerSize.Anchored else size)
+        AdsLog.d("${placement.key} -> banner refreshing (${adSize.width}x${adSize.height}dp)")
+        BannerAd.load(request, object : AdLoadCallback<BannerAd> {
+            override fun onAdLoaded(ad: BannerAd) = MainDispatch.post {
+                val times = KeptAds.AdTimes()
+                ad.adEventCallback = eventCallback(placement, listener, times)
+                val activity = container.context.findActivity()
+                if (lifecycleOwner.isDestroyed || activity == null) {
+                    KeptAds.keep(placement.key, ad, variant = size, times) { ad.destroy() } // replaces the old one
+                    AdsLog.d("${placement.key} -> banner refresh arrived after the screen closed: kept")
+                    return@post
+                }
+                val newView = AdView(container.context)
+                container.minimumHeight = ad.getAdSize().getHeightInPixels(container.context)
+                container.addView(newView, bannerLayoutParams(size))
+                newView.registerBannerAd(ad, activity)
+
+                val oldView = shown.adView
+                shown.adView = newView
+                shown.times = times
+                container.removeView(oldView)
+                oldView.unregisterBannerAd()?.destroy()
+                oldView.destroy()
+                AdsFlowLog.log(placement, AdsFlowLog.Event.SWAPPED, "${ad.getAdSize().width}x${ad.getAdSize().height}dp")
+                onDone()
+            }
+
+            override fun onAdFailedToLoad(adError: LoadAdError) = MainDispatch.post {
+                AdsFlowLog.log(placement, AdsFlowLog.Event.FAILED, "refresh: ${adError.code}: ${adError.message} (old banner stays)")
+                onDone()
+            }
+        })
     }
 
     private fun showPreloaded(
@@ -253,9 +313,9 @@ object BannerAds {
         container.minimumHeight = ad.getAdSize().getHeightInPixels(container.context)
         container.addView(adView, bannerLayoutParams(size))
         adView.registerBannerAd(ad, activity)
-        ad.adEventCallback = eventCallback(placement, listener)
-        val loadedAt = KeptAds.now() // preloaded: ready now
-        destroyWith(lifecycleOwner, container, adView, placement, size) { loadedAt }
+        val times = KeptAds.AdTimes() // preloaded: ready now
+        ad.adEventCallback = eventCallback(placement, listener, times)
+        destroyWith(lifecycleOwner, container, Shown(adView, times), placement, size, listener)
 
         AdsLog.d("${placement.key} -> banner from preload (collapsible = ${ad.isCollapsible()})")
         AdsFlowLog.log(placement, AdsFlowLog.Event.FROM_CACHE, "${ad.getAdSize().width}x${ad.getAdSize().height}dp")
@@ -270,28 +330,26 @@ object BannerAds {
         listener: BannerAdListener?,
     ) {
         val context = container.context
-        val density = context.resources.displayMetrics.density
-        val availableWidthPx = container.width - container.paddingLeft - container.paddingRight
-        val widthDp = ((if (availableWidthPx > 0) availableWidthPx else context.resources.displayMetrics.widthPixels) / density).toInt()
-        val adSize = adSizeFor(context, size, widthDp)
+        val adSize = adSizeFor(context, size, widthDpOf(container))
 
         val adView = AdView(context)
         // Reserve the banner's height up front so the screen doesn't jump when the ad arrives.
         container.minimumHeight = adSize.getHeightInPixels(context)
         container.addView(adView, bannerLayoutParams(size))
-        var loadedAt: Long? = null
-        destroyWith(lifecycleOwner, container, adView, placement, size) { loadedAt }
+        val shown = Shown(adView, times = null)
+        destroyWith(lifecycleOwner, container, shown, placement, size, listener)
 
         AdsLog.d("${placement.key} -> banner loading (${adSize.width}x${adSize.height}dp, $size)")
         AdsFlowLog.log(placement, AdsFlowLog.Event.LOADING, "${adSize.width}x${adSize.height}dp")
         adView.loadAd(request(placement, adSize, size), object : AdLoadCallback<BannerAd> {
             override fun onAdLoaded(ad: BannerAd) {
-                ad.adEventCallback = eventCallback(placement, listener)
+                val times = KeptAds.AdTimes()
+                ad.adEventCallback = eventCallback(placement, listener, times)
                 MainDispatch.post {
                     if (adView.parent == null) return@post // screen already destroyed
                     AdsLog.d("${placement.key} -> banner loaded (collapsible = ${ad.isCollapsible()})")
                     // Inline adaptive banners can be shorter than the height reserved for them: shrink to the ad.
-                    loadedAt = KeptAds.now()
+                    shown.times = times
                     val loadedSize = ad.getAdSize()
                     container.minimumHeight = loadedSize.getHeightInPixels(container.context)
                     AdsFlowLog.log(placement, AdsFlowLog.Event.LOADED, "${loadedSize.width}x${loadedSize.height}dp")
@@ -335,11 +393,12 @@ object BannerAds {
             ?: AdSize.getCurrentOrientationInlineAdaptiveBannerAdSize(context, widthDp)
     }
 
-    private fun eventCallback(placement: AdPlacement, listener: BannerAdListener?) = object : BannerAdEventCallback {
+    private fun eventCallback(placement: AdPlacement, listener: BannerAdListener?, times: KeptAds.AdTimes) = object : BannerAdEventCallback {
         // Banners refresh every 30-60 s and report an impression each time; the first one is enough in the log.
         private var isImpressionLogged = false
 
         override fun onAdImpression() = MainDispatch.post {
+            times.onImpression(isNewCreative = true)
             if (!isImpressionLogged) AdsFlowLog.log(placement, AdsFlowLog.Event.IMPRESSION)
             isImpressionLogged = true
         }
@@ -350,26 +409,43 @@ object BannerAds {
         override fun onAdPaid(value: AdValue) = AdsSdk.reportPaid(placement, value)
     }
 
+    /** The AdView on screen (replaced by a refresh) and its banner's times; [times] is null while nothing loaded. */
+    private class Shown(var adView: AdView, var times: KeptAds.AdTimes?)
+
+    /** Width the banner can use in [container], in dp (the screen width before the first layout). */
+    private fun widthDpOf(container: ViewGroup): Int {
+        val metrics = container.context.resources.displayMetrics
+        val availableWidthPx = container.width - container.paddingLeft - container.paddingRight
+        return ((if (availableWidthPx > 0) availableWidthPx else metrics.widthPixels) / metrics.density).toInt()
+    }
+
     /**
-     * When the screen ends, the banner it loaded is kept for its placement ([KeptAds]) so the screen
-     * shows it again on return; the view itself is destroyed. [loadedAtMillis] is null while nothing loaded.
+     * When the screen ends, the banner on it is kept for its placement ([KeptAds]) so the screen
+     * shows it again on return; the view itself is destroyed. While the screen lives, the banner can
+     * be refreshed when the screen is shown again (ShownAds, e.g. a tab).
      */
     private fun destroyWith(
         lifecycleOwner: LifecycleOwner,
         container: ViewGroup,
-        adView: AdView,
+        shown: Shown,
         placement: AdPlacement,
         size: BannerSize,
-        loadedAtMillis: () -> Long?,
+        listener: BannerAdListener?,
     ) {
+        ShownAds.register(lifecycleOwner, { shown.times }) { onDone ->
+            val seenAgo = shown.times?.lastImpressionAtMillis?.let { KeptAds.now() - it }
+            AdsFlowLog.log(placement, AdsFlowLog.Event.REFRESHING, KeptAds.agoText(seenAgo))
+            refresh(container, lifecycleOwner, placement, size, listener, shown, onDone)
+        }
         lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
-                val loadedAt = loadedAtMillis()
-                val ad = if (loadedAt != null) adView.unregisterBannerAd() else null
+                val adView = shown.adView
+                val times = shown.times
+                val ad = if (times != null) adView.unregisterBannerAd() else null
                 container.removeView(adView)
                 adView.destroy()
-                if (ad != null && loadedAt != null) {
-                    KeptAds.keep(placement.key, ad, variant = size, loadedAt) { ad.destroy() }
+                if (ad != null && times != null) {
+                    KeptAds.keep(placement.key, ad, variant = size, times) { ad.destroy() }
                     AdsLog.d("${placement.key} -> banner kept for the screen's return")
                 } else {
                     AdsLog.d("${placement.key} -> banner destroyed")

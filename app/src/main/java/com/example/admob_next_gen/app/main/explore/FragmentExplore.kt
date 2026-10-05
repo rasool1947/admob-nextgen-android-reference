@@ -57,4 +57,10 @@ class FragmentExplore : BaseFragment<FragmentExploreBinding>(FragmentExploreBind
     private companion object {
         val ICONS = listOf("📷", "📄", "🎙️", "🔳", "📏", "🖼️")
     }
+
+    // Tabs are hidden/shown, not recreated: a new ad comes if this one was seen a while ago.
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden && view != null) binding.adSlotExplore.onShownAgain()
+    }
 }

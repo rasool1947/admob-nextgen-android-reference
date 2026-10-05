@@ -33,6 +33,10 @@ internal object AdsFlowLog {
         FROM_CACHE("♻️ LOADED from cache"),
         /** The ad this screen showed before (kept when it closed): shown again, no new request. */
         REUSED("♻️ SHOWN again (kept)"),
+        /** The kept ad shows while a new one loads to replace it (it was seen a while ago). */
+        REFRESHING("🔄 SHOWN again + REFRESHING"),
+        /** The new ad of a refresh arrived and replaced the kept one. */
+        SWAPPED("✅ LOADED → swapped in"),
         FAILED("❌ FAILED"),
         /** Not requested at all: slot off, no consent, premium user, placement disabled… */
         SKIPPED("⛔ SKIPPED"),
@@ -66,7 +70,7 @@ internal object AdsFlowLog {
         val format = placement.format.label.padEnd(FORMAT_WIDTH)
         val line = "$screen │ $key │ $format │ ${event.label}" + (detail?.let { "  $it" } ?: "")
         when (event) {
-            Event.LOADED, Event.FROM_CACHE, Event.LOADED_IN_CACHE, Event.REUSED -> Log.w(TAG, line)
+            Event.LOADED, Event.FROM_CACHE, Event.LOADED_IN_CACHE, Event.REUSED, Event.REFRESHING, Event.SWAPPED -> Log.w(TAG, line)
             Event.FAILED -> Log.e(TAG, line)
             else -> Log.d(TAG, line)
         }

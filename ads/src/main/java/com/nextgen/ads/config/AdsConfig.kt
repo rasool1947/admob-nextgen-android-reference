@@ -19,9 +19,6 @@ package com.nextgen.ads.config
  * @param nativeAdValidatorEnabled  Test devices only: the SDK shows a "native ad validator" popup
  *                       next to native ads that reports layout problems. Set false if it gets
  *                       in the way (it can sit on top of nearby buttons).
- * @param keptAdMaxAgeMillis  A native/banner ad whose screen closed is kept for that screen (per
- *                       placement) and shown again when it reopens, instead of a new request, while it
- *                       is younger than this (AdMob ads go stale after about an hour). 0 = never keep.
  */
 data class AdsConfig(
     val appId: String,
@@ -33,7 +30,6 @@ data class AdsConfig(
     val resetConsentOnLaunch: Boolean = false,
     val onAdPaid: ((AdRevenue) -> Unit)? = null,
     val nativeAdValidatorEnabled: Boolean = true,
-    val keptAdMaxAgeMillis: Long = 50 * 60 * 1000L,
 ) {
     init {
         val duplicates = placements.groupBy { it.key }.filterValues { it.size > 1 }.keys

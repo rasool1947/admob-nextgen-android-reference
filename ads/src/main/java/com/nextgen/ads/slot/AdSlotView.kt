@@ -21,6 +21,7 @@ import com.nextgen.ads.control.BannerStyle
 import com.nextgen.ads.control.NativeStyle
 import com.nextgen.ads.internal.AdsFlowLog
 import com.nextgen.ads.internal.ShimmerLayout
+import com.nextgen.ads.internal.ShownAds
 import com.nextgen.ads.nativead.NativeAdListener
 import com.nextgen.ads.nativead.NativeAdTemplateView
 import com.nextgen.ads.nativead.NativeAds
@@ -84,6 +85,17 @@ class AdSlotView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Call when the slot's screen becomes visible again without being recreated, e.g. a tab shown with
+     * FragmentTransaction.show() (a recreated screen goes through [load] and gets this for free). If its
+     * ad was seen longer than `cache.reuse_shown_sec` ago, a new one is loaded and swapped in; the old
+     * ad stays on screen until then. Otherwise nothing happens (no request).
+     */
+    @MainThread
+    fun onShownAgain() {
+        current?.let { ShownAds.refreshIfSeenLongAgo(it) }
+    }
+
     /** Removes the current ad (destroying it) and hides the slot. */
     @MainThread
     fun clear() {
@@ -106,8 +118,12 @@ class AdSlotView @JvmOverloads constructor(
         addView(template, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
 
         NativeAds.loadInto(template, owner, placementKey, screen = screen, listener = object : NativeAdListener {
+            private var isLoaded = false
+
             override fun onAdLoaded(ad: NativeAd) {
-                listener?.onAdLoaded()
+                // Called again when a refreshed ad replaces a kept one; the slot was already loaded.
+                if (!isLoaded) listener?.onAdLoaded()
+                isLoaded = true
             }
 
             override fun onAdFailedToLoad(reason: String) {
