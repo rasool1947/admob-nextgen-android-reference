@@ -50,15 +50,15 @@ dependencies {
     testImplementation(libs.org.json)
 }
 
-// Published through JitPack (https://jitpack.io): pushing a git tag such as 1.0.0 makes
-// `com.github.rasool1947:admob-nextgen-android-reference:1.0.0` available. JitPack replaces the
+// Published through JitPack (https://jitpack.io): pushing a git tag such as 0.0.1 makes
+// `com.github.rasool1947:admob-nextgen-android-reference:0.0.1` available. JitPack replaces the
 // group and version below with its own; they matter only for publishToMavenLocal.
 publishing {
     publications {
         register<MavenPublication>("release") {
             groupId = "com.github.rasool1947"
             artifactId = "ads"
-            version = "1.0.0"
+            version = "0.0.1"
             afterEvaluate { from(components["release"]) }
         }
     }
