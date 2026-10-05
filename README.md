@@ -213,10 +213,21 @@ so every screen that has its own placement also has its own cache.
 
 ## 5. Using `:ads` in a new app
 
-1. Copy the `ads/` folder and add `include(":ads")` to `settings.gradle.kts`, then
-   `implementation(project(":ads"))` in the app. Copy the `[versions]`/`[libraries]` entries it
-   uses from `gradle/libs.versions.toml`, and the `play-services-ads` exclusion from
-   `app/build.gradle.kts`.
+1. Add the module, either way:
+   - **From JitPack** (no copying). In `settings.gradle.kts` → `dependencyResolutionManagement.repositories`
+     add `maven("https://jitpack.io")`, then in the app:
+
+     ```kotlin
+     implementation("com.github.rasool1947:admob-nextgen-android-reference:1.0.0")
+     ```
+     A new release = push a new git tag (e.g. `1.0.1`); JitPack builds it on first request
+     (`jitpack.yml`). Status: https://jitpack.io/#rasool1947/admob-nextgen-android-reference
+   - **As source**: copy the `ads/` folder, add `include(":ads")` to `settings.gradle.kts`, then
+     `implementation(project(":ads"))` in the app, and copy the `[versions]`/`[libraries]` entries it
+     uses from `gradle/libs.versions.toml`.
+
+   Either way, also copy the `play-services-ads` exclusion from `app/build.gradle.kts` (the legacy SDK
+   must never be on the classpath next to the Next-Gen one).
 2. Manifest: `com.google.android.gms.ads.APPLICATION_ID` meta-data (UMP still reads it there).
 3. `Application.onCreate()`:
 
