@@ -180,7 +180,7 @@ so a typo in Remote Config never breaks the app.
 | Type | Styles |
 |---|---|
 | `native` | `small` (no media), `medium` (130 dp media), `large` (200 dp media, price/store) |
-| `banner` | `standard` 320×50, `large` 320×100, `medium_rectangle` 300×250, `adaptive` (anchored), `inline_adaptive` (in content, ≤ 250 dp), `collapsible_top`, `collapsible_bottom` |
+| `banner` | `standard` 320×50, `large` 320×100, `medium_rectangle` 300×250, `adaptive` (anchored, Google's large size ≈ 113 dp tall), `inline_adaptive` (in content, ≤ 250 dp), `collapsible_top`, `collapsible_bottom` |
 
 ## 4. Ad units and placements
 
@@ -218,9 +218,9 @@ so every screen that has its own placement also has its own cache.
      add `maven("https://jitpack.io")`, then in the app:
 
      ```kotlin
-     implementation("com.github.rasool1947:admob-nextgen-android-reference:0.0.1")
+     implementation("com.github.rasool1947:admob-nextgen-android-reference:0.0.2")
      ```
-     A new release = push a new git tag (e.g. `0.0.2`); JitPack builds it on first request
+     A new release = push a new git tag (e.g. `0.0.3`); JitPack builds it on first request
      (`jitpack.yml`). Status: https://jitpack.io/#rasool1947/admob-nextgen-android-reference
    - **As source**: copy the `ads/` folder, add `include(":ads")` to `settings.gradle.kts`, then
      `implementation(project(":ads"))` in the app, and copy the `[versions]`/`[libraries]` entries it

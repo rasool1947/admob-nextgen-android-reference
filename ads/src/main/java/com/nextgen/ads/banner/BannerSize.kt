@@ -3,11 +3,11 @@ package com.nextgen.ads.banner
 /** How a banner is sized. Adaptive sizes take their width from the container the banner is placed in. */
 sealed interface BannerSize {
 
-    /** Anchored adaptive banner (top/bottom of the screen); the usual choice. ~50-90dp tall. */
+    /**
+     * Anchored adaptive banner (top/bottom of the screen); the usual choice. Uses Google's large
+     * anchored size (about 113dp tall on a phone): SDK 1.5 deprecates the smaller one.
+     */
     data object Anchored : BannerSize
-
-    /** Larger anchored adaptive banner. Better fill and revenue, but taller. */
-    data object LargeAnchored : BannerSize
 
     /**
      * Inline adaptive banner for scrolling content (lists, articles).

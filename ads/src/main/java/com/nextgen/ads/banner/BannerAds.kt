@@ -266,20 +266,25 @@ object BannerAds {
         // A collapsible banner is refreshed as a plain anchored one, so the swap doesn't expand it again.
         val request = request(placement, adSize, if (size is BannerSize.Collapsible) BannerSize.Anchored else size)
         AdsLog.d("${placement.key} -> banner refreshing (${adSize.width}x${adSize.height}dp)")
-        BannerAd.load(request, object : AdLoadCallback<BannerAd> {
-            override fun onAdLoaded(ad: BannerAd) = MainDispatch.post {
+        // Loads into a new AdView that joins the container only once its ad has arrived.
+        val newView = AdView(container.context)
+        newView.loadAd(request, object : AdLoadCallback<BannerAd> {
+            override fun onAdLoaded(ad: BannerAd) {
                 val times = KeptAds.AdTimes()
                 ad.adEventCallback = eventCallback(placement, listener, times)
-                val activity = container.context.findActivity()
-                if (lifecycleOwner.isDestroyed || activity == null) {
+                MainDispatch.post { swapIn(ad, times) }
+            }
+
+            private fun swapIn(ad: BannerAd, times: KeptAds.AdTimes) {
+                if (lifecycleOwner.isDestroyed) {
+                    newView.unregisterBannerAd()
+                    newView.destroy()
                     KeptAds.keep(placement.key, ad, variant = size, times) { ad.destroy() } // replaces the old one
                     AdsLog.d("${placement.key} -> banner refresh arrived after the screen closed: kept")
-                    return@post
+                    return
                 }
-                val newView = AdView(container.context)
                 container.minimumHeight = ad.getAdSize().getHeightInPixels(container.context)
                 container.addView(newView, bannerLayoutParams(size))
-                newView.registerBannerAd(ad, activity)
 
                 val oldView = shown.adView
                 shown.adView = newView
@@ -292,6 +297,7 @@ object BannerAds {
             }
 
             override fun onAdFailedToLoad(adError: LoadAdError) = MainDispatch.post {
+                newView.destroy()
                 AdsFlowLog.log(placement, AdsFlowLog.Event.FAILED, "refresh: ${adError.code}: ${adError.message} (old banner stays)")
                 onDone()
             }
@@ -383,8 +389,9 @@ object BannerAds {
             .build()
 
     private fun adSizeFor(context: Context, size: BannerSize, widthDp: Int): AdSize = when (size) {
-        BannerSize.Anchored, is BannerSize.Collapsible -> AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, widthDp)
-        BannerSize.LargeAnchored -> AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, widthDp)
+        // SDK 1.5 deprecates the smaller anchored size: every anchored banner uses the large one.
+        BannerSize.Anchored, is BannerSize.Collapsible ->
+            AdSize.getLargeAnchoredAdaptiveBannerAdSize(context, widthDp)
         BannerSize.Standard -> AdSize.BANNER
         BannerSize.Large -> AdSize.LARGE_BANNER
         BannerSize.MediumRectangle -> AdSize.MEDIUM_RECTANGLE

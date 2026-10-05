@@ -190,7 +190,7 @@ class AdSlotView @JvmOverloads constructor(
             BannerStyle.LARGE -> 100
             BannerStyle.MEDIUM_RECTANGLE -> 250
             BannerStyle.INLINE_ADAPTIVE -> INLINE_MAX_HEIGHT_DP
-            BannerStyle.ADAPTIVE, BannerStyle.COLLAPSIBLE_TOP, BannerStyle.COLLAPSIBLE_BOTTOM -> 60
+            BannerStyle.ADAPTIVE, BannerStyle.COLLAPSIBLE_TOP, BannerStyle.COLLAPSIBLE_BOTTOM -> 113 // large anchored
         }
         return (dp * resources.displayMetrics.density).toInt()
     }

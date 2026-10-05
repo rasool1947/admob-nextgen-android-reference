@@ -54,7 +54,7 @@ enum class BannerStyle(val jsonName: String) {
     LARGE("large"),
     /** 300x250 */
     MEDIUM_RECTANGLE("medium_rectangle"),
-    /** Full width, height picked by the SDK. The usual choice for a bottom banner. */
+    /** Full width, Google's large anchored size (about 113dp tall). The usual choice for a bottom banner. */
     ADAPTIVE("adaptive"),
     /** Full width, taller ads; for banners inside scrolling content. */
     INLINE_ADAPTIVE("inline_adaptive"),
