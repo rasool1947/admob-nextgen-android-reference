@@ -45,3 +45,11 @@ admob_native_settings_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 admob_banner_settings_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
 
 admob_native_feature_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+
+# Activities ads test screens (sample of an Activity-based app)
+admob_native_activity_one_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_activity_one_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_inter_activity_one_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_native_activity_two_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_banner_activity_two_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+admob_rewarded_activity_two_id=ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX

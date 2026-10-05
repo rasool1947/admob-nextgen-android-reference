@@ -204,6 +204,8 @@ reported per place. Placements are declared in `app/.../ads/AppAdPlacements.kt`,
 | `native_main` / `banner_main` | Native / Banner | `admob_native_main_id` / `admob_banner_main_id` |
 | `native_home` / `banner_home`, `native_explore`…, `native_history`…, `native_settings`… | Native / Banner (one pair per main tab) | `admob_native_home_id` / `admob_banner_home_id`, … |
 | `native_feature` | Native (Feature screen) | `admob_native_feature_id` |
+| `native_activity_one` / `banner_activity_one`, `inter_activity_one` | Activities ads test, screen 1 | `admob_native_activity_one_id` / `admob_banner_activity_one_id`, `admob_inter_activity_one_id` |
+| `native_activity_two` / `banner_activity_two`, `rewarded_activity_two` | Activities ads test, screen 2 | `admob_native_activity_two_id` / `admob_banner_activity_two_id`, `admob_rewarded_activity_two_id` |
 
 Each **slot** (splash, language, each onboarding page, main, tab) has a native *and* a banner placement
 because the ads control can switch its type at runtime (`AppAdSlot`). The ad cache is per placement,
@@ -238,6 +240,14 @@ so every screen that has its own placement also has its own cache.
 
 The sample screens (`app/.../app/`) show each step in a real flow; `AdPreloadChain` and
 `MainInterstitial` are the app-side glue worth copying.
+
+**Activity-based apps** work the same way (sample: Settings → "Activities ads test", debug builds;
+`app/.../app/activities/`):
+
+- pass the Activity itself as the lifecycle owner: `adSlot.load(this, slot, appSlot)`;
+- an Activity you come back to (back from another Activity) isn't recreated, so call
+  `adSlot.onShownAgain()` from `onRestart()` to apply the `cache` rule (like a tab shown again);
+- call `AdsSdk.gatherConsent(this)` in the launcher Activity (safe in every Activity: once per process).
 
 ## 6. `:ads` API cheat sheet
 

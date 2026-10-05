@@ -27,7 +27,11 @@ enum class AppAdSlot(val nativeKey: String, val bannerKey: String) {
     HOME_TAB(AppAdPlacements.NATIVE_HOME, AppAdPlacements.BANNER_HOME),
     EXPLORE_TAB(AppAdPlacements.NATIVE_EXPLORE, AppAdPlacements.BANNER_EXPLORE),
     HISTORY_TAB(AppAdPlacements.NATIVE_HISTORY, AppAdPlacements.BANNER_HISTORY),
-    SETTINGS_TAB(AppAdPlacements.NATIVE_SETTINGS, AppAdPlacements.BANNER_SETTINGS);
+    SETTINGS_TAB(AppAdPlacements.NATIVE_SETTINGS, AppAdPlacements.BANNER_SETTINGS),
+
+    /** Activities ads test screens. */
+    ACTIVITY_ONE(AppAdPlacements.NATIVE_ACTIVITY_ONE, AppAdPlacements.BANNER_ACTIVITY_ONE),
+    ACTIVITY_TWO(AppAdPlacements.NATIVE_ACTIVITY_TWO, AppAdPlacements.BANNER_ACTIVITY_TWO);
 
     /** Loads [slot]'s ad ahead of time, for the screen that comes next. Nothing if the slot is off. */
     fun preload(slot: AdSlot) = AdSlotView.preload(slot, nativeKey, bannerKey)

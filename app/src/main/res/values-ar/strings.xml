@@ -66,6 +66,7 @@
     <string name="settings_language">اللغة</string>
     <string name="settings_privacy">إعدادات الخصوصية</string>
     <string name="settings_ad_inspector">فاحص الإعلانات (تصحيح)</string>
+    <string name="settings_activities_test">اختبار إعلانات الأنشطة (تصحيح)</string>
     <string name="settings_share">مشاركة التطبيق</string>
     <string name="settings_share_text">جرّب %1$s: https://play.google.com/store/apps/details?id=%2$s</string>
     <string name="settings_rate">قيّمنا</string>

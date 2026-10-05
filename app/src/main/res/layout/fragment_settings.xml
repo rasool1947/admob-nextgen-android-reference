@@ -53,6 +53,10 @@
                 <include
                     android:id="@+id/rowAdInspector"
                     layout="@layout/view_settings_row" />
+
+                <include
+                    android:id="@+id/rowActivitiesTest"
+                    layout="@layout/view_settings_row" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

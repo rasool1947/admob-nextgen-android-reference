@@ -66,6 +66,7 @@
     <string name="settings_language">زبان</string>
     <string name="settings_privacy">پرائیویسی سیٹنگز</string>
     <string name="settings_ad_inspector">ایڈ انسپکٹر (ڈیبگ)</string>
+    <string name="settings_activities_test">ایکٹیویٹیز ایڈز ٹیسٹ (ڈیبگ)</string>
     <string name="settings_share">ایپ شیئر کریں</string>
     <string name="settings_share_text">%1$s آزمائیں: https://play.google.com/store/apps/details?id=%2$s</string>
     <string name="settings_rate">ریٹ کریں</string>

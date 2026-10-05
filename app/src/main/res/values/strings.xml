@@ -72,6 +72,17 @@
     <string name="settings_share_text">Try %1$s: https://play.google.com/store/apps/details?id=%2$s</string>
     <string name="settings_rate">Rate us</string>
     <string name="settings_version">Version %1$s</string>
+    <string name="settings_activities_test">Activities ads test (debug)</string>
+
+    <!-- Activities ads test (debug sample of an Activity-based app) -->
+    <string name="activity_one_title" translatable="false">Activity One</string>
+    <string name="activity_one_desc" translatable="false">A separate Activity with a native ad. The button shows an interstitial, then opens Activity Two.</string>
+    <string name="activity_one_open_two" translatable="false">Open Activity Two</string>
+    <string name="activity_two_title" translatable="false">Activity Two</string>
+    <string name="activity_two_desc" translatable="false">A separate Activity with a bottom banner and a rewarded ad.</string>
+    <string name="activity_two_watch_rewarded" translatable="false">Watch rewarded ad</string>
+    <string name="activity_two_reward_earned" translatable="false">Reward earned: %1$d %2$s</string>
+    <string name="activity_close" translatable="false">Close</string>
 
     <!-- Feature -->
     <string name="feature_title">Feature screen</string>

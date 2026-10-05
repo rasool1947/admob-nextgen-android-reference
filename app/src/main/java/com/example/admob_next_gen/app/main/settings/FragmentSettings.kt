@@ -9,6 +9,7 @@ import com.example.admob_next_gen.R
 import com.example.admob_next_gen.ads.AppAdSlot
 import com.example.admob_next_gen.ads.MainTabKeys
 import com.example.admob_next_gen.ads.load
+import com.example.admob_next_gen.app.activities.ActivityAdsOne
 import com.example.admob_next_gen.databinding.FragmentSettingsBinding
 import com.example.admob_next_gen.databinding.ViewSettingsRowBinding
 import com.example.admob_next_gen.utilities.base.fragments.BaseFragment
@@ -32,10 +33,14 @@ class FragmentSettings : BaseFragment<FragmentSettingsBinding>(FragmentSettingsB
         binding.rowShare.bind(R.drawable.ic_svg_share, R.string.settings_share) { shareApp() }
         binding.rowRate.bind(R.drawable.ic_svg_star, R.string.settings_rate) { openStorePage() }
         binding.rowAdInspector.bind(R.drawable.ic_svg_bug, R.string.settings_ad_inspector) { AdsSdk.openAdInspector() }
+        binding.rowActivitiesTest.bind(R.drawable.ic_svg_bug, R.string.settings_activities_test) {
+            startActivity(Intent(requireContext(), ActivityAdsOne::class.java))
+        }
 
         // Required by Google for users who gave consent through the UMP form (e.g. in the EEA).
         binding.rowPrivacy.root.isVisible = AdsSdk.isPrivacyOptionsRequired
         binding.rowAdInspector.root.isVisible = BuildConfig.DEBUG
+        binding.rowActivitiesTest.root.isVisible = BuildConfig.DEBUG
         binding.mtvVersionSettings.text = getString(R.string.settings_version, BuildConfig.VERSION_NAME)
     }
 

@@ -26,6 +26,14 @@
             </intent-filter>
         </activity>
 
+        <!-- Activities ads test (debug sample of an Activity-based app, opened from Settings) -->
+        <activity
+            android:name=".app.activities.ActivityAdsOne"
+            android:exported="false" />
+        <activity
+            android:name=".app.activities.ActivityAdsTwo"
+            android:exported="false" />
+
         <!-- AdMob App ID (resValue from app/build.gradle.kts). The Next-Gen SDK takes it via
              InitializationConfig, but the UMP consent SDK still reads it from here. -->
         <meta-data

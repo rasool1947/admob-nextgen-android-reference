@@ -49,6 +49,13 @@ val testAdIds = linkedMapOf(
     "admob_native_settings_id" to "ca-app-pub-3940256099942544/2247696110",
     "admob_banner_settings_id" to "ca-app-pub-3940256099942544/9214589741",
     "admob_native_feature_id" to "ca-app-pub-3940256099942544/2247696110",
+    // Activities ads test (debug sample of an Activity-based app)
+    "admob_native_activity_one_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_activity_one_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_inter_activity_one_id" to "ca-app-pub-3940256099942544/1033173712",
+    "admob_native_activity_two_id" to "ca-app-pub-3940256099942544/2247696110",
+    "admob_banner_activity_two_id" to "ca-app-pub-3940256099942544/9214589741",
+    "admob_rewarded_activity_two_id" to "ca-app-pub-3940256099942544/5224354917",
 )
 
 // Production IDs live in <root>/admob.properties (see admob.properties.example), keyed like testAdIds.

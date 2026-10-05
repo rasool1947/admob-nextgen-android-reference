@@ -54,6 +54,14 @@ object AppAdPlacements {
     /** Fixed native ad of the Feature screen (not driven by the ads control). */
     const val NATIVE_FEATURE = "native_feature"
 
+    /** Activities ads test (a sample of an Activity-based app): own units per Activity. */
+    const val NATIVE_ACTIVITY_ONE = "native_activity_one"
+    const val BANNER_ACTIVITY_ONE = "banner_activity_one"
+    const val INTER_ACTIVITY_ONE = "inter_activity_one"
+    const val NATIVE_ACTIVITY_TWO = "native_activity_two"
+    const val BANNER_ACTIVITY_TWO = "banner_activity_two"
+    const val REWARDED_ACTIVITY_TWO = "rewarded_activity_two"
+
     fun create(context: Context, prefs: SharedPreferenceUtils): List<AdPlacement> {
         fun id(resId: Int) = context.getString(resId).trim()
         fun placement(key: String, format: AdFormat, adUnitRes: Int, screen: String) =
@@ -98,6 +106,13 @@ object AppAdPlacements {
             placement(BANNER_SETTINGS, AdFormat.BANNER, R.string.admob_banner_settings_id, "Settings tab"),
 
             placement(NATIVE_FEATURE, AdFormat.NATIVE, R.string.admob_native_feature_id, "Feature"),
+
+            placement(NATIVE_ACTIVITY_ONE, AdFormat.NATIVE, R.string.admob_native_activity_one_id, "Activity One"),
+            placement(BANNER_ACTIVITY_ONE, AdFormat.BANNER, R.string.admob_banner_activity_one_id, "Activity One"),
+            placement(INTER_ACTIVITY_ONE, AdFormat.INTERSTITIAL, R.string.admob_inter_activity_one_id, "Activity One"),
+            placement(NATIVE_ACTIVITY_TWO, AdFormat.NATIVE, R.string.admob_native_activity_two_id, "Activity Two"),
+            placement(BANNER_ACTIVITY_TWO, AdFormat.BANNER, R.string.admob_banner_activity_two_id, "Activity Two"),
+            placement(REWARDED_ACTIVITY_TWO, AdFormat.REWARDED, R.string.admob_rewarded_activity_two_id, "Activity Two"),
         )
     }
 }
