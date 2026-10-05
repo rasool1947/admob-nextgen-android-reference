@@ -56,7 +56,7 @@ internal class ConsentManager(context: Context, private val config: AdsConfig) {
             activity,
             params,
             {
-                AdsLog.d("Consent: info updated, form will show only if required")
+                AdsLog.d("Consent: info updated, status = $consentStatusName, canRequestAds = $canRequestAds (form shows only if required)")
                 UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError -> onComplete(formError) }
             },
             { requestError -> onComplete(requestError) }

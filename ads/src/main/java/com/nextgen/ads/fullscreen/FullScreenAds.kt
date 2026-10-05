@@ -108,7 +108,8 @@ object FullScreenAds {
     fun show(activity: Activity, placementKey: String, listener: FullScreenAdListener? = null) {
         if (isDuplicate(placementKey)) return
         if (activeKey == null) activeKey = placementKey
-        showNow(activity, placementKey, listener)
+        // Normally right away; waits only while the consent form is being shown again at launch.
+        AdsSdk.whenSdkReady { showNow(activity, placementKey, listener) }
     }
 
     private fun showNow(activity: Activity, placementKey: String, listener: FullScreenAdListener?) {

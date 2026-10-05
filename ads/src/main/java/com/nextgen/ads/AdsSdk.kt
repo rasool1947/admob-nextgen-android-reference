@@ -51,6 +51,9 @@ object AdsSdk {
     private val onInitializedCallbacks = mutableListOf<() -> Unit>()
     private var isGatheringConsent = false
     private var isConsentGathered = false
+
+    /** The launch's consent info update (and its form, if one shows) hasn't finished yet. */
+    private var isConsentUpdating = false
     private val consentCallbacks = mutableListOf<(Boolean) -> Unit>()
     private val sdkReadyCallbacks = mutableListOf<() -> Unit>()
 
@@ -99,10 +102,16 @@ object AdsSdk {
      * Runs [block] once loading can be decided: right away if the SDK is ready (or nothing is in
      * progress), otherwise after the running consent check / initialization finishes. The block
      * re-checks [blockReason] itself. Lets a screen that opens during startup still get its ads.
+     *
+     * Also waits while consent is being asked AGAIN: a returning user's stored consent let ads start
+     * at once, then the launch's consent update found the form required again (consent expired or
+     * renewed, user now in the EEA…). Ads wait for the user's answer instead of being skipped.
      */
     @MainThread
     internal fun whenSdkReady(block: () -> Unit) {
-        if (_isInitialized.value || !(isGatheringConsent || initStarted)) block() else sdkReadyCallbacks += block
+        val isStarting = !_isInitialized.value && (isGatheringConsent || initStarted)
+        val isAskingAgain = isConsentUpdating && !consentManager.canRequestAds
+        if (isStarting || isAskingAgain) sdkReadyCallbacks += block else block()
     }
 
     private fun runSdkReadyCallbacks() {
@@ -149,13 +158,19 @@ object AdsSdk {
             }
         }
 
+        isConsentUpdating = true
         consentManager.gather(activity) { error ->
+            isConsentUpdating = false
             error?.let { AdsLog.w("Consent: error ${it.errorCode}: ${it.message}") }
             when (consentManager.canRequestAds) {
-                true -> initializeSdk { deliver(canLoadAds) }
+                true -> initializeSdk {
+                    deliver(canLoadAds)
+                    runSdkReadyCallbacks() // loads that waited while consent was asked again
+                }
                 false -> {
                     AdsLog.i("Consent: ads can't be requested")
                     deliver(false)
+                    runSdkReadyCallbacks() // they find "no consent" themselves
                 }
             }
         }
