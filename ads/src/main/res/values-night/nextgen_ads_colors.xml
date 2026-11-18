@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="nextgen_native_background">#FF232A35</color>
+    <color name="nextgen_native_border">#40FFFFFF</color>
     <color name="nextgen_skeleton">#2EFFFFFF</color>
     <color name="nextgen_shimmer_highlight">#33FFFFFF</color>
     <color name="nextgen_dialog_background">#FF2B2930</color>

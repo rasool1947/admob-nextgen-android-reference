@@ -35,7 +35,7 @@ import org.json.JSONObject
  * }
  * ```
  *
- * Slot `type`: native | banner | off. Native `style`: small | medium | large.
+ * Slot `type`: native | banner | off. Native `style`: compact | small | medium | large.
  * Banner `style`: standard | large | medium_rectangle | adaptive | inline_adaptive |
  * collapsible_top | collapsible_bottom. A slot can also be written as just `"off"`.
  */

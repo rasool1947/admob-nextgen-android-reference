@@ -2,6 +2,7 @@
 <!-- Large native template: icon, headline, advertiser, rating, body, big media, price/store, call to action. -->
 <com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nextgen_native_ad_view"
+    android:background="@drawable/nextgen_native_background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 

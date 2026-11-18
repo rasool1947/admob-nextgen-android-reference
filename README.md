@@ -179,7 +179,7 @@ so a typo in Remote Config never breaks the app.
 
 | Type | Styles |
 |---|---|
-| `native` | `small` (no media), `medium` (130 dp media), `large` (200 dp media, price/store) |
+| `native` | `compact` (banner-sized ~60 dp, no media), `small` (no media), `medium` (130 dp media), `large` (200 dp media, price/store) |
 | `banner` | `standard` 320×50, `large` 320×100, `medium_rectangle` 300×250, `adaptive` (anchored, Google's large size ≈ 113 dp tall), `inline_adaptive` (in content, ≤ 250 dp), `collapsible_top`, `collapsible_bottom` |
 
 ## 4. Ad units and placements
@@ -291,7 +291,7 @@ NativeAds.loadInto(nativeAdTemplateView, viewLifecycleOwner, "native_feature")
 BannerAds.load(container, viewLifecycleOwner, "banner_main", BannerSize.Anchored)
 ```
 
-`NativeAdTemplateView` (`app:nativeTemplate="small|medium|large"`) can also be used directly in XML.
+`NativeAdTemplateView` (`app:nativeTemplate="compact|small|medium|large"`) can also be used directly in XML.
 
 ## 7. Project structure
 
@@ -302,7 +302,7 @@ ads/                      reusable library (namespace com.nextgen.ads)
 ├── consent/              UMP consent manager
 ├── control/              AdsControl model, AdsControlParser (JSON), AdsControlStore
 ├── slot/                 AdSlotView (native/banner/off + shimmer + preload)
-├── nativead/             NativeAds (preloader), NativeAdTemplateView (small/medium/large)
+├── nativead/             NativeAds (preloader), NativeAdTemplateView (compact/small/medium/large)
 ├── banner/               BannerAds (preloader), BannerSize
 ├── fullscreen/           FullScreenAds, AppOpenOnResume, InterstitialPacer, loading dialogs
 └── internal/             logging, main-thread dispatch, shimmer

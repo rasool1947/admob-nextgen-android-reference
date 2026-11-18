@@ -178,6 +178,7 @@ class AdSlotView @JvmOverloads constructor(
     }
 
     private fun NativeStyle.toTemplate() = when (this) {
+        NativeStyle.COMPACT -> NativeAdTemplateView.Template.COMPACT
         NativeStyle.SMALL -> NativeAdTemplateView.Template.SMALL
         NativeStyle.MEDIUM -> NativeAdTemplateView.Template.MEDIUM
         NativeStyle.LARGE -> NativeAdTemplateView.Template.LARGE

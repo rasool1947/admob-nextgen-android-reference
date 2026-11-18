@@ -50,6 +50,9 @@ class NativeAdTemplateView private constructor(
         MEDIUM(R.layout.nextgen_native_medium, R.layout.nextgen_skeleton_native_medium),
         /** Two lines of body, 200dp media, price and store. */
         LARGE(R.layout.nextgen_native_large, R.layout.nextgen_skeleton_native_large),
+        /** Banner-sized (~60dp): icon, headline + one line, button on the right; no media.
+         * Last on purpose: the XML attribute `nativeTemplate` picks by position. */
+        COMPACT(R.layout.nextgen_native_compact, R.layout.nextgen_skeleton_native_compact),
     }
 
     var template: Template = Template.MEDIUM

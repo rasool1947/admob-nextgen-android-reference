@@ -42,6 +42,8 @@ sealed interface AdSlot {
 }
 
 enum class NativeStyle(val jsonName: String) {
+    /** Banner-sized (~60dp): icon, headline, one line, button. No media. */
+    COMPACT("compact"),
     SMALL("small"),
     MEDIUM("medium"),
     LARGE("large"),
