@@ -97,6 +97,8 @@ data class OnboardingControl(
     val shared: AdSlot = AdSlot.Native(NativeStyle.MEDIUM),
     /** Interstitial when "Get Started" on the last page is tapped. */
     val getStartedInter: Boolean = true,
+    /** If the "Get Started" ad isn't ready at the tap, how long to wait for it (loading dialog) before moving on. */
+    val getStartedWaitMillis: Long = 5_000L,
 ) {
     val pageCount: Int get() = pages.size
 

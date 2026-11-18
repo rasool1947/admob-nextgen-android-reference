@@ -35,7 +35,8 @@ object LocalAdsControl {
               { "type": "banner", "style": "inline_adaptive" }
             ],
             "shared": { "type": "banner", "style": "inline_adaptive" },
-            "get_started_inter": true
+            "get_started_inter": true,
+            "get_started_wait_sec": 5
           },
 
           "main": {

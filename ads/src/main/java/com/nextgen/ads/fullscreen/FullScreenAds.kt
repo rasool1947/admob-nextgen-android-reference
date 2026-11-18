@@ -155,6 +155,46 @@ object FullScreenAds {
         showAfterDialog(activity, placementKey, listener, loadingMillis) { AdWaitDialog.loading(activity) }
     }
 
+    /**
+     * Like [showWithLoading], but when no ad is ready yet it loads one again behind the "Loading ad…"
+     * dialog and shows it as soon as it arrives, waiting at most [maxWaitMillis]. If none arrives in
+     * time (or the placement can't load), [listener] finishes without an ad.
+     */
+    @MainThread
+    fun showWithLoadingOrWait(
+        activity: Activity,
+        placementKey: String,
+        maxWaitMillis: Long,
+        listener: FullScreenAdListener? = null,
+    ) {
+        if (isDuplicate(placementKey)) return
+        if (isShowing || isReady(placementKey) || maxWaitMillis <= 0) return showWithLoading(activity, placementKey, listener)
+        activeKey = placementKey
+
+        AdsLog.d("$placementKey -> not ready at tap: loading again, waiting up to ${maxWaitMillis}ms")
+        val waitDialog = AdWaitDialog.loading(activity).also { it.show() }
+        stop(placementKey) // a failed or stuck preload starts fresh
+        preload(placementKey)
+        whenReady(placementKey, maxWaitMillis) { isReady ->
+            if (!isReady || activity.isFinishing || activity.isDestroyed) {
+                waitDialog.dismissSafely()
+                return@whenReady notShown(placementKey, if (isReady) "activity is finishing" else "not loaded within ${maxWaitMillis}ms", listener)
+            }
+            val delegate = listener ?: object : FullScreenAdListener {}
+            showNow(activity, placementKey, object : FullScreenAdListener by delegate {
+                override fun onAdShowed() {
+                    waitDialog.dismissSafely()
+                    delegate.onAdShowed()
+                }
+
+                override fun onAdFinished() {
+                    waitDialog.dismissSafely()
+                    delegate.onAdFinished()
+                }
+            })
+        }
+    }
+
     /** Shows [dialog] for [waitMillis], then the ad; the dialog closes when the ad appears or the show ends. */
     internal fun showAfterDialog(
         activity: Activity,

@@ -23,7 +23,8 @@ import org.json.JSONObject
  *     "mode": "per_page",                  // per_page | shared
  *     "pages": [ { "type": "native", "style": "large" }, { "type": "off" } ],
  *     "shared": { "type": "native", "style": "small" },
- *     "get_started_inter": true
+ *     "get_started_inter": true,
+ *     "get_started_wait_sec": 5
  *   },
  *   "main": {
  *     "bottom": { "type": "banner", "style": "collapsible_bottom" },
@@ -82,6 +83,7 @@ object AdsControlParser {
             pages = pages,
             shared = json.slot("shared", default.shared, "onboarding", warnings),
             getStartedInter = json.bool("get_started_inter", default.getStartedInter, "onboarding", warnings),
+            getStartedWaitMillis = json.nonNegativeLong("get_started_wait_sec", default.getStartedWaitMillis / 1000, "onboarding", warnings) * 1000,
         )
     }
 

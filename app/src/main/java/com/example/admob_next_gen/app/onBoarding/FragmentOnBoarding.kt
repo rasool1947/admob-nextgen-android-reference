@@ -40,6 +40,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
     override fun onViewCreated() {
         shownAdPage = NO_PAGE
         AdPreloadChain.forOnboardingPage(0) // normally done by Language; covers a restored app
+        AdPreloadChain.forGetStarted() // early, so it is ready by the last page
         initPager()
 
         binding.mbSkipOnBoarding.setOnClickListener { binding.vpOnBoarding.currentItem = pages.lastIndex }
@@ -89,7 +90,7 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
         val isLastPage = position == pages.lastIndex
         val isPerPage = control.mode == OnboardingAdMode.PER_PAGE
         when {
-            isLastPage -> AdPreloadChain.forGetStarted()
+            isLastPage -> AdPreloadChain.forGetStarted() // no-op if already loading since the first page
             isPerPage -> AdPreloadChain.forOnboardingPage(position + 1)
         }
 
@@ -110,8 +111,10 @@ class FragmentOnBoarding : BaseFragment<FragmentOnBoardingBinding>(FragmentOnBoa
     }
 
     private fun showInterstitialAd() {
-        if (!AdsControlStore.current.onboarding.getStartedInter) return navigateScreen()
-        FullScreenAds.showWithLoading(requireActivity(), AppAdPlacements.INTER_ON_BOARDING, object : FullScreenAdListener {
+        val control = AdsControlStore.current.onboarding
+        if (!control.getStartedInter) return navigateScreen()
+        // Not ready at the tap: loads again behind the dialog, up to get_started_wait_sec (5 s).
+        FullScreenAds.showWithLoadingOrWait(requireActivity(), AppAdPlacements.INTER_ON_BOARDING, control.getStartedWaitMillis, object : FullScreenAdListener {
             override fun onAdFinished() {
                 // Onboarding is shown once; don't keep an ad preloaded for it.
                 FullScreenAds.stop(AppAdPlacements.INTER_ON_BOARDING)
